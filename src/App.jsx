@@ -5,31 +5,56 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { supabase } from './integrations/supabase/supabase';
 import Navigation from './components/Navigation';
-import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import Inspections from './pages/Inspections';
-import Claims from './pages/Claims';
-import InstallationProgress from './pages/InstallationProgress';
+import HomeownerDashboard from './pages/HomeownerDashboard';
+import InspectionScheduling from './pages/InspectionScheduling';
+import InspectionReport from './pages/InspectionReport';
+import ClaimManagement from './pages/ClaimManagement';
+import InstallationTracking from './pages/InstallationTracking';
+import AdminDashboard from './pages/AdminDashboard';
 
 const queryClient = new QueryClient();
 
 const App = () => {
   const [session, setSession] = useState(null);
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      if (session) {
+        fetchUserRole(session.user.id);
+      }
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (session) {
+        fetchUserRole(session.user.id);
+      } else {
+        setUserRole(null);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const fetchUserRole = async (userId) => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching user role:', error);
+    } else {
+      setUserRole(data.role);
+    }
+  };
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -37,23 +62,40 @@ const App = () => {
         <Toaster />
         <BrowserRouter>
           <div className="min-h-screen bg-gray-100">
-            <Navigation session={session} />
+            <Navigation session={session} userRole={userRole} />
             <main className="container mx-auto px-4 py-8">
               <Routes>
-                <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route
-                  path="/inspections"
-                  element={session ? <Inspections /> : <Navigate to="/login" />}
+                  path="/"
+                  element={
+                    session ? (
+                      userRole === 'admin' ? (
+                        <AdminDashboard />
+                      ) : (
+                        <HomeownerDashboard />
+                      )
+                    ) : (
+                      <Navigate to="/login" />
+                    )
+                  }
                 />
                 <Route
-                  path="/claims"
-                  element={session ? <Claims /> : <Navigate to="/login" />}
+                  path="/inspection-scheduling"
+                  element={session ? <InspectionScheduling /> : <Navigate to="/login" />}
                 />
                 <Route
-                  path="/installation-progress"
-                  element={session ? <InstallationProgress /> : <Navigate to="/login" />}
+                  path="/inspection-report"
+                  element={session ? <InspectionReport /> : <Navigate to="/login" />}
+                />
+                <Route
+                  path="/claim-management"
+                  element={session ? <ClaimManagement /> : <Navigate to="/login" />}
+                />
+                <Route
+                  path="/installation-tracking"
+                  element={session ? <InstallationTracking /> : <Navigate to="/login" />}
                 />
               </Routes>
             </main>

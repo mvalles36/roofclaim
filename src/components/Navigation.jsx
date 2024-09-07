@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { supabase } from '../integrations/supabase/supabase';
 
-const Navigation = ({ session }) => {
+const Navigation = ({ session, userRole }) => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
   };
@@ -11,14 +11,17 @@ const Navigation = ({ session }) => {
     <nav className="bg-white shadow-md">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
-          <Link to="/" className="text-xl font-bold text-gray-800">Roofing Co.</Link>
+          <Link to="/" className="text-xl font-bold text-gray-800">RoofClaim CRM</Link>
           <div className="space-x-4">
-            <Link to="/" className="text-gray-600 hover:text-gray-800">Home</Link>
             {session ? (
               <>
-                <Link to="/inspections" className="text-gray-600 hover:text-gray-800">Inspections</Link>
-                <Link to="/claims" className="text-gray-600 hover:text-gray-800">Claims</Link>
-                <Link to="/installation-progress" className="text-gray-600 hover:text-gray-800">Installation Progress</Link>
+                <Link to="/" className="text-gray-600 hover:text-gray-800">Dashboard</Link>
+                <Link to="/inspection-scheduling" className="text-gray-600 hover:text-gray-800">Schedule Inspection</Link>
+                <Link to="/claim-management" className="text-gray-600 hover:text-gray-800">Claims</Link>
+                <Link to="/installation-tracking" className="text-gray-600 hover:text-gray-800">Installation Progress</Link>
+                {userRole === 'admin' && (
+                  <Link to="/admin" className="text-gray-600 hover:text-gray-800">Admin</Link>
+                )}
                 <Button onClick={handleLogout}>Logout</Button>
               </>
             ) : (
