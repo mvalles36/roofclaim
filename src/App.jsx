@@ -8,11 +8,14 @@ import Navigation from './components/Navigation';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import HomeownerDashboard from './pages/HomeownerDashboard';
+import InspectorDashboard from './pages/InspectorDashboard';
+import ClaimsAdjusterDashboard from './pages/ClaimsAdjusterDashboard';
+import AdminDashboard from './pages/AdminDashboard';
 import InspectionScheduling from './pages/InspectionScheduling';
 import InspectionReport from './pages/InspectionReport';
 import ClaimManagement from './pages/ClaimManagement';
 import InstallationTracking from './pages/InstallationTracking';
-import AdminDashboard from './pages/AdminDashboard';
+import PolicyComparison from './pages/PolicyComparison';
 
 const queryClient = new QueryClient();
 
@@ -56,6 +59,16 @@ const App = () => {
     }
   };
 
+  const ProtectedRoute = ({ children, allowedRoles }) => {
+    if (!session) {
+      return <Navigate to="/login" />;
+    }
+    if (allowedRoles && !allowedRoles.includes(userRole)) {
+      return <Navigate to="/" />;
+    }
+    return children;
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -70,32 +83,53 @@ const App = () => {
                 <Route
                   path="/"
                   element={
-                    session ? (
-                      userRole === 'admin' ? (
-                        <AdminDashboard />
-                      ) : (
-                        <HomeownerDashboard />
-                      )
-                    ) : (
-                      <Navigate to="/login" />
-                    )
+                    <ProtectedRoute>
+                      {userRole === 'admin' && <AdminDashboard />}
+                      {userRole === 'homeowner' && <HomeownerDashboard />}
+                      {userRole === 'inspector' && <InspectorDashboard />}
+                      {userRole === 'claims_adjuster' && <ClaimsAdjusterDashboard />}
+                    </ProtectedRoute>
                   }
                 />
                 <Route
                   path="/inspection-scheduling"
-                  element={session ? <InspectionScheduling /> : <Navigate to="/login" />}
+                  element={
+                    <ProtectedRoute allowedRoles={['homeowner', 'admin']}>
+                      <InspectionScheduling />
+                    </ProtectedRoute>
+                  }
                 />
                 <Route
                   path="/inspection-report"
-                  element={session ? <InspectionReport /> : <Navigate to="/login" />}
+                  element={
+                    <ProtectedRoute allowedRoles={['inspector', 'admin']}>
+                      <InspectionReport />
+                    </ProtectedRoute>
+                  }
                 />
                 <Route
                   path="/claim-management"
-                  element={session ? <ClaimManagement /> : <Navigate to="/login" />}
+                  element={
+                    <ProtectedRoute allowedRoles={['claims_adjuster', 'admin']}>
+                      <ClaimManagement />
+                    </ProtectedRoute>
+                  }
                 />
                 <Route
                   path="/installation-tracking"
-                  element={session ? <InstallationTracking /> : <Navigate to="/login" />}
+                  element={
+                    <ProtectedRoute allowedRoles={['homeowner', 'admin']}>
+                      <InstallationTracking />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/policy-comparison"
+                  element={
+                    <ProtectedRoute allowedRoles={['claims_adjuster', 'admin']}>
+                      <PolicyComparison />
+                    </ProtectedRoute>
+                  }
                 />
               </Routes>
             </main>
