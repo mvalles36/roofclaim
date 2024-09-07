@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from '../integrations/supabase/supabase';
+import { Link } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const [inspections, setInspections] = useState([]);
@@ -16,7 +17,7 @@ const AdminDashboard = () => {
     // Fetch inspections
     const { data: inspectionData, error: inspectionError } = await supabase
       .from('inspections')
-      .select('*')
+      .select('*, customers(name)')
       .order('created_at', { ascending: false })
       .limit(5);
 
@@ -29,7 +30,7 @@ const AdminDashboard = () => {
     // Fetch claims
     const { data: claimData, error: claimError } = await supabase
       .from('claims')
-      .select('*')
+      .select('*, customers(name)')
       .order('created_at', { ascending: false })
       .limit(5);
 
@@ -42,7 +43,7 @@ const AdminDashboard = () => {
     // Fetch installations
     const { data: installationData, error: installationError } = await supabase
       .from('installations')
-      .select('*')
+      .select('*, customers(name)')
       .order('created_at', { ascending: false })
       .limit(5);
 
@@ -65,11 +66,13 @@ const AdminDashboard = () => {
             <ul className="space-y-2">
               {inspections.map((inspection) => (
                 <li key={inspection.id}>
-                  {inspection.address} - {inspection.status}
+                  {inspection.customers.name} - {inspection.address} - {inspection.status}
                 </li>
               ))}
             </ul>
-            <Button className="mt-4">Manage Inspections</Button>
+            <Button className="mt-4" asChild>
+              <Link to="/inspection-scheduling">Manage Inspections</Link>
+            </Button>
           </CardContent>
         </Card>
         <Card>
@@ -80,11 +83,13 @@ const AdminDashboard = () => {
             <ul className="space-y-2">
               {claims.map((claim) => (
                 <li key={claim.id}>
-                  {claim.title} - {claim.status}
+                  {claim.customers.name} - {claim.title} - {claim.status}
                 </li>
               ))}
             </ul>
-            <Button className="mt-4">Manage Claims</Button>
+            <Button className="mt-4" asChild>
+              <Link to="/claim-management">Manage Claims</Link>
+            </Button>
           </CardContent>
         </Card>
         <Card>
@@ -95,11 +100,13 @@ const AdminDashboard = () => {
             <ul className="space-y-2">
               {installations.map((installation) => (
                 <li key={installation.id}>
-                  {installation.address} - {installation.progress}% complete
+                  {installation.customers.name} - {installation.address} - {installation.progress}% complete
                 </li>
               ))}
             </ul>
-            <Button className="mt-4">Manage Installations</Button>
+            <Button className="mt-4" asChild>
+              <Link to="/installation-tracking">Manage Installations</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
