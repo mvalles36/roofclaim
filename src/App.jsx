@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from './integrations/supabase/supabase';
 import Navigation from './components/Navigation';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -11,11 +11,6 @@ import Signup from './pages/Signup';
 import Inspections from './pages/Inspections';
 import Claims from './pages/Claims';
 import InstallationProgress from './pages/InstallationProgress';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const queryClient = new QueryClient();
 
