@@ -22,6 +22,7 @@ const queryClient = new QueryClient();
 const App = () => {
   const [session, setSession] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -29,6 +30,7 @@ const App = () => {
       if (session) {
         fetchUserRole(session.user.id);
       }
+      setLoading(false);
     });
 
     const {
@@ -40,6 +42,7 @@ const App = () => {
       } else {
         setUserRole(null);
       }
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -60,6 +63,9 @@ const App = () => {
   };
 
   const ProtectedRoute = ({ children, allowedRoles }) => {
+    if (loading) {
+      return <div>Loading...</div>;
+    }
     if (!session) {
       return <Navigate to="/login" />;
     }
@@ -68,6 +74,10 @@ const App = () => {
     }
     return children;
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -88,6 +98,7 @@ const App = () => {
                       {userRole === 'homeowner' && <HomeownerDashboard />}
                       {userRole === 'inspector' && <InspectorDashboard />}
                       {userRole === 'claims_adjuster' && <ClaimsAdjusterDashboard />}
+                      {!userRole && <div>Loading user role...</div>}
                     </ProtectedRoute>
                   }
                 />
