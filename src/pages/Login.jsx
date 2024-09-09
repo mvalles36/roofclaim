@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -139,8 +139,9 @@ const Login = () => {
           </div>
           <Button type="submit" className="w-full">Login</Button>
         </form>
-        <div className="mt-4 text-center">
-          <a href="/signup" className="text-blue-600 hover:underline">Don't have an account? Sign up</a>
+        <div className="mt-4 text-center space-y-2">
+          <Link to="/forgot-password" className="text-blue-600 hover:underline block">Forgot Password?</Link>
+          <Link to="/signup" className="text-blue-600 hover:underline block">Don't have an account? Sign up</Link>
         </div>
       </CardContent>
     </Card>

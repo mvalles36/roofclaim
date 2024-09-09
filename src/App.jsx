@@ -7,6 +7,7 @@ import { supabase } from './integrations/supabase/supabase';
 import Navigation from './components/Navigation';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
 import HomeownerDashboard from './pages/HomeownerDashboard';
 import InspectorDashboard from './pages/InspectorDashboard';
 import ClaimsAdjusterDashboard from './pages/ClaimsAdjusterDashboard';
@@ -16,6 +17,7 @@ import InspectionReport from './pages/InspectionReport';
 import ClaimManagement from './pages/ClaimManagement';
 import InstallationTracking from './pages/InstallationTracking';
 import PolicyComparison from './pages/PolicyComparison';
+import Calendar from './pages/Calendar';
 
 const queryClient = new QueryClient();
 
@@ -90,6 +92,7 @@ const App = () => {
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route
                   path="/"
                   element={
@@ -99,6 +102,14 @@ const App = () => {
                       {userRole === 'inspector' && <InspectorDashboard />}
                       {userRole === 'claims_adjuster' && <ClaimsAdjusterDashboard />}
                       {!userRole && <div>Loading user role...</div>}
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/calendar"
+                  element={
+                    <ProtectedRoute>
+                      <Calendar />
                     </ProtectedRoute>
                   }
                 />

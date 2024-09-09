@@ -56,6 +56,7 @@ const Navigation = () => {
             {session ? (
               <>
                 <Link to="/" className="text-gray-600 hover:text-gray-800">Dashboard</Link>
+                <Link to="/calendar" className="text-gray-600 hover:text-gray-800">Calendar</Link>
                 {(userRole === 'homeowner' || userRole === 'admin') && (
                   <>
                     <Link to="/inspection-scheduling" className="text-gray-600 hover:text-gray-800">Schedule Inspection</Link>
