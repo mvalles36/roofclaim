@@ -22,17 +22,46 @@ const Signup = () => {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login`,
+        },
       });
 
       if (error) throw error;
 
       if (data.user) {
+        console.log('User created:', data.user);
         setSuccess(true);
-        // Optionally, you can automatically log the user in here
-        // await supabase.auth.signIn({ email, password });
-        // navigate('/dashboard');
+
+        // Check if the user was added to the database
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
+        if (userError) {
+          console.error('Error fetching user from database:', userError);
+          throw new Error('User created but not found in database');
+        }
+
+        console.log('User found in database:', userData);
+
+        // Manually send confirmation email if needed
+        if (!data.user.email_confirmed_at) {
+          const { error: resendError } = await supabase.auth.resend({
+            type: 'signup',
+            email: email,
+          });
+
+          if (resendError) {
+            console.error('Error resending confirmation email:', resendError);
+            throw new Error('Failed to resend confirmation email');
+          }
+        }
       }
     } catch (error) {
+      console.error('Signup error:', error);
       setError(error.message);
     }
   };
@@ -51,6 +80,7 @@ const Signup = () => {
           <AlertTitle>Success</AlertTitle>
           <AlertDescription>
             Registration successful! Please check your email for confirmation.
+            If you don't receive an email, please contact support.
           </AlertDescription>
         </Alert>
       )}
