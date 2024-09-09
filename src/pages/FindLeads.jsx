@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from '../integrations/supabase/supabase';
+import axios from 'axios';
 
 const FindLeads = () => {
   const [address, setAddress] = useState('');
@@ -17,7 +18,7 @@ const FindLeads = () => {
 
   const loadGoogleMapsScript = () => {
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=drawing`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=drawing`;
     script.async = true;
     script.defer = true;
     script.onload = initializeMap;
@@ -78,30 +79,27 @@ const FindLeads = () => {
     }));
 
     try {
-      // Here you would typically call an API to get leads based on the coordinates
-      // For this example, we'll just log the coordinates
-      console.log('Finding leads in area:', coordinates);
+      const response = await axios.post('https://property.melissadata.net/v4/WEB/LookupProperty/', {
+        id: import.meta.env.VITE_MELISSA_DATA_API_KEY,
+        format: 'json',
+        geometry: JSON.stringify(coordinates)
+      });
 
-      // Placeholder for API call to Melissa Data or similar service
-      // const response = await fetch('https://api.melissadata.com/v3/property/geocode', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ coordinates })
-      // });
-      // const data = await response.json();
-      // console.log('Leads found:', data);
+      const leads = response.data.Records;
 
-      // For now, let's just add a dummy lead to Supabase
+      // Save leads to Supabase
       const { data, error } = await supabase
         .from('leads')
-        .insert([
-          { name: 'John Doe', address: '123 Main St', coordinates: JSON.stringify(coordinates) }
-        ]);
+        .insert(leads.map(lead => ({
+          name: lead.AddressLine1,
+          address: `${lead.AddressLine1}, ${lead.City}, ${lead.State} ${lead.PostalCode}`,
+          coordinates: JSON.stringify({ lat: lead.Latitude, lng: lead.Longitude })
+        })));
 
       if (error) throw error;
-      console.log('Lead added to database:', data);
+      console.log('Leads added to database:', data);
 
-      alert('Leads have been found and added to the database!');
+      alert(`${leads.length} leads have been found and added to the database!`);
     } catch (error) {
       console.error('Error finding leads:', error);
       alert('An error occurred while finding leads. Please try again.');
