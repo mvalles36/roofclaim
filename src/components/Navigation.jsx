@@ -1,8 +1,48 @@
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { supabase } from '../integrations/supabase/supabase';
+import { useEffect, useState } from 'react';
 
-const Navigation = ({ session, userRole }) => {
+const Navigation = () => {
+  const [session, setSession] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) {
+        fetchUserRole(session.user.id);
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) {
+        fetchUserRole(session.user.id);
+      } else {
+        setUserRole(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const fetchUserRole = async (userId) => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching user role:', error);
+    } else if (data) {
+      setUserRole(data.role);
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
   };
@@ -32,7 +72,7 @@ const Navigation = ({ session, userRole }) => {
                   </>
                 )}
                 {userRole === 'admin' && (
-                  <Link to="/admin" className="text-gray-600 hover:text-gray-800">Admin</Link>
+                  <Link to="/admin-dashboard" className="text-gray-600 hover:text-gray-800">Admin</Link>
                 )}
                 <Button onClick={handleLogout}>Logout</Button>
               </>
