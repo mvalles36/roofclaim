@@ -19,7 +19,8 @@ const Signup = () => {
     setSuccess(false);
 
     try {
-      const { data, error } = await supabase.auth.signUp({
+      // Step 1: Sign up the user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -27,42 +28,28 @@ const Signup = () => {
         },
       });
 
-      if (error) throw error;
+      if (authError) throw authError;
 
-      if (data.user) {
-        console.log('User created:', data.user);
+      console.log('Auth signup successful:', authData);
 
-        // Check if the user was added to the database
-        const { data: userData, error: userError } = await supabase
+      if (authData.user) {
+        // Step 2: Create user in the database
+        const { data: userData, error: createError } = await supabase
           .from('users')
-          .select('*')
-          .eq('id', data.user.id)
+          .insert([
+            { id: authData.user.id, email: authData.user.email, role: 'homeowner' }
+          ])
+          .select()
           .single();
 
-        if (userError) {
-          console.error('Error fetching user from database:', userError);
-          
-          // If user not found, try to create them in the database
-          const { data: newUser, error: createError } = await supabase
-            .from('users')
-            .insert([
-              { id: data.user.id, email: data.user.email, role: 'homeowner' }
-            ])
-            .single();
-
-          if (createError) {
-            console.error('Error creating user in database:', createError);
-            throw new Error('Failed to create user in database');
-          } else {
-            console.log('User created in database:', newUser);
-          }
-        } else {
-          console.log('User found in database:', userData);
+        if (createError) {
+          console.error('Error creating user in database:', createError);
+          throw new Error('Failed to create user in database');
         }
 
-        setSuccess(true);
+        console.log('User created in database:', userData);
 
-        // Manually send confirmation email
+        // Step 3: Manually send confirmation email
         const { error: resendError } = await supabase.auth.resend({
           type: 'signup',
           email: email,
@@ -72,6 +59,9 @@ const Signup = () => {
           console.error('Error sending confirmation email:', resendError);
           throw new Error('Failed to send confirmation email');
         }
+
+        setSuccess(true);
+        console.log('Signup process completed successfully');
       }
     } catch (error) {
       console.error('Signup error:', error);
