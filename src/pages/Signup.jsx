@@ -31,7 +31,6 @@ const Signup = () => {
 
       if (data.user) {
         console.log('User created:', data.user);
-        setSuccess(true);
 
         // Check if the user was added to the database
         const { data: userData, error: userError } = await supabase
@@ -42,22 +41,36 @@ const Signup = () => {
 
         if (userError) {
           console.error('Error fetching user from database:', userError);
-          throw new Error('User created but not found in database');
+          
+          // If user not found, try to create them in the database
+          const { data: newUser, error: createError } = await supabase
+            .from('users')
+            .insert([
+              { id: data.user.id, email: data.user.email, role: 'homeowner' }
+            ])
+            .single();
+
+          if (createError) {
+            console.error('Error creating user in database:', createError);
+            throw new Error('Failed to create user in database');
+          } else {
+            console.log('User created in database:', newUser);
+          }
+        } else {
+          console.log('User found in database:', userData);
         }
 
-        console.log('User found in database:', userData);
+        setSuccess(true);
 
-        // Manually send confirmation email if needed
-        if (!data.user.email_confirmed_at) {
-          const { error: resendError } = await supabase.auth.resend({
-            type: 'signup',
-            email: email,
-          });
+        // Manually send confirmation email
+        const { error: resendError } = await supabase.auth.resend({
+          type: 'signup',
+          email: email,
+        });
 
-          if (resendError) {
-            console.error('Error resending confirmation email:', resendError);
-            throw new Error('Failed to resend confirmation email');
-          }
+        if (resendError) {
+          console.error('Error sending confirmation email:', resendError);
+          throw new Error('Failed to send confirmation email');
         }
       }
     } catch (error) {
