@@ -19,6 +19,8 @@ const Signup = () => {
     setSuccess(false);
 
     try {
+      console.log('Starting signup process...');
+
       // Step 1: Sign up the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
@@ -28,7 +30,10 @@ const Signup = () => {
         },
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        console.error('Auth signup error:', authError);
+        throw authError;
+      }
 
       console.log('Auth signup successful:', authData);
 
@@ -44,7 +49,7 @@ const Signup = () => {
 
         if (createError) {
           console.error('Error creating user in database:', createError);
-          throw new Error('Failed to create user in database');
+          throw new Error('Failed to create user in database: ' + createError.message);
         }
 
         console.log('User created in database:', userData);
@@ -57,15 +62,26 @@ const Signup = () => {
 
         if (resendError) {
           console.error('Error sending confirmation email:', resendError);
-          throw new Error('Failed to send confirmation email');
+          throw new Error('Failed to send confirmation email: ' + resendError.message);
         }
 
         setSuccess(true);
         console.log('Signup process completed successfully');
+      } else {
+        throw new Error('User object not found in auth response');
       }
     } catch (error) {
       console.error('Signup error:', error);
       setError(error.message);
+
+      // Additional error handling
+      if (error.message.includes('duplicate key value violates unique constraint')) {
+        setError('An account with this email already exists. Please try logging in.');
+      } else if (error.message.includes('invalid email')) {
+        setError('Please enter a valid email address.');
+      } else if (error.message.includes('password')) {
+        setError('Password must be at least 6 characters long.');
+      }
     }
   };
 
