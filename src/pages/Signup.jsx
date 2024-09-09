@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { v4 as uuidv4 } from 'uuid';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
@@ -21,11 +22,18 @@ const Signup = () => {
     try {
       console.log('Starting signup process...');
 
+      // Generate a UUID for the user
+      const userId = uuidv4();
+      console.log('Generated UUID:', userId);
+
       // Step 1: Sign up the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          data: {
+            id: userId // Include the UUID in the user metadata
+          },
           emailRedirectTo: `${window.location.origin}/login`,
         },
       });
@@ -42,7 +50,7 @@ const Signup = () => {
         const { data: userData, error: createError } = await supabase
           .from('users')
           .insert([
-            { id: authData.user.id, email: authData.user.email, role: 'homeowner' }
+            { id: userId, email: authData.user.email, role: 'homeowner' }
           ])
           .select()
           .single();
