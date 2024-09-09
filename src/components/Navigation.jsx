@@ -73,7 +73,10 @@ const Navigation = () => {
                   </>
                 )}
                 {userRole === 'admin' && (
-                  <Link to="/admin-dashboard" className="text-gray-600 hover:text-gray-800">Admin</Link>
+                  <>
+                    <Link to="/admin-dashboard" className="text-gray-600 hover:text-gray-800">Admin</Link>
+                    <Link to="/find-leads" className="text-gray-600 hover:text-gray-800">Find Leads</Link>
+                  </>
                 )}
                 <Button onClick={handleLogout}>Logout</Button>
               </>

@@ -18,6 +18,7 @@ import ClaimManagement from './pages/ClaimManagement';
 import InstallationTracking from './pages/InstallationTracking';
 import PolicyComparison from './pages/PolicyComparison';
 import Calendar from './pages/Calendar';
+import FindLeads from './pages/FindLeads';
 
 const queryClient = new QueryClient();
 
@@ -150,6 +151,14 @@ const App = () => {
                   element={
                     <ProtectedRoute allowedRoles={['claims_adjuster', 'admin']}>
                       <PolicyComparison />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/find-leads"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <FindLeads />
                     </ProtectedRoute>
                   }
                 />
