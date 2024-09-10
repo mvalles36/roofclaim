@@ -31,7 +31,7 @@ const Signup = () => {
       if (authData.user) {
         // Step 2: Use the add_user_with_role function to create the user in the database
         const { data, error: insertError } = await supabase.rpc('add_user_with_role', {
-          admin_id: authData.user.id, // This should be an actual admin ID in production
+          new_user_id: authData.user.id,
           new_user_email: email,
           new_user_name: name,
           new_user_role: 'customer' // Default role for signup
