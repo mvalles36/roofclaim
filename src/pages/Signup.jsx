@@ -47,10 +47,10 @@ const Signup = () => {
       console.log('Auth signup successful:', authData);
 
       if (authData.user) {
-        // Step 2: Upsert user in the database
-        const { data: userData, error: upsertError } = await supabase
+        // Step 2: Insert user in the database
+        const { data: userData, error: insertError } = await supabase
           .from('users')
-          .upsert([
+          .insert([
             { 
               id: userId, 
               name: name, 
@@ -58,29 +58,15 @@ const Signup = () => {
               role: 'homeowner',
               password_hash: 'hashed_password' // In a real app, you'd hash the password
             }
-          ], 
-          { 
-            onConflict: 'email',
-            returning: 'minimal' // Don't return the result
-          });
+          ])
+          .select();
 
-        if (upsertError) {
-          console.error('Error upserting user in database:', upsertError);
-          throw new Error('Failed to create/update user in database: ' + upsertError.message);
+        if (insertError) {
+          console.error('Error inserting user in database:', insertError);
+          throw new Error('Failed to create user in database: ' + insertError.message);
         }
 
-        console.log('User upserted in database');
-
-        // Step 3: Manually send confirmation email
-        const { error: resendError } = await supabase.auth.resend({
-          type: 'signup',
-          email: email,
-        });
-
-        if (resendError) {
-          console.error('Error sending confirmation email:', resendError);
-          throw new Error('Failed to send confirmation email: ' + resendError.message);
-        }
+        console.log('User inserted in database');
 
         setSuccess(true);
         console.log('Signup process completed successfully');
@@ -116,7 +102,6 @@ const Signup = () => {
           <AlertTitle>Success</AlertTitle>
           <AlertDescription>
             Registration successful! Please check your email for confirmation.
-            If you don't receive an email, please contact support.
           </AlertDescription>
         </Alert>
       )}
