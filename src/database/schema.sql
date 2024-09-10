@@ -8,15 +8,6 @@ CREATE TABLE users (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Customers Table (for more detailed customer information)
-CREATE TABLE customers (
-  id UUID PRIMARY KEY REFERENCES users(id),
-  address TEXT,
-  phone TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
 -- Inspections Table
 CREATE TABLE inspections (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -24,7 +15,6 @@ CREATE TABLE inspections (
   scheduled_date TIMESTAMP WITH TIME ZONE,
   address TEXT,
   status TEXT,
-  report_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -36,8 +26,6 @@ CREATE TABLE claims (
   title TEXT,
   description TEXT,
   status TEXT,
-  claim_number TEXT,
-  documents_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -96,7 +84,6 @@ CREATE TABLE leads (
 );
 
 -- Create indexes for better query performance
-CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_inspections_user_id ON inspections(user_id);
 CREATE INDEX idx_claims_user_id ON claims(user_id);
 CREATE INDEX idx_installations_user_id ON installations(user_id);
@@ -106,7 +93,6 @@ CREATE INDEX idx_inspection_reports_inspection_id ON inspection_reports(inspecti
 
 -- Enable Row Level Security (RLS) for all tables
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE inspections ENABLE ROW LEVEL SECURITY;
 ALTER TABLE claims ENABLE ROW LEVEL SECURITY;
 ALTER TABLE installations ENABLE ROW LEVEL SECURITY;
@@ -118,9 +104,6 @@ ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 -- Create policies for Row Level Security
 -- Users can only see and modify their own data
 CREATE POLICY users_policy ON users FOR ALL USING (id = auth.uid());
-
--- Customers can only see and modify their own data
-CREATE POLICY customers_policy ON customers FOR ALL USING (id = auth.uid());
 
 -- Users can only see and modify their own inspections
 CREATE POLICY inspections_policy ON inspections FOR ALL USING (user_id = auth.uid());
@@ -155,17 +138,12 @@ RETURNS TRIGGER AS $$
 BEGIN
     NEW.updated_at = now();
     RETURN NEW;
-}
+END;
 $$ language 'plpgsql';
 
 -- Create triggers to automatically update the updated_at column
 CREATE TRIGGER update_users_modtime
     BEFORE UPDATE ON users
-    FOR EACH ROW
-    EXECUTE FUNCTION update_modified_column();
-
-CREATE TRIGGER update_customers_modtime
-    BEFORE UPDATE ON customers
     FOR EACH ROW
     EXECUTE FUNCTION update_modified_column();
 
