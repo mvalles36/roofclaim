@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
@@ -46,21 +47,29 @@ const Signup = () => {
       console.log('Auth signup successful:', authData);
 
       if (authData.user) {
-        // Step 2: Create user in the database
-        const { data: userData, error: createError } = await supabase
+        // Step 2: Upsert user in the database
+        const { data: userData, error: upsertError } = await supabase
           .from('users')
-          .insert([
-            { id: userId, email: authData.user.email, role: 'homeowner' }
-          ])
-          .select()
-          .single();
+          .upsert([
+            { 
+              id: userId, 
+              name: name, 
+              email: authData.user.email, 
+              role: 'homeowner',
+              password_hash: 'hashed_password' // In a real app, you'd hash the password
+            }
+          ], 
+          { 
+            onConflict: 'email',
+            returning: 'minimal' // Don't return the result
+          });
 
-        if (createError) {
-          console.error('Error creating user in database:', createError);
-          throw new Error('Failed to create user in database: ' + createError.message);
+        if (upsertError) {
+          console.error('Error upserting user in database:', upsertError);
+          throw new Error('Failed to create/update user in database: ' + upsertError.message);
         }
 
-        console.log('User created in database:', userData);
+        console.log('User upserted in database');
 
         // Step 3: Manually send confirmation email
         const { error: resendError } = await supabase.auth.resend({
@@ -112,6 +121,16 @@ const Signup = () => {
         </Alert>
       )}
       <form onSubmit={handleSignup} className="space-y-4">
+        <div>
+          <Label htmlFor="name">Name</Label>
+          <Input
+            id="name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
         <div>
           <Label htmlFor="email">Email</Label>
           <Input
