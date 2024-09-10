@@ -27,16 +27,16 @@ const Signup = () => {
       const userId = uuidv4();
       console.log('Generated UUID:', userId);
 
-      // Step 1: Sign up the user
+      // Step 1: Sign up the user with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
-            id: userId // Include the UUID in the user metadata
-          },
-          emailRedirectTo: `${window.location.origin}/login`,
-        },
+            id: userId,
+            name: name
+          }
+        }
       });
 
       if (authError) {
@@ -53,10 +53,11 @@ const Signup = () => {
           .insert([
             { 
               id: userId, 
-              name: name, 
-              email: authData.user.email, 
+              email: email,
+              name: name,
               role: 'homeowner',
-              password_hash: 'hashed_password' // In a real app, you'd hash the password
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
             }
           ])
           .select();
@@ -66,7 +67,7 @@ const Signup = () => {
           throw new Error('Failed to create user in database: ' + insertError.message);
         }
 
-        console.log('User inserted in database');
+        console.log('User inserted in database:', userData);
 
         setSuccess(true);
         console.log('Signup process completed successfully');
