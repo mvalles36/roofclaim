@@ -1,6 +1,9 @@
+-- Enable UUID extension if not already enabled
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 -- Users Table
-CREATE TABLE users (
-  id UUID PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   email TEXT UNIQUE NOT NULL,
   name TEXT,
   role TEXT NOT NULL CHECK (role IN ('customer', 'employee', 'admin')),
