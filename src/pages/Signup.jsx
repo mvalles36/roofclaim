@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { v4 as uuidv4 } from 'uuid';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
@@ -21,53 +20,24 @@ const Signup = () => {
     setSuccess(false);
 
     try {
-      console.log('Starting signup process...');
-
-      // Generate a UUID for the user
-      const userId = uuidv4();
-      console.log('Generated UUID:', userId);
-
       // Step 1: Sign up the user with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          data: {
-            id: userId,
-            name: name
-          }
-        }
       });
 
-      if (authError) {
-        console.error('Auth signup error:', authError);
-        throw authError;
-      }
-
-      console.log('Auth signup successful:', authData);
+      if (authError) throw authError;
 
       if (authData.user) {
-        // Step 2: Insert user in the database
-        const { data: userData, error: insertError } = await supabase
-          .from('users')
-          .insert([
-            { 
-              id: userId, 
-              email: email,
-              name: name,
-              role: 'homeowner',
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            }
-          ])
-          .select();
+        // Step 2: Use the add_user_with_role function to create the user in the database
+        const { data, error: insertError } = await supabase.rpc('add_user_with_role', {
+          admin_id: authData.user.id, // This should be an actual admin ID in production
+          new_user_email: email,
+          new_user_name: name,
+          new_user_role: 'customer' // Default role for signup
+        });
 
-        if (insertError) {
-          console.error('Error inserting user in database:', insertError);
-          throw new Error('Failed to create user in database: ' + insertError.message);
-        }
-
-        console.log('User inserted in database:', userData);
+        if (insertError) throw insertError;
 
         setSuccess(true);
         console.log('Signup process completed successfully');
@@ -78,7 +48,6 @@ const Signup = () => {
       console.error('Signup error:', error);
       setError(error.message);
 
-      // Additional error handling
       if (error.message.includes('duplicate key value violates unique constraint')) {
         setError('An account with this email already exists. Please try logging in.');
       } else if (error.message.includes('invalid email')) {
