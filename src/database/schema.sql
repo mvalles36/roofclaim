@@ -90,28 +90,48 @@ ALTER TABLE drone_images ENABLE ROW LEVEL SECURITY;
 ALTER TABLE inspection_reports ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for Row Level Security
--- Users can only see and modify their own data
-CREATE POLICY users_policy ON users FOR ALL USING (id = auth.uid() OR role = 'admin');
+-- Users can only see and modify their own data, admins can see and modify all data
+CREATE POLICY users_policy ON users FOR ALL USING (
+  (auth.uid() = id) OR 
+  (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'))
+);
 
--- Users can only see and modify their own inspections
-CREATE POLICY inspections_policy ON inspections FOR ALL USING (user_id = auth.uid() OR EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('employee', 'admin')));
+-- Allow admins to insert new users
+CREATE POLICY users_insert_policy ON users FOR INSERT WITH CHECK (
+  (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'))
+);
 
--- Users can only see and modify their own claims
-CREATE POLICY claims_policy ON claims FOR ALL USING (user_id = auth.uid() OR EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('employee', 'admin')));
+-- Users can only see and modify their own inspections, employees and admins can see all
+CREATE POLICY inspections_policy ON inspections FOR ALL USING (
+  user_id = auth.uid() OR 
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('employee', 'admin'))
+);
 
--- Users can only see and modify their own installations
-CREATE POLICY installations_policy ON installations FOR ALL USING (user_id = auth.uid() OR EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('employee', 'admin')));
+-- Users can only see and modify their own claims, employees and admins can see all
+CREATE POLICY claims_policy ON claims FOR ALL USING (
+  user_id = auth.uid() OR 
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('employee', 'admin'))
+);
 
--- Users can only see their own notifications
-CREATE POLICY notifications_policy ON notifications FOR ALL USING (user_id = auth.uid() OR EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('employee', 'admin')));
+-- Users can only see and modify their own installations, employees and admins can see all
+CREATE POLICY installations_policy ON installations FOR ALL USING (
+  user_id = auth.uid() OR 
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('employee', 'admin'))
+);
 
--- Only allow access to drone images related to user's inspections
+-- Users can only see their own notifications, employees and admins can see all
+CREATE POLICY notifications_policy ON notifications FOR ALL USING (
+  user_id = auth.uid() OR 
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('employee', 'admin'))
+);
+
+-- Only allow access to drone images related to user's inspections, employees and admins can see all
 CREATE POLICY drone_images_policy ON drone_images FOR ALL USING (
   inspection_id IN (SELECT id FROM inspections WHERE user_id = auth.uid()) OR
   EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('employee', 'admin'))
 );
 
--- Only allow access to inspection reports related to user's inspections
+-- Only allow access to inspection reports related to user's inspections, employees and admins can see all
 CREATE POLICY inspection_reports_policy ON inspection_reports FOR ALL USING (
   inspection_id IN (SELECT id FROM inspections WHERE user_id = auth.uid()) OR
   EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('employee', 'admin'))
