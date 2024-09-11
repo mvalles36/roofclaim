@@ -79,10 +79,17 @@ const FindLeads = () => {
     }));
 
     try {
-      const response = await axios.post('https://property.melissadata.net/v4/WEB/LookupProperty/', {
-        id: import.meta.env.VITE_MELISSA_DATA_API_KEY,
-        format: 'json',
-        geometry: JSON.stringify(coordinates)
+      // Example API call, adjust URL and parameters as needed
+      const response = await axios.get('https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup', {
+        params: {
+          id: import.meta.env.VITE_MELISSA_DATA_API_KEY,
+          lat: coordinates[0].lat, // Use a central coordinate or adjust as needed
+          long: coordinates[0].lng,
+          dist: "1", // Distance in miles (or adjust as needed)
+          recs: "20",
+          opt: "IncludeApartments:off;IncludeUndeliverable:off;IncludeEmptyLots:off",
+          format: "json"
+        }
       });
 
       const leads = response.data.Records;
