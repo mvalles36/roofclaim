@@ -76,7 +76,7 @@ const App = () => {
                   <Route
                     path="/inspection-scheduling"
                     element={
-                      <ProtectedRoute allowedRoles={['customer', 'admin']}>
+                      <ProtectedRoute>
                         <InspectionScheduling />
                       </ProtectedRoute>
                     }
@@ -84,7 +84,7 @@ const App = () => {
                   <Route
                     path="/inspection-report"
                     element={
-                      <ProtectedRoute allowedRoles={['employee', 'admin']}>
+                      <ProtectedRoute>
                         <InspectionReport />
                       </ProtectedRoute>
                     }
@@ -92,7 +92,7 @@ const App = () => {
                   <Route
                     path="/claim-management"
                     element={
-                      <ProtectedRoute allowedRoles={['employee', 'admin']}>
+                      <ProtectedRoute>
                         <ClaimManagement />
                       </ProtectedRoute>
                     }
@@ -100,7 +100,7 @@ const App = () => {
                   <Route
                     path="/installation-tracking"
                     element={
-                      <ProtectedRoute allowedRoles={['customer', 'admin']}>
+                      <ProtectedRoute>
                         <InstallationTracking />
                       </ProtectedRoute>
                     }
@@ -108,7 +108,7 @@ const App = () => {
                   <Route
                     path="/policy-comparison"
                     element={
-                      <ProtectedRoute allowedRoles={['employee', 'admin']}>
+                      <ProtectedRoute>
                         <PolicyComparison />
                       </ProtectedRoute>
                     }
@@ -116,7 +116,7 @@ const App = () => {
                   <Route
                     path="/find-leads"
                     element={
-                      <ProtectedRoute allowedRoles={['admin']}>
+                      <ProtectedRoute>
                         <FindLeads />
                       </ProtectedRoute>
                     }
