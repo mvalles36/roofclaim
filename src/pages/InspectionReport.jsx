@@ -47,24 +47,30 @@ const InspectionReport = () => {
     }
   };
 
-  const processImageWithRoboflow = async (imageUrl) => {
-    try {
-      const response = await axios({
-        method: "POST",
-        url: "https://detect.roboflow.com/roof-damage-b3lgl/3",
-        params: {
-          api_key: "FIkWeTUAWe90ISDBoSyI"
-        },
-        data: imageUrl,
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        }
-      });
-      setAnnotatedImages(prev => [...prev, { url: imageUrl, annotations: response.data }]);
-    } catch (error) {
-      console.error('Error processing image with Roboflow:', error);
-    }
-  };
+ import axios from 'axios';
+
+const processImageWithRoboflow = async (imageFile) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', imageFile);
+
+    const response = await axios({
+      method: 'POST',
+      url: 'https://detect.roboflow.com/roof-damage-b3lgl/3',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${process.env.REACT_APP_ROBOFLOW_API_KEY}` // Use environment variable for API key
+      },
+      data: formData
+    });
+
+    // Assuming response contains the data in a suitable format
+    setAnnotatedImages(prev => [...prev, { url: URL.createObjectURL(imageFile), annotations: response.data }]);
+  } catch (error) {
+    console.error('Error processing image with Roboflow:', error);
+  }
+};
+
 
   const handleImageUpload = async (file) => {
     const { data, error } = await ImageUploader.upload(file);
