@@ -41,17 +41,14 @@ const Login = () => {
 
   const navigateBasedOnRole = (role) => {
     switch (role) {
-      case 'homeowner':
-        navigate('/homeowner-dashboard');
+      case 'customer':
+        navigate('/CustomerDashboard');
         break;
-      case 'inspector':
-        navigate('/inspector-dashboard');
-        break;
-      case 'claims_adjuster':
-        navigate('/claims-adjuster-dashboard');
+      case 'employee':
+        navigate('/EmployeeDashboard');
         break;
       case 'admin':
-        navigate('/admin-dashboard');
+        navigate('/AdminDashboard');
         break;
       default:
         navigate('/');
@@ -140,8 +137,8 @@ const Login = () => {
           <Button type="submit" className="w-full">Login</Button>
         </form>
         <div className="mt-4 text-center space-y-2">
-          <Link to="/forgot-password" className="text-blue-600 hover:underline block">Forgot Password?</Link>
-          <Link to="/signup" className="text-blue-600 hover:underline block">Don't have an account? Sign up</Link>
+          <Link to="/forgot-password" className="text-black-600 hover:underline block">Forgot Password?</Link>
+          <Link to="/signup" className="text-black-600 hover:underline block">Don't have an account? Sign up</Link>
         </div>
       </CardContent>
     </Card>
