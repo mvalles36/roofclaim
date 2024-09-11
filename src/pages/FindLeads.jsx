@@ -13,19 +13,32 @@ const FindLeads = () => {
   const mapRef = useRef(null);
 
   useEffect(() => {
-    loadGoogleMapsScript();
+    if (window.google && window.google.maps) {
+      initializeMap();
+    } else {
+      loadGoogleMapsScript();
+    }
   }, []);
 
   const loadGoogleMapsScript = () => {
+    if (document.querySelector(`script[src*="maps.googleapis.com"]`)) return; // Prevent loading the script multiple times
+
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAyNgZ-Ol8ZU_RPkvY5wB77lDtKopVBWQI&libraries=drawing`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.VITE_APP_GOOGLE_MAPS_API_KEY}&libraries=drawing`;
     script.async = true;
     script.defer = true;
-    script.onload = initializeMap;
+    script.onload = () => {
+      initializeMap();
+    };
+    script.onerror = () => {
+      console.error('Failed to load Google Maps script.');
+    };
     document.head.appendChild(script);
   };
 
   const initializeMap = () => {
+    if (map) return; // Prevent reinitializing the map
+
     const mapOptions = {
       center: { lat: 40.7128, lng: -74.0060 },
       zoom: 12,
@@ -55,6 +68,11 @@ const FindLeads = () => {
   };
 
   const handleAddressSearch = () => {
+    if (!address.trim()) {
+      alert('Please enter an address.');
+      return;
+    }
+
     const geocoder = new window.google.maps.Geocoder();
     geocoder.geocode({ address: address }, (results, status) => {
       if (status === 'OK') {
@@ -79,13 +97,12 @@ const FindLeads = () => {
     }));
 
     try {
-      // Example API call, adjust URL and parameters as needed
       const response = await axios.get('https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup', {
         params: {
-          id: import.meta.env.VITE_MELISSA_DATA_API_KEY,
-          lat: coordinates[0].lat, // Use a central coordinate or adjust as needed
+          id: process.env.VITE_APP_MELISSA_DATA_API_KEY,
+          lat: coordinates[0].lat,
           long: coordinates[0].lng,
-          dist: "1", // Distance in miles (or adjust as needed)
+          dist: "1",
           recs: "20",
           opt: "IncludeApartments:off;IncludeUndeliverable:off;IncludeEmptyLots:off",
           format: "json"
@@ -94,7 +111,6 @@ const FindLeads = () => {
 
       const leads = response.data.Records;
 
-      // Save leads to Supabase
       const { data, error } = await supabase
         .from('leads')
         .insert(leads.map(lead => ({
