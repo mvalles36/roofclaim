@@ -10,34 +10,39 @@ const FindLeads = () => {
   const [map, setMap] = useState(null);
   const [drawingManager, setDrawingManager] = useState(null);
   const [selectedArea, setSelectedArea] = useState(null);
+  const [leads, setLeads] = useState([]);
+  const [showSaveListPrompt, setShowSaveListPrompt] = useState(false);
+  const [listName, setListName] = useState('');
   const mapRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
-    if (window.google && window.google.maps) {
-      initializeMap();
-    } else {
-      loadGoogleMapsScript();
-    }
+    const loadGoogleMapsScript = () => {
+      if (window.google && window.google.maps) {
+        initializeMap();
+        initializeAutocomplete();
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.VITE_APP_GOOGLE_MAPS_API_KEY}&libraries=drawing,places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        initializeMap();
+        initializeAutocomplete();
+      };
+      script.onerror = () => {
+        console.error('Failed to load Google Maps script.');
+      };
+      document.head.appendChild(script);
+    };
+
+    loadGoogleMapsScript();
   }, []);
 
-  const loadGoogleMapsScript = () => {
-    if (document.querySelector(`script[src*="maps.googleapis.com"]`)) return; // Prevent loading the script multiple times
-
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.VITE_APP_GOOGLE_MAPS_API_KEY}&libraries=drawing`;
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      initializeMap();
-    };
-    script.onerror = () => {
-      console.error('Failed to load Google Maps script.');
-    };
-    document.head.appendChild(script);
-  };
-
   const initializeMap = () => {
-    if (map) return; // Prevent reinitializing the map
+    if (map) return;
 
     const mapOptions = {
       center: { lat: 40.7128, lng: -74.0060 },
@@ -64,6 +69,23 @@ const FindLeads = () => {
       }
       setSelectedArea(event.overlay);
       newDrawingManager.setDrawingMode(null);
+    });
+  };
+
+  const initializeAutocomplete = () => {
+    if (!inputRef.current) return;
+
+    const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
+      types: ['address'],
+    });
+
+    autocomplete.addListener('place_changed', () => {
+      const place = autocomplete.getPlace();
+      if (place.geometry) {
+        setAddress(place.formatted_address);
+        map.setCenter(place.geometry.location);
+        map.setZoom(15);
+      }
     });
   };
 
@@ -96,12 +118,22 @@ const FindLeads = () => {
       lng: coord.lng()
     }));
 
+    // Compute the centroid of the polygon
+    const centroid = coordinates.reduce((acc, coord) => {
+      acc.lat += coord.lat;
+      acc.lng += coord.lng;
+      return acc;
+    }, { lat: 0, lng: 0 });
+
+    centroid.lat /= coordinates.length;
+    centroid.lng /= coordinates.length;
+
     try {
       const response = await axios.get('https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup', {
         params: {
           id: process.env.VITE_APP_MELISSA_DATA_API_KEY,
-          lat: coordinates[0].lat,
-          long: coordinates[0].lng,
+          lat: centroid.lat, // Use the centroid as a representative point
+          long: centroid.lng,
           dist: "1",
           recs: "20",
           opt: "IncludeApartments:off;IncludeUndeliverable:off;IncludeEmptyLots:off",
@@ -109,23 +141,45 @@ const FindLeads = () => {
         }
       });
 
-      const leads = response.data.Records;
+      const fetchedLeads = response.data.Records;
+      setLeads(fetchedLeads);
+      setShowSaveListPrompt(true);
+    } catch (error) {
+      console.error('Error finding leads:', error);
+      alert('An error occurred while finding leads. Please try again.');
+    }
+  };
 
+  const handleSaveList = async () => {
+    if (!listName.trim()) {
+      alert('Please enter a name for the list.');
+      return;
+    }
+
+    try {
       const { data, error } = await supabase
         .from('leads')
         .insert(leads.map(lead => ({
           name: lead.AddressLine1,
           address: `${lead.AddressLine1}, ${lead.City}, ${lead.State} ${lead.PostalCode}`,
-          coordinates: JSON.stringify({ lat: lead.Latitude, lng: lead.Longitude })
+          telephone: lead.TelephoneNumber, // Assuming the API provides this field
+          email: lead.EmailAddress, // Assuming the API provides this field
+          income: lead.Income, // Assuming the API provides this field
+          coordinates: JSON.stringify({ lat: lead.Latitude, lng: lead.Longitude }),
+          list_name: listName // Store the list name for reference
         })));
 
       if (error) throw error;
-      console.log('Leads added to database:', data);
 
-      alert(`${leads.length} leads have been found and added to the database!`);
+      alert('List saved successfully!');
+      setShowSaveListPrompt(false);
+      setLeads([]);
+      setListName('');
+      setAddress('');
+      setSelectedArea(null);
     } catch (error) {
-      console.error('Error finding leads:', error);
-      alert('An error occurred while finding leads. Please try again.');
+      console.error('Error saving list:', error);
+      alert('An error occurred while saving the list. Please try again.');
     }
   };
 
@@ -143,6 +197,7 @@ const FindLeads = () => {
               placeholder="Enter an address"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
+              ref={inputRef}
             />
             <Button onClick={handleAddressSearch}>Search</Button>
           </div>
@@ -150,6 +205,19 @@ const FindLeads = () => {
           <Button className="mt-4" onClick={handleFindLeads}>Find Leads in Selected Area</Button>
         </CardContent>
       </Card>
+      {showSaveListPrompt && (
+        <div className="mt-4 p-4 border rounded bg-white">
+          <h2 className="text-xl font-bold">Save Leads List</h2>
+          <Input
+            type="text"
+            placeholder="Enter a name for the list"
+            value={listName}
+            onChange={(e) => setListName(e.target.value)}
+          />
+          <Button className="mt-2" onClick={handleSaveList}>Save List</Button>
+          <Button className="mt-2 ml-2" onClick={() => setShowSaveListPrompt(false)}>Cancel</Button>
+        </div>
+      )}
     </div>
   );
 };
