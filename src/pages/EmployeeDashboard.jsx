@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from '../integrations/supabase/supabase';
 import { Link } from 'react-router-dom';
 
-const ClaimsAdjusterDashboard = () => {
+const EmployeeDashboard = () => {
   const [claims, setClaims] = useState([]);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const ClaimsAdjusterDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Claims Adjuster Dashboard</h1>
+      <h1 className="text-3xl font-bold">Employee Dashboard</h1>
       <Card>
         <CardHeader>
           <CardTitle>Recent Claims</CardTitle>
@@ -65,4 +65,4 @@ const ClaimsAdjusterDashboard = () => {
   );
 };
 
-export default ClaimsAdjusterDashboard;
+export default EmployeeDashboard;
