@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from '../integrations/supabase/supabase';
 
-const HomeownerDashboard = () => {
+const CustomerDashboard = () => {
   const [inspectionStatus, setInspectionStatus] = useState('Not Scheduled');
   const [claimStatus, setClaimStatus] = useState('No Active Claims');
   const [installationProgress, setInstallationProgress] = useState(0);
