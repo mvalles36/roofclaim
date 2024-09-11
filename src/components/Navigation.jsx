@@ -57,16 +57,16 @@ const Navigation = () => {
               <>
                 <Link to="/" className="text-gray-600 hover:text-gray-800">Dashboard</Link>
                 <Link to="/calendar" className="text-gray-600 hover:text-gray-800">Calendar</Link>
-                {(userRole === 'homeowner' || userRole === 'admin') && (
+                {(userRole === 'customer' || userRole === 'admin') && (
                   <>
                     <Link to="/inspection-scheduling" className="text-gray-600 hover:text-gray-800">Schedule Inspection</Link>
                     <Link to="/installation-tracking" className="text-gray-600 hover:text-gray-800">Installation Progress</Link>
                   </>
                 )}
-                {(userRole === 'inspector' || userRole === 'admin') && (
+                {(userRole === 'employee' || userRole === 'admin') && (
                   <Link to="/inspection-report" className="text-gray-600 hover:text-gray-800">Inspection Reports</Link>
                 )}
-                {(userRole === 'claims_adjuster' || userRole === 'admin') && (
+                {(userRole === 'admin' || userRole === 'admin') && (
                   <>
                     <Link to="/claim-management" className="text-gray-600 hover:text-gray-800">Claims</Link>
                     <Link to="/policy-comparison" className="text-gray-600 hover:text-gray-800">Policy Comparison</Link>
@@ -74,7 +74,7 @@ const Navigation = () => {
                 )}
                 {userRole === 'admin' && (
                   <>
-                    <Link to="/admin-dashboard" className="text-gray-600 hover:text-gray-800">Admin</Link>
+                    <Link to="/AdminDashboard" className="text-gray-600 hover:text-gray-800">Admin</Link>
                     <Link to="/find-leads" className="text-gray-600 hover:text-gray-800">Find Leads</Link>
                   </>
                 )}
