@@ -18,7 +18,7 @@ const FindLeads = () => {
 
   const loadGoogleMapsScript = () => {
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=drawing`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAyNgZ-Ol8ZU_RPkvY5wB77lDtKopVBWQI&libraries=drawing`;
     script.async = true;
     script.defer = true;
     script.onload = initializeMap;
