@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { SupabaseAuthProvider, useSupabaseAuth } from './integrations/supabase/SupabaseAuthProvider'; // Adjust path as needed
+import { SupabaseAuthProvider, useSupabaseAuth } from './integrations/supabase/auth'; // Updated import path
 import Navigation from './components/Navigation';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -58,10 +58,13 @@ const App = () => {
                     path="/"
                     element={
                       <ProtectedRoute>
-                        {userRole === 'admin' && <AdminDashboard />}
-                        {userRole === 'employee' && <EmployeeDashboard />}
-                        {userRole === 'customer' && <CustomerDashboard />}
-                        {!userRole && <div>Loading user role...</div>}
+                        {({ session }) => {
+                          const userRole = session?.user?.role;
+                          if (userRole === 'admin') return <AdminDashboard />;
+                          if (userRole === 'employee') return <EmployeeDashboard />;
+                          if (userRole === 'customer') return <CustomerDashboard />;
+                          return <div>Loading user role...</div>;
+                        }}
                       </ProtectedRoute>
                     }
                   />
@@ -116,7 +119,7 @@ const App = () => {
                   <Route
                     path="/find-leads"
                     element={
-                      <ProtectedRoute>
+                      <ProtectedRoute allowedRoles={['admin']}>
                         <FindLeads />
                       </ProtectedRoute>
                     }
