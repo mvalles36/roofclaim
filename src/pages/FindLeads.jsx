@@ -91,6 +91,8 @@ const FindLeads = () => {
         }
       });
 
+      console.log('Melissa Data API response:', response.data); // Debugging: log the API response
+
       const processedLeads = response.data.Records.map(record => ({
         name: record.AddressLine1,
         address: `${record.AddressLine1}, ${record.City}, ${record.State} ${record.PostalCode}`,
@@ -173,7 +175,7 @@ const FindLeads = () => {
                 drawingControl: true,
                 drawingControlOptions: {
                   position: window.google.maps.ControlPosition.TOP_CENTER,
-                  drawingModes: [window.google.maps.drawing.OverlayType.POLYGON],
+                  drawingModes: ['polygon'], // Ensure 'polygon' is used correctly
                 },
                 polygonOptions: {
                   fillColor: '#FF0000',
