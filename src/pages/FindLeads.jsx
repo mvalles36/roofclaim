@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from '../integrations/supabase/supabase';
 import axios from 'axios';
-import { useLoadScript, GoogleMap, DrawingManager } from '@react-google-maps/api';
+import { useLoadScript, GoogleMap, DrawingManager, Autocomplete } from '@react-google-maps/api';
 
 const libraries = ['places', 'drawing'];
 
@@ -15,6 +15,7 @@ const FindLeads = () => {
   const [listName, setListName] = useState('');
   const mapRef = useRef(null);
   const drawingManagerRef = useRef(null);
+  const autocompleteRef = useRef(null);
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -37,18 +38,19 @@ const FindLeads = () => {
     drawingManagerRef.current.setDrawingMode(null);
   }, [selectedArea]);
 
-  const handleAddressSearch = () => {
-    if (!address.trim() || !mapRef.current) return;
+  const onAutocompleteLoad = useCallback((autocomplete) => {
+    autocompleteRef.current = autocomplete;
+  }, []);
 
-    const geocoder = new window.google.maps.Geocoder();
-    geocoder.geocode({ address }, (results, status) => {
-      if (status === 'OK') {
-        mapRef.current.setCenter(results[0].geometry.location);
+  const handlePlaceSelect = () => {
+    if (autocompleteRef.current) {
+      const place = autocompleteRef.current.getPlace();
+      if (place.geometry) {
+        mapRef.current.setCenter(place.geometry.location);
         mapRef.current.setZoom(15);
-      } else {
-        alert('Geocode was not successful: ' + status);
+        setAddress(place.formatted_address);
       }
-    });
+    }
   };
 
   const handleFindLeads = async () => {
@@ -134,14 +136,18 @@ const FindLeads = () => {
           <CardTitle>Search Area</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex space-x-2 mb-4">
-            <Input
-              type="text"
-              placeholder="Enter an address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-            />
-            <Button onClick={handleAddressSearch}>Search</Button>
+          <div className="mb-4">
+            <Autocomplete
+              onLoad={onAutocompleteLoad}
+              onPlaceChanged={handlePlaceSelect}
+            >
+              <Input
+                type="text"
+                placeholder="Enter an address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+            </Autocomplete>
           </div>
           <GoogleMap
             mapContainerStyle={{ width: '100%', height: '400px' }}

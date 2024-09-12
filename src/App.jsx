@@ -17,17 +17,19 @@ import InstallationTracking from './pages/InstallationTracking';
 import PolicyComparison from './pages/PolicyComparison';
 import Calendar from './pages/Calendar';
 import FindLeads from './pages/FindLeads';
+import Contacts from './pages/Contacts';
 
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { session, loading } = useSupabaseAuth();
+  const { session, userRole, loading } = useSupabaseAuth();
 
   if (loading) return <div>Loading...</div>;
   if (!session) return <Navigate to="/login" />;
 
-  const userRole = session.user.role;
-  if (allowedRoles && !allowedRoles.includes(userRole)) return <Navigate to="/" />;
+  if (allowedRoles && !allowedRoles.includes(userRole)) {
+    return <Navigate to="/" />;
+  }
 
   return children;
 };
@@ -50,8 +52,7 @@ const App = () => {
                     path="/"
                     element={
                       <ProtectedRoute>
-                        {({ session }) => {
-                          const userRole = session?.user?.role;
+                        {({ userRole }) => {
                           if (userRole === 'admin') return <AdminDashboard />;
                           if (userRole === 'employee') return <EmployeeDashboard />;
                           return <CustomerDashboard />;
@@ -59,13 +60,14 @@ const App = () => {
                       </ProtectedRoute>
                     }
                   />
-                  <Route path="/inspection-scheduling" element={<ProtectedRoute><InspectionScheduling /></ProtectedRoute>} />
-                  <Route path="/inspection-report" element={<ProtectedRoute><InspectionReport /></ProtectedRoute>} />
-                  <Route path="/claim-management" element={<ProtectedRoute><ClaimManagement /></ProtectedRoute>} />
-                  <Route path="/installation-tracking" element={<ProtectedRoute><InstallationTracking /></ProtectedRoute>} />
-                  <Route path="/policy-comparison" element={<ProtectedRoute><PolicyComparison /></ProtectedRoute>} />
+                  <Route path="/inspection-scheduling" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><InspectionScheduling /></ProtectedRoute>} />
+                  <Route path="/inspection-report" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><InspectionReport /></ProtectedRoute>} />
+                  <Route path="/claim-management" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><ClaimManagement /></ProtectedRoute>} />
+                  <Route path="/installation-tracking" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><InstallationTracking /></ProtectedRoute>} />
+                  <Route path="/policy-comparison" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><PolicyComparison /></ProtectedRoute>} />
                   <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
                   <Route path="/find-leads" element={<ProtectedRoute allowedRoles={['admin']}><FindLeads /></ProtectedRoute>} />
+                  <Route path="/contacts" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><Contacts /></ProtectedRoute>} />
                 </Routes>
               </main>
             </div>

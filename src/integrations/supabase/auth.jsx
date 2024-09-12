@@ -16,6 +16,7 @@ export const SupabaseAuthProvider = ({ children }) => {
 
 export const SupabaseAuthProviderInner = ({ children }) => {
   const [session, setSession] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
 
@@ -24,11 +25,19 @@ export const SupabaseAuthProviderInner = ({ children }) => {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
+      if (session) {
+        await fetchUserRole(session.user.id);
+      }
       setLoading(false);
     };
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
+      if (session) {
+        await fetchUserRole(session.user.id);
+      } else {
+        setUserRole(null);
+      }
       queryClient.invalidateQueries('user');
     });
 
@@ -40,15 +49,30 @@ export const SupabaseAuthProviderInner = ({ children }) => {
     };
   }, [queryClient]);
 
+  const fetchUserRole = async (userId) => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching user role:', error);
+    } else if (data) {
+      setUserRole(data.role);
+    }
+  };
+
   const logout = async () => {
     await supabase.auth.signOut();
     setSession(null);
+    setUserRole(null);
     queryClient.invalidateQueries('user');
     setLoading(false);
   };
 
   return (
-    <SupabaseAuthContext.Provider value={{ session, loading, logout }}>
+    <SupabaseAuthContext.Provider value={{ session, userRole, loading, logout }}>
       {children}
     </SupabaseAuthContext.Provider>
   );
