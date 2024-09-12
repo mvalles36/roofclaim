@@ -110,8 +110,146 @@ const FindLeads = () => {
     }
   }, [selectedArea]);
 
-  const handleSaveList = useCallback(async () => {
+ const handleSaveList = useCallback(async () => {
     // ... (unchanged)
   }, [listName, leads, selectedArea]);
+  
+ const instructionSteps = [
+    {
+      title: "Welcome to Find Leads!",
+      content: "This tool helps you find leads in a specific area. Let's walk through how to use it.",
+      animation: null
+    },
+    {
+      title: "Step 1: Choose an Area",
+      content: "First, navigate to the area you're interested in. You can use the search bar to find a specific address.",
+      animation: (
+        <motion.div
+          animate={{ x: [0, 200, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="h-8 w-32 bg-blue-500 rounded"
+        />
+      )
+    },
+    {
+      title: "Step 2: Draw a Rectangle",
+      content: "Click and drag on the map to draw a rectangle around the area you want to search.",
+      animation: (
+        <motion.div
+          initial={{ width: 0, height: 0 }}
+          animate={{ width: 200, height: 100 }}
+          transition={{ duration: 1, repeat: Infinity }}
+          className="border-2 border-red-500"
+        />
+      )
+    },
+    {
+      title: "Step 3: Find Leads",
+      content: "Click the 'Find Leads in Selected Area' button to search for leads within your selected area.",
+      animation: (
+        <motion.div
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 1, repeat: Infinity }}
+          className="p-2 bg-green-500 rounded text-white"
+        >
+          Find Leads
+        </motion.div>
+      )
+    },
+    {
+      title: "You're All Set!",
+      content: "You now know how to use the Find Leads tool. Click 'Get Started' to begin your search.",
+      animation: null
+    }
+  ];
 
-                   fillOpacity: 0.3,
+  const handleNextStep = () => {
+    if (currentStep < instructionSteps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      setShowInstructions(false);
+    }
+  };
+
+  const handleCloseInstructions = () => {
+    setShowInstructions(false);
+  };
+
+  if (loadError) return <div>Error loading maps</div>;
+  if (!isLoaded) return <div>Loading maps</div>;
+
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold">Find Leads</h1>
+      <Card>
+        <CardHeader>
+          <CardTitle>Search Area</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-4">
+            <Autocomplete
+              onLoad={onAutocompleteLoad}
+              onPlaceChanged={handlePlaceSelect}
+            >
+              <Input
+                type="text"
+                placeholder="Enter an address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+            </Autocomplete>
+          </div>
+          <GoogleMap
+            mapContainerStyle={{ width: '100%', height: '400px' }}
+            center={mapCenter}
+            zoom={mapZoom}
+            onLoad={onMapLoad}
+          >
+            <DrawingManager
+              onLoad={onDrawingManagerLoad}
+              onRectangleComplete={onRectangleComplete}
+              options={{
+                drawingControl: true,
+                drawingControlOptions: {
+                  position: window.google.maps.ControlPosition.TOP_CENTER,
+                  drawingModes: [window.google.maps.drawing.OverlayType.RECTANGLE],
+                },
+                rectangleOptions: {
+                  fillColor: '#FF0000',
+                  fillOpacity: 0.3,
+                  strokeWeight: 2,
+                  clickable: false,
+                  editable: true,
+                  zIndex: 1,
+                },
+              }}
+            />
+          </GoogleMap>
+          <Button className="mt-4" onClick={handleFindLeads}>Find Leads in Selected Area</Button>
+        </CardContent>
+      </Card>
+
+      <Modal isOpen={showInstructions} onClose={handleCloseInstructions}>
+        <div className="p-6">
+          <h2 className="text-2xl font-bold mb-4">{instructionSteps[currentStep].title}</h2>
+          <p className="mb-4">{instructionSteps[currentStep].content}</p>
+          <div className="flex justify-center mb-4">
+            {instructionSteps[currentStep].animation}
+          </div>
+          <div className="flex justify-between">
+            <Button onClick={handleCloseInstructions}>Skip</Button>
+            <Button onClick={handleNextStep}>
+              {currentStep === instructionSteps.length - 1 ? "Get Started" : "Next"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        {/* ... (Dialog content remains unchanged) ... */}
+      </Dialog>
+    </div>
+  );
+};
+
+export default FindLeads;
