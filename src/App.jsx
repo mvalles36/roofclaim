@@ -14,7 +14,6 @@ import InspectionScheduling from './pages/InspectionScheduling';
 import InspectionReport from './pages/InspectionReport';
 import ClaimManagement from './pages/ClaimManagement';
 import InstallationTracking from './pages/InstallationTracking';
-import PolicyComparison from './pages/PolicyComparison';
 import Calendar from './pages/Calendar';
 import FindLeads from './pages/FindLeads';
 import Contacts from './pages/Contacts';
@@ -65,7 +64,6 @@ const App = () => {
                   <Route path="/inspection-report" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><InspectionReport /></ProtectedRoute>} />
                   <Route path="/claim-management" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><ClaimManagement /></ProtectedRoute>} />
                   <Route path="/installation-tracking" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><InstallationTracking /></ProtectedRoute>} />
-                  <Route path="/policy-comparison" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><PolicyComparison /></ProtectedRoute>} />
                   <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
                   <Route path="/find-leads" element={<ProtectedRoute allowedRoles={['admin']}><FindLeads /></ProtectedRoute>} />
                   <Route path="/contacts" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><Contacts /></ProtectedRoute>} />

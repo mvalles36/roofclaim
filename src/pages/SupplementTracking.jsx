@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from '../integrations/supabase/supabase';
 import { FileText, DollarSign, Clock, CheckCircle } from 'lucide-react';
+import PolicyComparison from '../components/PolicyComparison';
 
 const SupplementTracking = () => {
   const [supplements, setSupplements] = useState([]);
@@ -16,6 +17,7 @@ const SupplementTracking = () => {
     status: 'Drafting',
     documents: []
   });
+  const [showPolicyComparison, setShowPolicyComparison] = useState(false);
 
   useEffect(() => {
     fetchSupplements();
@@ -80,22 +82,23 @@ const SupplementTracking = () => {
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'Drafting':
-        return <FileText className="h-5 w-5 text-yellow-500" />;
-      case 'Review':
-        return <Clock className="h-5 w-5 text-blue-500" />;
-      case 'Submitted':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'Approved':
-        return <DollarSign className="h-5 w-5 text-purple-500" />;
-      default:
-        return null;
+      case 'Drafting': return <FileText className="h-5 w-5 text-yellow-500" />;
+      case 'Review': return <Clock className="h-5 w-5 text-blue-500" />;
+      case 'Submitted': return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'Approved': return <DollarSign className="h-5 w-5 text-purple-500" />;
+      default: return null;
     }
   };
 
   return (
     <div className="space-y-6 p-6 bg-gray-50">
       <h1 className="text-3xl font-bold text-gray-800">Supplement Tracking</h1>
+      <div className="flex justify-between items-center">
+        <Button onClick={() => setShowPolicyComparison(!showPolicyComparison)}>
+          {showPolicyComparison ? 'Hide Policy Comparison' : 'Show Policy Comparison'}
+        </Button>
+      </div>
+      {showPolicyComparison && <PolicyComparison />}
       <Card>
         <CardHeader>
           <CardTitle>New Supplement</CardTitle>
