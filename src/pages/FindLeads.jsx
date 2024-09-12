@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { supabase } from '../integrations/supabase/supabase';
 import axios from 'axios';
 import { useLoadScript, GoogleMap, DrawingManager, Autocomplete } from '@react-google-maps/api';
-import './index.css'; // Ensure this path is correct
+import '../index.css'; // Ensure this path is correct
 
 const libraries = ['places', 'drawing'];
 
