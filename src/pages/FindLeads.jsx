@@ -6,8 +6,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { supabase } from '../integrations/supabase/supabase';
 import axios from 'axios';
 import { useLoadScript, GoogleMap, DrawingManager, Autocomplete } from '@react-google-maps/api';
+import './index.css'; // Ensure this path is correct
 
 const libraries = ['places', 'drawing'];
+
+const Tooltip = ({ onClose }) => (
+  <div className="tooltip-container">
+    <p><strong>Instructions:</strong> To draw a selection area, click the "Draw a Polygon" button and then click on the map to define the vertices of your polygon. Once you complete the shape, you can adjust the vertices if needed.</p>
+    <button onClick={onClose}>Got it, don't show again</button>
+  </div>
+);
 
 const FindLeads = () => {
   const [address, setAddress] = useState('');
@@ -16,13 +24,11 @@ const FindLeads = () => {
   const [listName, setListName] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [mapCenter, setMapCenter] = useState({ lat: 40.7128, lng: -74.0060 });
-  const [zoom, setZoom] = useState(12);
-  const [showInstructions, setShowInstructions] = useState(true);
+  const [showTooltip, setShowTooltip] = useState(localStorage.getItem('tooltipSeen') !== 'true');
   const mapRef = useRef(null);
   const drawingManagerRef = useRef(null);
   const autocompleteRef = useRef(null);
 
-  // Load Google Maps API asynchronously
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
     libraries,
@@ -58,7 +64,7 @@ const FindLeads = () => {
         };
         setMapCenter(newCenter);
         mapRef.current.panTo(newCenter);
-        setZoom(15);  // Adjust zoom level
+        mapRef.current.setZoom(15);
         setAddress(place.formatted_address);
       }
     }
@@ -76,30 +82,25 @@ const FindLeads = () => {
       lng: coord.lng()
     }));
 
-    // Calculate the bounding box
-    const bounds = new google.maps.LatLngBounds();
-    coordinates.forEach(coord => bounds.extend(coord));
-    
-    const center = bounds.getCenter();
-    const radius = bounds.toJSON().northEast.lat - bounds.toJSON().southWest.lat; // Approximate radius
+    const centroid = coordinates.reduce((acc, coord) => ({
+      lat: acc.lat + coord.lat / coordinates.length,
+      lng: acc.lng + coord.lng / coordinates.length
+    }), { lat: 0, lng: 0 });
 
     try {
       const response = await axios.get('https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup', {
         params: {
           id: import.meta.env.VITE_MELISSA_DATA_API_KEY,
-          lat: center.lat(),
-          long: center.lng(),
-          dist: radius, // Adjust distance based on the bounding box
+          lat: centroid.lat,
+          long: centroid.lng,
+          dist: "1",
           recs: "20",
           opt: "IncludeApartments:off;IncludeUndeliverable:off;IncludeEmptyLots:off",
           format: "json"
         }
       });
 
-      const processedLeads = response.data.Records.filter(record => {
-        const recordLatLng = new google.maps.LatLng(record.Latitude, record.Longitude);
-        return bounds.contains(recordLatLng); // Ensure record is within the polygon bounds
-      }).map(record => ({
+      const processedLeads = response.data.Records.map(record => ({
         name: record.AddressLine1,
         address: `${record.AddressLine1}, ${record.City}, ${record.State} ${record.PostalCode}`,
         telephone: record.TelephoneNumber,
@@ -144,16 +145,10 @@ const FindLeads = () => {
     }
   };
 
-  const handleCloseInstructions = () => {
-    setShowInstructions(false);
-    localStorage.setItem('hideInstructions', 'true');
+  const handleTooltipClose = () => {
+    localStorage.setItem('tooltipSeen', 'true');
+    setShowTooltip(false);
   };
-
-  useEffect(() => {
-    if (localStorage.getItem('hideInstructions') === 'true') {
-      setShowInstructions(false);
-    }
-  }, []);
 
   if (loadError) return <div>Error loading maps</div>;
   if (!isLoaded) return <div>Loading maps</div>;
@@ -182,7 +177,7 @@ const FindLeads = () => {
           <GoogleMap
             mapContainerStyle={{ width: '100%', height: '400px' }}
             center={mapCenter}
-            zoom={zoom}
+            zoom={12}
             onLoad={onMapLoad}
           >
             <DrawingManager
@@ -228,17 +223,7 @@ const FindLeads = () => {
         </DialogContent>
       </Dialog>
 
-      {showInstructions && (
-        <div className="fixed bottom-4 left-4 bg-gray-800 text-white p-4 rounded shadow-lg">
-          <h2 className="text-lg font-bold">Instructions</h2>
-          <p>
-            Draw a polygon on the map to select an area. 
-            To do this, click on the map to create vertices of the polygon. 
-            Once you have selected the area, click on "Find Leads in Selected Area".
-          </p>
-          <Button className="mt-2" onClick={handleCloseInstructions}>Got It! Don't Show Again</Button>
-        </div>
-      )}
+      {showTooltip && <Tooltip onClose={handleTooltipClose} />}
     </div>
   );
 };
