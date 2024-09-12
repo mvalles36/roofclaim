@@ -110,33 +110,33 @@ const FindLeads = () => {
     }
   };
 
-  const handleSaveList = async () => {
-    if (!listName.trim() || leads.length === 0) {
-      alert('Please enter a list name and ensure leads are found.');
-      return;
+ const handleSaveList = async () => {
+  if (!listName.trim() || leads.length === 0) {
+    alert('Please enter a list name and ensure leads are found.');
+    return;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('leads')
+      .insert(leads.map(lead => ({ ...lead, list_name: listName })));
+
+    if (error) throw error;
+
+    alert('List saved successfully!');
+    setLeads([]);
+    setListName('');
+    setAddress('');
+    setIsDialogOpen(false);
+    if (selectedArea) {
+      selectedArea.setMap(null);
+      setSelectedArea(null);
     }
-
-    try {
-      const { error } = await supabase
-        .from('leads')
-        .insert(leads.map(lead => ({ ...lead, list_name: listName })));
-
-      if (error) throw error;
-
-      alert('List saved successfully!');
-      setLeads([]);
-      setListName('');
-      setAddress('');
-      setIsDialogOpen(false);
-      if (selectedArea) {
-        selectedArea.setMap(null);
-        setSelectedArea(null);
-      }
-    } catch (error) {
-      console.error('Error saving list:', error);
-      alert('An error occurred while saving the list. Please try again.');
-    }
-  };
+  } catch (error) {
+    console.error('Error saving list:', error.message || error); // Log detailed error
+    alert('An error occurred while saving the list. Please try again.');
+  }
+};
 
   if (loadError) return <div>Error loading maps</div>;
   if (!isLoaded) return <div>Loading maps</div>;
