@@ -82,7 +82,7 @@ const FindLeads = () => {
         params: {
           id: import.meta.env.VITE_MELISSA_DATA_API_KEY,
           format: "json",
-          recs: "100", // Increase the number of records to fetch
+          recs: "20", // Increase the number of records to fetch
           opt: "IncludeApartments:off;IncludeUndeliverable:off;IncludeEmptyLots:off",
           bbox: `${sw.lat()},${sw.lng()},${ne.lat()},${ne.lng()}` // Use bounding box
         }
