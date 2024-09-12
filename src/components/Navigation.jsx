@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { supabase } from '../integrations/supabase/supabase';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 const Navigation = () => {
   const { session, userRole, logout } = useSupabaseAuth();
   const [userName, setUserName] = useState('');
+  const location = useLocation();
 
   useEffect(() => {
     if (session) {
@@ -39,21 +40,25 @@ const Navigation = () => {
     { role: ['customer', 'employee', 'admin'], icon: <CalendarIcon className="h-5 w-5" />, label: 'Calendar', to: '/calendar' },
     { role: ['admin'], icon: <MapPinIcon className="h-5 w-5" />, label: 'Find Leads', to: '/find-leads' },
     { role: ['employee', 'admin'], icon: <BarChartIcon className="h-5 w-5" />, label: 'Policy Comparison', to: '/policy-comparison' },
+    { role: ['employee', 'admin'], icon: <FileTextIcon className="h-5 w-5" />, label: 'Supplements', to: '/supplement-tracking' },
   ];
 
   if (!session) return null;
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <nav className="bg-white w-64 h-full shadow-lg">
-        <div className="p-4">
-          <h1 className="text-2xl font-bold text-gray-800">RoofCare Assist</h1>
-        </div>
+    <div className="flex flex-col h-screen bg-gray-800 text-white w-64">
+      <div className="p-4">
+        <h1 className="text-2xl font-bold">RoofCare Assist</h1>
+      </div>
+      <nav className="flex-1">
         <ul className="space-y-2 p-4">
           {navItems.map((item, index) => (
             item.role.includes(userRole) && (
               <li key={index}>
-                <Link to={item.to} className="flex items-center space-x-3 text-gray-700 p-2 rounded-lg hover:bg-gray-200 transition-colors">
+                <Link 
+                  to={item.to} 
+                  className={`flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-700 transition-colors ${location.pathname === item.to ? 'bg-gray-700' : ''}`}
+                >
                   {item.icon}
                   <span>{item.label}</span>
                 </Link>
@@ -62,17 +67,15 @@ const Navigation = () => {
           ))}
         </ul>
       </nav>
-      <main className="flex-1 p-8 overflow-y-auto">
-        {/* Main content will be rendered here */}
-      </main>
-      <div className="bg-white shadow-lg p-4 flex items-center justify-end">
+      <div className="p-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 rounded-full">
-              <Avatar>
+            <Button variant="ghost" className="w-full justify-start">
+              <Avatar className="h-8 w-8 mr-2">
                 <AvatarImage src={`https://api.dicebear.com/6.x/initials/svg?seed=${userName}`} alt={userName} />
                 <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
               </Avatar>
+              <span>{userName}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end" forceMount>

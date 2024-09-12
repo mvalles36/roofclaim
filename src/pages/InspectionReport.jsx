@@ -3,8 +3,10 @@ import axios from 'axios';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { supabase } from '../integrations/supabase/supabase';
 import { jsPDF } from "jspdf";
+import { Camera, Upload, FileText, Download } from 'lucide-react';
 
 const InspectionReport = () => {
   const [uploadedImages, setUploadedImages] = useState([]);
@@ -93,33 +95,24 @@ const InspectionReport = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Roof Inspection Report</h2>
+    <div className="space-y-6 p-6 bg-gray-50">
+      <h2 className="text-2xl font-bold text-gray-800">Roof Inspection Report</h2>
       <Card>
         <CardHeader>
           <CardTitle>Customer Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Input
-            placeholder="Customer Name"
-            value={customerInfo.name}
-            onChange={(e) => setCustomerInfo({...customerInfo, name: e.target.value})}
-          />
-          <Input
-            placeholder="Address"
-            value={customerInfo.address}
-            onChange={(e) => setCustomerInfo({...customerInfo, address: e.target.value})}
-          />
-          <Input
-            placeholder="Phone"
-            value={customerInfo.phone}
-            onChange={(e) => setCustomerInfo({...customerInfo, phone: e.target.value})}
-          />
-          <Input
-            placeholder="Email"
-            value={customerInfo.email}
-            onChange={(e) => setCustomerInfo({...customerInfo, email: e.target.value})}
-          />
+          {Object.entries(customerInfo).map(([key, value]) => (
+            <div key={key}>
+              <Label htmlFor={key}>{key.charAt(0).toUpperCase() + key.slice(1)}</Label>
+              <Input
+                id={key}
+                value={value}
+                onChange={(e) => setCustomerInfo({...customerInfo, [key]: e.target.value})}
+                placeholder={`Enter ${key}`}
+              />
+            </div>
+          ))}
         </CardContent>
       </Card>
       <Card>
@@ -127,7 +120,14 @@ const InspectionReport = () => {
           <CardTitle>Upload Images</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Input type="file" multiple onChange={handleImageUpload} accept="image/*" />
+          <div className="flex items-center space-x-2">
+            <Input type="file" multiple onChange={handleImageUpload} accept="image/*" id="image-upload" className="hidden" />
+            <Label htmlFor="image-upload" className="cursor-pointer flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
+              <Upload className="h-5 w-5" />
+              <span>Choose Files</span>
+            </Label>
+            <span className="text-sm text-gray-500">{uploadedImages.length} file(s) selected</span>
+          </div>
         </CardContent>
       </Card>
       <Card>
@@ -138,12 +138,15 @@ const InspectionReport = () => {
           {annotatedImages.map((image, index) => (
             <div key={index} className="mb-4">
               <img src={image.url} alt={`Annotated drone image ${index + 1}`} className="w-full max-w-md mx-auto rounded-lg shadow-md" />
-              <pre className="mt-2 bg-gray-100 p-2 rounded">{JSON.stringify(image.annotations, null, 2)}</pre>
+              <pre className="mt-2 bg-gray-100 p-2 rounded text-sm overflow-x-auto">{JSON.stringify(image.annotations, null, 2)}</pre>
             </div>
           ))}
         </CardContent>
       </Card>
-      <Button onClick={generatePDFReport} disabled={annotatedImages.length === 0}>Generate PDF Report</Button>
+      <Button onClick={generatePDFReport} disabled={annotatedImages.length === 0} className="flex items-center space-x-2">
+        <Download className="h-5 w-5" />
+        <span>Generate PDF Report</span>
+      </Button>
     </div>
   );
 };

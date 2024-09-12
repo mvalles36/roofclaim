@@ -3,8 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from '../integrations/supabase/supabase';
+import { FileText, DollarSign, Clock, CheckCircle } from 'lucide-react';
 
 const SupplementTracking = () => {
   const [supplements, setSupplements] = useState([]);
@@ -76,9 +78,24 @@ const SupplementTracking = () => {
     }
   };
 
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'Drafting':
+        return <FileText className="h-5 w-5 text-yellow-500" />;
+      case 'Review':
+        return <Clock className="h-5 w-5 text-blue-500" />;
+      case 'Submitted':
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'Approved':
+        return <DollarSign className="h-5 w-5 text-purple-500" />;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Supplement Tracking</h1>
+    <div className="space-y-6 p-6 bg-gray-50">
+      <h1 className="text-3xl font-bold text-gray-800">Supplement Tracking</h1>
       <Card>
         <CardHeader>
           <CardTitle>New Supplement</CardTitle>
@@ -138,15 +155,18 @@ const SupplementTracking = () => {
           <CardTitle>Supplement List</CardTitle>
         </CardHeader>
         <CardContent>
-          <ul className="space-y-2">
+          <ul className="space-y-4">
             {supplements.map((supplement) => (
-              <li key={supplement.id} className="flex justify-between items-center">
-                <div>
-                  <p className="font-semibold">Policy: {supplement.policyNumber}</p>
-                  <p>Amount: ${supplement.estimateAmount}</p>
-                  <p>Status: {supplement.status}</p>
+              <li key={supplement.id} className="flex justify-between items-center p-4 bg-white rounded-lg shadow">
+                <div className="flex items-center space-x-4">
+                  {getStatusIcon(supplement.status)}
+                  <div>
+                    <p className="font-semibold">Policy: {supplement.policyNumber}</p>
+                    <p>Amount: ${supplement.estimateAmount}</p>
+                    <p>Status: {supplement.status}</p>
+                  </div>
                 </div>
-                <Button>View Details</Button>
+                <Button variant="outline">View Details</Button>
               </li>
             ))}
           </ul>

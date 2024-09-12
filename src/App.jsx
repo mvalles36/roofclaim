@@ -42,7 +42,7 @@ const App = () => {
         <Toaster />
         <SupabaseAuthProvider>
           <BrowserRouter>
-            <div className="flex h-screen">
+            <div className="flex h-screen bg-gray-100">
               <Navigation />
               <main className="flex-1 overflow-y-auto p-8">
                 <Routes>
