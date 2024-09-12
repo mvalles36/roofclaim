@@ -11,32 +11,28 @@ const FindLeads = () => {
   const [drawingManager, setDrawingManager] = useState(null);
   const [selectedArea, setSelectedArea] = useState(null);
   const [leads, setLeads] = useState([]);
-  const [showSaveListPrompt, setShowSaveListPrompt] = useState(false);
   const [listName, setListName] = useState('');
   const mapRef = useRef(null);
   const inputRef = useRef(null);
 
   useEffect(() => {
-    loadGoogleMapsScript();
+    const loadGoogleMapsScript = () => {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=drawing,places`;
+      script.async = true;
+      script.onload = initializeMap;
+      document.head.appendChild(script);
+    };
+
+    if (!window.google) {
+      loadGoogleMapsScript();
+    } else {
+      initializeMap();
+    }
   }, []);
 
-  const loadGoogleMapsScript = () => {
-    if (window.google && window.google.maps) {
-      initializeMap();
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=drawing,places`;
-    script.async = true;
-    script.defer = true;
-    script.onload = initializeMap;
-    script.onerror = () => console.error('Failed to load Google Maps script.');
-    document.head.appendChild(script);
-  };
-
   const initializeMap = () => {
-    if (map) return;
+    if (!mapRef.current) return;
 
     const newMap = new window.google.maps.Map(mapRef.current, {
       center: { lat: 40.7128, lng: -74.0060 },
@@ -77,10 +73,7 @@ const FindLeads = () => {
   };
 
   const handleAddressSearch = () => {
-    if (!address.trim()) {
-      alert('Please enter an address.');
-      return;
-    }
+    if (!address.trim() || !map) return;
 
     const geocoder = new window.google.maps.Geocoder();
     geocoder.geocode({ address }, (results, status) => {
@@ -88,7 +81,7 @@ const FindLeads = () => {
         map.setCenter(results[0].geometry.location);
         map.setZoom(15);
       } else {
-        alert('Geocode was not successful for the following reason: ' + status);
+        alert('Geocode was not successful: ' + status);
       }
     });
   };
@@ -105,14 +98,10 @@ const FindLeads = () => {
       lng: coord.lng()
     }));
 
-    const centroid = coordinates.reduce((acc, coord) => {
-      acc.lat += coord.lat;
-      acc.lng += coord.lng;
-      return acc;
-    }, { lat: 0, lng: 0 });
-
-    centroid.lat /= coordinates.length;
-    centroid.lng /= coordinates.length;
+    const centroid = coordinates.reduce((acc, coord) => ({
+      lat: acc.lat + coord.lat / coordinates.length,
+      lng: acc.lng + coord.lng / coordinates.length
+    }), { lat: 0, lng: 0 });
 
     try {
       const response = await axios.get('https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup', {
@@ -127,8 +116,7 @@ const FindLeads = () => {
         }
       });
 
-      setLeads(response.data.Records);
-      setShowSaveListPrompt(true);
+      setLeads(response.data.Records || []);
     } catch (error) {
       console.error('Error finding leads:', error);
       alert('An error occurred while finding leads. Please try again.');
@@ -136,8 +124,8 @@ const FindLeads = () => {
   };
 
   const handleSaveList = async () => {
-    if (!listName.trim()) {
-      alert('Please enter a name for the list.');
+    if (!listName.trim() || leads.length === 0) {
+      alert('Please enter a list name and ensure leads are found.');
       return;
     }
 
@@ -157,11 +145,13 @@ const FindLeads = () => {
       if (error) throw error;
 
       alert('List saved successfully!');
-      setShowSaveListPrompt(false);
       setLeads([]);
       setListName('');
       setAddress('');
-      setSelectedArea(null);
+      if (selectedArea) {
+        selectedArea.setMap(null);
+        setSelectedArea(null);
+      }
     } catch (error) {
       console.error('Error saving list:', error);
       alert('An error occurred while saving the list. Please try again.');
@@ -190,7 +180,7 @@ const FindLeads = () => {
           <Button className="mt-4" onClick={handleFindLeads}>Find Leads in Selected Area</Button>
         </CardContent>
       </Card>
-      {showSaveListPrompt && (
+      {leads.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Save Leads List</CardTitle>
@@ -204,7 +194,6 @@ const FindLeads = () => {
               className="mb-2"
             />
             <Button onClick={handleSaveList}>Save List</Button>
-            <Button className="ml-2" onClick={() => setShowSaveListPrompt(false)}>Cancel</Button>
           </CardContent>
         </Card>
       )}
