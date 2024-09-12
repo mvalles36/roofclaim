@@ -1,85 +1,50 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from '../integrations/supabase/supabase';
 import axios from 'axios';
+import { useLoadScript, GoogleMap, DrawingManager } from '@react-google-maps/api';
+
+const libraries = ['places', 'drawing'];
 
 const FindLeads = () => {
   const [address, setAddress] = useState('');
-  const [map, setMap] = useState(null);
-  const [drawingManager, setDrawingManager] = useState(null);
   const [selectedArea, setSelectedArea] = useState(null);
   const [leads, setLeads] = useState([]);
   const [listName, setListName] = useState('');
   const mapRef = useRef(null);
-  const inputRef = useRef(null);
+  const drawingManagerRef = useRef(null);
 
-  useEffect(() => {
-    const loadGoogleMapsScript = () => {
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=drawing,places`;
-      script.async = true;
-      script.onload = initializeMap;
-      document.head.appendChild(script);
-    };
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    libraries,
+  });
 
-    if (!window.google) {
-      loadGoogleMapsScript();
-    } else {
-      initializeMap();
-    }
+  const onMapLoad = useCallback((map) => {
+    mapRef.current = map;
   }, []);
 
-  const initializeMap = () => {
-    if (!mapRef.current) return;
+  const onDrawingManagerLoad = useCallback((drawingManager) => {
+    drawingManagerRef.current = drawingManager;
+  }, []);
 
-    const newMap = new window.google.maps.Map(mapRef.current, {
-      center: { lat: 40.7128, lng: -74.0060 },
-      zoom: 12,
-    });
-    setMap(newMap);
-
-    const newDrawingManager = new window.google.maps.drawing.DrawingManager({
-      drawingMode: window.google.maps.drawing.OverlayType.POLYGON,
-      drawingControl: true,
-      drawingControlOptions: {
-        position: window.google.maps.ControlPosition.TOP_CENTER,
-        drawingModes: [window.google.maps.drawing.OverlayType.POLYGON],
-      },
-    });
-    newDrawingManager.setMap(newMap);
-    setDrawingManager(newDrawingManager);
-
-    window.google.maps.event.addListener(newDrawingManager, 'overlaycomplete', (event) => {
-      if (selectedArea) {
-        selectedArea.setMap(null);
-      }
-      setSelectedArea(event.overlay);
-      newDrawingManager.setDrawingMode(null);
-    });
-
-    const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
-      types: ['address'],
-    });
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace();
-      if (place.geometry) {
-        setAddress(place.formatted_address);
-        newMap.setCenter(place.geometry.location);
-        newMap.setZoom(15);
-      }
-    });
-  };
+  const onPolygonComplete = useCallback((polygon) => {
+    if (selectedArea) {
+      selectedArea.setMap(null);
+    }
+    setSelectedArea(polygon);
+    drawingManagerRef.current.setDrawingMode(null);
+  }, [selectedArea]);
 
   const handleAddressSearch = () => {
-    if (!address.trim() || !map) return;
+    if (!address.trim() || !mapRef.current) return;
 
     const geocoder = new window.google.maps.Geocoder();
     geocoder.geocode({ address }, (results, status) => {
       if (status === 'OK') {
-        map.setCenter(results[0].geometry.location);
-        map.setZoom(15);
+        mapRef.current.setCenter(results[0].geometry.location);
+        mapRef.current.setZoom(15);
       } else {
         alert('Geocode was not successful: ' + status);
       }
@@ -158,6 +123,9 @@ const FindLeads = () => {
     }
   };
 
+  if (loadError) return <div>Error loading maps</div>;
+  if (!isLoaded) return <div>Loading maps</div>;
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Find Leads</h1>
@@ -172,11 +140,27 @@ const FindLeads = () => {
               placeholder="Enter an address"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              ref={inputRef}
             />
             <Button onClick={handleAddressSearch}>Search</Button>
           </div>
-          <div ref={mapRef} style={{ width: '100%', height: '400px' }}></div>
+          <GoogleMap
+            mapContainerStyle={{ width: '100%', height: '400px' }}
+            center={{ lat: 40.7128, lng: -74.0060 }}
+            zoom={12}
+            onLoad={onMapLoad}
+          >
+            <DrawingManager
+              onLoad={onDrawingManagerLoad}
+              onPolygonComplete={onPolygonComplete}
+              options={{
+                drawingControl: true,
+                drawingControlOptions: {
+                  position: window.google.maps.ControlPosition.TOP_CENTER,
+                  drawingModes: [window.google.maps.drawing.OverlayType.POLYGON],
+                },
+              }}
+            />
+          </GoogleMap>
           <Button className="mt-4" onClick={handleFindLeads}>Find Leads in Selected Area</Button>
         </CardContent>
       </Card>

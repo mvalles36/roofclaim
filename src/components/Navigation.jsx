@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { supabase } from '../integrations/supabase/supabase';
 import { useEffect, useState } from 'react';
+import { HomeIcon, UsersIcon, ClipboardIcon, FileTextIcon, MapPinIcon } from "lucide-react";
 
 const Navigation = () => {
   const [session, setSession] = useState(null);
@@ -47,47 +48,40 @@ const Navigation = () => {
     await supabase.auth.signOut();
   };
 
+  if (!session) return null;
+
   return (
-    <nav className="bg-white shadow-md">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center py-4">
-          <Link to="/" className="text-xl font-bold text-gray-800">RoofClaim CRM</Link>
-          <div className="space-x-4">
-            {session ? (
-              <>
-                <Link to="/" className="text-gray-600 hover:text-gray-800">Dashboard</Link>
-                <Link to="/calendar" className="text-gray-600 hover:text-gray-800">Calendar</Link>
-                {(userRole === 'customer' || userRole === 'admin') && (
-                  <>
-                    <Link to="/inspection-scheduling" className="text-gray-600 hover:text-gray-800">Schedule Inspection</Link>
-                    <Link to="/installation-tracking" className="text-gray-600 hover:text-gray-800">Installation Progress</Link>
-                  </>
-                )}
-                {(userRole === 'employee' || userRole === 'admin') && (
-                  <Link to="/inspection-report" className="text-gray-600 hover:text-gray-800">Inspection Reports</Link>
-                )}
-                {(userRole === 'admin' || userRole === 'admin') && (
-                  <>
-                    <Link to="/claim-management" className="text-gray-600 hover:text-gray-800">Claims</Link>
-                    <Link to="/policy-comparison" className="text-gray-600 hover:text-gray-800">Policy Comparison</Link>
-                  </>
-                )}
-                {userRole === 'admin' && (
-                  <>
-                    <Link to="/AdminDashboard" className="text-gray-600 hover:text-gray-800">Admin</Link>
-                    <Link to="/find-leads" className="text-gray-600 hover:text-gray-800">Find Leads</Link>
-                  </>
-                )}
-                <Button onClick={handleLogout}>Logout</Button>
-              </>
-            ) : (
-              <>
-                <Link to="/login" className="text-gray-600 hover:text-gray-800">Login</Link>
-                <Link to="/signup" className="text-gray-600 hover:text-gray-800">Sign Up</Link>
-              </>
-            )}
-          </div>
-        </div>
+    <nav className="bg-gray-800 text-white w-64 h-screen p-4">
+      <ul className="space-y-2">
+        <li>
+          <Link to="/" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
+            <HomeIcon className="h-5 w-5" />
+            <span>Dashboard</span>
+          </Link>
+        </li>
+        <li>
+          <Link to="/inspection-scheduling" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
+            <ClipboardIcon className="h-5 w-5" />
+            <span>Inspections</span>
+          </Link>
+        </li>
+        <li>
+          <Link to="/claim-management" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
+            <FileTextIcon className="h-5 w-5" />
+            <span>Supplements</span>
+          </Link>
+        </li>
+        {userRole === 'admin' && (
+          <li>
+            <Link to="/find-leads" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
+              <MapPinIcon className="h-5 w-5" />
+              <span>Find Leads</span>
+            </Link>
+          </li>
+        )}
+      </ul>
+      <div className="absolute bottom-4 left-4 right-4">
+        <Button onClick={handleLogout} className="w-full">Logout</Button>
       </div>
     </nav>
   );
