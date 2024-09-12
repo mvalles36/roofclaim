@@ -18,6 +18,7 @@ import PolicyComparison from './pages/PolicyComparison';
 import Calendar from './pages/Calendar';
 import FindLeads from './pages/FindLeads';
 import Contacts from './pages/Contacts';
+import SupplementTracking from './pages/SupplementTracking';
 
 const queryClient = new QueryClient();
 
@@ -68,6 +69,7 @@ const App = () => {
                   <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
                   <Route path="/find-leads" element={<ProtectedRoute allowedRoles={['admin']}><FindLeads /></ProtectedRoute>} />
                   <Route path="/contacts" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><Contacts /></ProtectedRoute>} />
+                  <Route path="/supplement-tracking" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><SupplementTracking /></ProtectedRoute>} />
                 </Routes>
               </main>
             </div>

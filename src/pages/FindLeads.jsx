@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from '../integrations/supabase/supabase';
 import axios from 'axios';
 import { useLoadScript, GoogleMap, DrawingManager, Autocomplete } from '@react-google-maps/api';
@@ -13,6 +14,8 @@ const FindLeads = () => {
   const [selectedArea, setSelectedArea] = useState(null);
   const [leads, setLeads] = useState([]);
   const [listName, setListName] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [mapCenter, setMapCenter] = useState({ lat: 40.7128, lng: -74.0060 });
   const mapRef = useRef(null);
   const drawingManagerRef = useRef(null);
   const autocompleteRef = useRef(null);
@@ -46,7 +49,12 @@ const FindLeads = () => {
     if (autocompleteRef.current) {
       const place = autocompleteRef.current.getPlace();
       if (place.geometry) {
-        mapRef.current.setCenter(place.geometry.location);
+        const newCenter = {
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng()
+        };
+        setMapCenter(newCenter);
+        mapRef.current.panTo(newCenter);
         mapRef.current.setZoom(15);
         setAddress(place.formatted_address);
       }
@@ -83,7 +91,17 @@ const FindLeads = () => {
         }
       });
 
-      setLeads(response.data.Records || []);
+      const processedLeads = response.data.Records.map(record => ({
+        name: record.AddressLine1,
+        address: `${record.AddressLine1}, ${record.City}, ${record.State} ${record.PostalCode}`,
+        telephone: record.TelephoneNumber,
+        email: record.EmailAddress,
+        income: record.Income,
+        coordinates: JSON.stringify({ lat: record.Latitude, lng: record.Longitude }),
+      }));
+
+      setLeads(processedLeads);
+      setIsDialogOpen(true);
     } catch (error) {
       console.error('Error finding leads:', error);
       alert('An error occurred while finding leads. Please try again.');
@@ -99,15 +117,7 @@ const FindLeads = () => {
     try {
       const { error } = await supabase
         .from('leads')
-        .insert(leads.map(lead => ({
-          name: lead.AddressLine1,
-          address: `${lead.AddressLine1}, ${lead.City}, ${lead.State} ${lead.PostalCode}`,
-          telephone: lead.TelephoneNumber,
-          email: lead.EmailAddress,
-          income: lead.Income,
-          coordinates: JSON.stringify({ lat: lead.Latitude, lng: lead.Longitude }),
-          list_name: listName
-        })));
+        .insert(leads.map(lead => ({ ...lead, list_name: listName })));
 
       if (error) throw error;
 
@@ -115,6 +125,7 @@ const FindLeads = () => {
       setLeads([]);
       setListName('');
       setAddress('');
+      setIsDialogOpen(false);
       if (selectedArea) {
         selectedArea.setMap(null);
         setSelectedArea(null);
@@ -151,7 +162,7 @@ const FindLeads = () => {
           </div>
           <GoogleMap
             mapContainerStyle={{ width: '100%', height: '400px' }}
-            center={{ lat: 40.7128, lng: -74.0060 }}
+            center={mapCenter}
             zoom={12}
             onLoad={onMapLoad}
           >
@@ -164,29 +175,39 @@ const FindLeads = () => {
                   position: window.google.maps.ControlPosition.TOP_CENTER,
                   drawingModes: [window.google.maps.drawing.OverlayType.POLYGON],
                 },
+                polygonOptions: {
+                  fillColor: '#FF0000',
+                  fillOpacity: 0.3,
+                  strokeWeight: 2,
+                  clickable: false,
+                  editable: true,
+                  zIndex: 1,
+                },
               }}
             />
           </GoogleMap>
           <Button className="mt-4" onClick={handleFindLeads}>Find Leads in Selected Area</Button>
         </CardContent>
       </Card>
-      {leads.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Save Leads List</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Input
-              type="text"
-              placeholder="Enter a name for the list"
-              value={listName}
-              onChange={(e) => setListName(e.target.value)}
-              className="mb-2"
-            />
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save Leads List</DialogTitle>
+          </DialogHeader>
+          <Input
+            type="text"
+            placeholder="Enter a name for the list"
+            value={listName}
+            onChange={(e) => setListName(e.target.value)}
+            className="mb-4"
+          />
+          <p>Number of leads found: {leads.length}</p>
+          <DialogFooter>
             <Button onClick={handleSaveList}>Save List</Button>
-          </CardContent>
-        </Card>
-      )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
