@@ -6,16 +6,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { supabase } from '../integrations/supabase/supabase';
 import axios from 'axios';
 import { useLoadScript, GoogleMap, DrawingManager, Autocomplete } from '@react-google-maps/api';
-import '../index.css'; // Ensure this path is correct
+import '../index.css';  // Correct path to your index.css file
 
 const libraries = ['places', 'drawing'];
-
-const Tooltip = ({ onClose }) => (
-  <div className="tooltip-container">
-    <p><strong>Instructions:</strong> To draw a selection area, click the "Draw a Polygon" button and then click on the map to define the vertices of your polygon. Once you complete the shape, you can adjust the vertices if needed.</p>
-    <button onClick={onClose}>Got it, don't show again</button>
-  </div>
-);
 
 const FindLeads = () => {
   const [address, setAddress] = useState('');
@@ -24,7 +17,7 @@ const FindLeads = () => {
   const [listName, setListName] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [mapCenter, setMapCenter] = useState({ lat: 40.7128, lng: -74.0060 });
-  const [showTooltip, setShowTooltip] = useState(localStorage.getItem('tooltipSeen') !== 'true');
+  const [showInstructions, setShowInstructions] = useState(true);  // For first-time user instructions
   const mapRef = useRef(null);
   const drawingManagerRef = useRef(null);
   const autocompleteRef = useRef(null);
@@ -145,9 +138,8 @@ const FindLeads = () => {
     }
   };
 
-  const handleTooltipClose = () => {
-    localStorage.setItem('tooltipSeen', 'true');
-    setShowTooltip(false);
+  const handleCloseInstructions = () => {
+    setShowInstructions(false);
   };
 
   if (loadError) return <div>Error loading maps</div>;
@@ -161,6 +153,14 @@ const FindLeads = () => {
           <CardTitle>Search Area</CardTitle>
         </CardHeader>
         <CardContent>
+          {showInstructions && (
+            <div className="instructions">
+              <p>Draw a polygon around the area you want to search.</p>
+              <p>Use the drawing tools to create a box or shape around the desired area.</p>
+              <p>Click "Find Leads in Selected Area" to get contact records.</p>
+              <Button onClick={handleCloseInstructions}>Got it, don't show again</Button>
+            </div>
+          )}
           <div className="mb-4">
             <Autocomplete
               onLoad={onAutocompleteLoad}
@@ -222,8 +222,6 @@ const FindLeads = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {showTooltip && <Tooltip onClose={handleTooltipClose} />}
     </div>
   );
 };
