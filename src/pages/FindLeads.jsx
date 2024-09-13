@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -8,14 +8,24 @@ import { useLoadScript, GoogleMap, DrawingManager, Autocomplete } from '@react-g
 
 const libraries = ['places', 'drawing'];
 
+const mapContainerStyle = {
+  width: '100vw',
+  height: '100vh'
+};
+
+const center = {
+  lat: 32.7555,
+  lng: -97.3308
+};
+
 const FindLeads = () => {
   const [address, setAddress] = useState('');
   const [selectedArea, setSelectedArea] = useState(null);
   const [leads, setLeads] = useState([]);
   const [listName, setListName] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [mapCenter, setMapCenter] = useState({ lat: 32.7555, lng: -97.3308 });
-  const [mapZoom, setMapZoom] = useState(12);
+  const mapRef = useRef();
+  const autocompleteRef = useRef();
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -23,11 +33,21 @@ const FindLeads = () => {
   });
 
   const onMapLoad = useCallback((map) => {
-    // Map loaded callback
+    mapRef.current = map;
   }, []);
 
-  const onDrawingManagerLoad = useCallback((drawingManager) => {
-    // Drawing manager loaded callback
+  const onAutocompleteLoad = useCallback((autocomplete) => {
+    autocompleteRef.current = autocomplete;
+  }, []);
+
+  const onPlaceChanged = useCallback(() => {
+    if (autocompleteRef.current) {
+      const place = autocompleteRef.current.getPlace();
+      if (place.geometry) {
+        mapRef.current.panTo(place.geometry.location);
+        mapRef.current.setZoom(18);
+      }
+    }
   }, []);
 
   const onRectangleComplete = useCallback((rectangle) => {
@@ -36,10 +56,6 @@ const FindLeads = () => {
     }
     setSelectedArea(rectangle);
   }, [selectedArea]);
-
-  const handlePlaceSelect = useCallback(() => {
-    // Handle place selection
-  }, []);
 
   const handleFindLeads = useCallback(async () => {
     if (!selectedArea) {
@@ -116,53 +132,50 @@ const FindLeads = () => {
   if (!isLoaded) return <div>Loading maps...</div>;
 
   return (
-    <div className="h-screen flex flex-col">
-      <h1 className="text-3xl font-bold p-4">Find Leads</h1>
-      <div className="flex-grow relative">
-        <div className="absolute inset-0">
-          <Autocomplete onLoad={handlePlaceSelect} onPlaceChanged={handlePlaceSelect}>
-            <Input 
-              type="text" 
-              placeholder="Enter an address" 
-              value={address} 
-              onChange={(e) => setAddress(e.target.value)}
-              className="absolute top-4 left-4 z-10 w-64"
-            />
-          </Autocomplete>
-          <GoogleMap
-            mapContainerStyle={{ width: '100%', height: '100%' }}
-            center={mapCenter}
-            zoom={mapZoom}
-            onLoad={onMapLoad}
-          >
-            <DrawingManager
-              onLoad={onDrawingManagerLoad}
-              onRectangleComplete={onRectangleComplete}
-              options={{
-                drawingControl: true,
-                drawingControlOptions: {
-                  position: window.google.maps.ControlPosition.TOP_CENTER,
-                  drawingModes: [window.google.maps.drawing.OverlayType.RECTANGLE],
-                },
-                rectangleOptions: {
-                  fillColor: '#FF0000',
-                  fillOpacity: 0.3,
-                  strokeWeight: 2,
-                  clickable: false,
-                  editable: true,
-                  zIndex: 1,
-                },
-              }}
-            />
-          </GoogleMap>
-          <Button 
-            className="absolute bottom-4 right-4 z-10" 
-            onClick={handleFindLeads}
-          >
-            Find Leads in Selected Area
-          </Button>
-        </div>
-      </div>
+    <div className="h-screen w-screen relative">
+      <Autocomplete
+        onLoad={onAutocompleteLoad}
+        onPlaceChanged={onPlaceChanged}
+      >
+        <Input 
+          type="text" 
+          placeholder="Enter an address" 
+          value={address} 
+          onChange={(e) => setAddress(e.target.value)}
+          className="absolute top-4 left-4 z-10 w-64"
+        />
+      </Autocomplete>
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={center}
+        zoom={12}
+        onLoad={onMapLoad}
+      >
+        <DrawingManager
+          onRectangleComplete={onRectangleComplete}
+          options={{
+            drawingControl: true,
+            drawingControlOptions: {
+              position: window.google.maps.ControlPosition.TOP_CENTER,
+              drawingModes: [window.google.maps.drawing.OverlayType.RECTANGLE],
+            },
+            rectangleOptions: {
+              fillColor: '#FF0000',
+              fillOpacity: 0.3,
+              strokeWeight: 2,
+              clickable: false,
+              editable: true,
+              zIndex: 1,
+            },
+          }}
+        />
+      </GoogleMap>
+      <Button 
+        className="absolute bottom-4 right-4 z-10" 
+        onClick={handleFindLeads}
+      >
+        Find Leads in Selected Area
+      </Button>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
