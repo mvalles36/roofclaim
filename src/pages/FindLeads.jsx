@@ -23,8 +23,8 @@ const FindLeads = () => {
   const [leads, setLeads] = useState([]);
   const [listName, setListName] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const mapRef = useRef();
-  const autocompleteRef = useRef();
+  const mapRef = useRef(null);
+  const autocompleteRef = useRef(null);
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -85,7 +85,7 @@ const FindLeads = () => {
   }, [selectedArea]);
 
   const handleSaveList = useCallback(async () => {
-    if (!listName || leads.length === 0) {
+    if (!listName || leads.length === 0 || !selectedArea) {
       alert('Please provide a list name and ensure there are leads to save.');
       return;
     }
@@ -131,7 +131,13 @@ const FindLeads = () => {
             className="flex-grow"
           />
         </Autocomplete>
-        <Button onClick={() => mapRef.current.setZoom(18)}>Search</Button>
+        <Button onClick={() => {
+          if (mapRef.current) {
+            mapRef.current.setZoom(18);
+          }
+        }}>
+          Search
+        </Button>
       </div>
       <div className="border rounded">
         <GoogleMap
@@ -145,8 +151,8 @@ const FindLeads = () => {
             options={{
               drawingControl: true,
               drawingControlOptions: {
-                position: window.google.maps.ControlPosition.TOP_CENTER,
-                drawingModes: [window.google.maps.drawing.OverlayType.RECTANGLE],
+                position: google.maps.ControlPosition.TOP_CENTER,
+                drawingModes: [google.maps.drawing.OverlayType.RECTANGLE],
               },
               rectangleOptions: {
                 fillColor: '#FF0000',
