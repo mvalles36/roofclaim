@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from '../integrations/supabase/supabase';
@@ -18,6 +18,7 @@ const AdminDashboard = () => {
   const [supplementDistribution, setSupplementDistribution] = useState([]);
   const [inspectionStatus, setInspectionStatus] = useState([]);
   const [claimTrend, setClaimTrend] = useState([]);
+  const [supplementPerformance, setSupplementPerformance] = useState(0);
 
   useEffect(() => {
     fetchKPIs();
@@ -25,6 +26,7 @@ const AdminDashboard = () => {
     fetchSupplementDistribution();
     fetchInspectionStatus();
     fetchClaimTrend();
+    fetchSupplementPerformance();
   }, []);
 
   const fetchKPIs = async () => {
@@ -72,6 +74,12 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchSupplementPerformance = async () => {
+    // This would be a custom function to calculate the supplement performance
+    // For now, we'll use a dummy value
+    setSupplementPerformance(22.5);
+  };
+
   const kpiData = [
     { name: 'Contacts', value: kpis.contacts, icon: <Users className="h-8 w-8 text-blue-500" /> },
     { name: 'Supplements', value: kpis.supplements, icon: <FileText className="h-8 w-8 text-green-500" /> },
@@ -81,6 +89,12 @@ const AdminDashboard = () => {
   ];
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
+  const getSupplementPerformanceColor = (performance) => {
+    if (performance < 10) return 'bg-red-500';
+    if (performance > 30) return 'bg-green-500';
+    return 'bg-yellow-500';
+  };
 
   return (
     <div className="space-y-6 p-6 bg-gray-50">
@@ -177,6 +191,22 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
       </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Supplement Performance</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center">
+            <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mr-4">
+              <div 
+                className={`h-2.5 rounded-full ${getSupplementPerformanceColor(supplementPerformance)}`} 
+                style={{width: `${supplementPerformance}%`}}
+              ></div>
+            </div>
+            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{supplementPerformance.toFixed(2)}%</span>
+          </div>
+        </CardContent>
+      </Card>
       <div className="flex space-x-4">
         <Button asChild>
           <Link to="/claim-management">Manage Claims</Link>
