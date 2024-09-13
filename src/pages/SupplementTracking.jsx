@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from '../integrations/supabase/supabase';
 import { FileUploader } from '../components/FileUploader';
 import { SupplementAnalyzer } from '../components/SupplementAnalyzer';
@@ -174,8 +175,18 @@ const SupplementTracking = () => {
         </>
       )}
       {supplementResult && <SupplementAnalyzer result={supplementResult} />}
-      <SupplementList />
-      <SupplementInbox />
+      <Tabs defaultValue="list">
+        <TabsList>
+          <TabsTrigger value="list">Supplement List</TabsTrigger>
+          <TabsTrigger value="inbox">Supplement Inbox</TabsTrigger>
+        </TabsList>
+        <TabsContent value="list">
+          <SupplementList />
+        </TabsContent>
+        <TabsContent value="inbox">
+          <SupplementInbox />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

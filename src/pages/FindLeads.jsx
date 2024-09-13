@@ -9,8 +9,8 @@ import { useLoadScript, GoogleMap, DrawingManager, Autocomplete } from '@react-g
 const libraries = ['places', 'drawing'];
 
 const mapContainerStyle = {
-  width: '100vw',
-  height: '100vh'
+  width: '100%',
+  height: 'calc(100vh - 64px)'
 };
 
 const center = {
@@ -132,7 +132,7 @@ const FindLeads = () => {
   if (!isLoaded) return <div>Loading maps...</div>;
 
   return (
-    <div className="h-screen w-screen relative">
+    <div className="h-full w-full relative">
       <Autocomplete
         onLoad={onAutocompleteLoad}
         onPlaceChanged={onPlaceChanged}

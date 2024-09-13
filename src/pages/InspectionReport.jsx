@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { supabase } from '../integrations/supabase/supabase';
 import { jsPDF } from "jspdf";
 import { Camera, Upload, FileText, Download } from 'lucide-react';
@@ -17,9 +18,13 @@ const InspectionReport = () => {
     phone: '',
     email: ''
   });
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleImageUpload = async (event) => {
     const files = Array.from(event.target.files);
+    const totalFiles = files.length;
+    let processedFiles = 0;
+
     for (const file of files) {
       const { data, error } = await supabase.storage
         .from('inspection-images')
@@ -33,8 +38,11 @@ const InspectionReport = () => {
           .getPublicUrl(data.path);
 
         setUploadedImages(prev => [...prev, publicUrl]);
-        processImageWithRoboflow(publicUrl);
+        await processImageWithRoboflow(publicUrl);
       }
+
+      processedFiles++;
+      setUploadProgress((processedFiles / totalFiles) * 100);
     }
   };
 
@@ -128,6 +136,7 @@ const InspectionReport = () => {
             </Label>
             <span className="text-sm text-gray-500">{uploadedImages.length} file(s) selected</span>
           </div>
+          <Progress value={uploadProgress} className="w-full" />
         </CardContent>
       </Card>
       <Card>

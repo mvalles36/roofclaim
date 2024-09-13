@@ -75,9 +75,12 @@ const AdminDashboard = () => {
   };
 
   const fetchSupplementPerformance = async () => {
-    // This would be a custom function to calculate the supplement performance
-    // For now, we'll use a dummy value
-    setSupplementPerformance(22.5);
+    const { data, error } = await supabase.rpc('get_supplement_performance');
+    if (error) {
+      console.error('Error fetching supplement performance:', error);
+    } else if (data) {
+      setSupplementPerformance(data.performance);
+    }
   };
 
   const kpiData = [
