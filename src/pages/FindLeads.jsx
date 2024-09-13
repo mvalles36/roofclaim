@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { supabase } from '../integrations/supabase/supabase';
 import axios from 'axios';
 import { useLoadScript, GoogleMap, DrawingManager, Autocomplete } from '@react-google-maps/api';
-import { motion } from 'framer-motion';
 
 const libraries = ['places', 'drawing'];
 
@@ -18,11 +17,6 @@ const FindLeads = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [mapCenter, setMapCenter] = useState({ lat: 32.7555, lng: -97.3308 });
   const [mapZoom, setMapZoom] = useState(12);
-  const [showInstructions, setShowInstructions] = useState(true);
-  const [currentStep, setCurrentStep] = useState(0);
-  const mapRef = useRef(null);
-  const drawingManagerRef = useRef(null);
-  const autocompleteRef = useRef(null);
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -30,11 +24,11 @@ const FindLeads = () => {
   });
 
   const onMapLoad = useCallback((map) => {
-    mapRef.current = map;
+    // Map loaded callback
   }, []);
 
   const onDrawingManagerLoad = useCallback((drawingManager) => {
-    drawingManagerRef.current = drawingManager;
+    // Drawing manager loaded callback
   }, []);
 
   const onRectangleComplete = useCallback((rectangle) => {
@@ -42,27 +36,10 @@ const FindLeads = () => {
       selectedArea.setMap(null);
     }
     setSelectedArea(rectangle);
-    drawingManagerRef.current.setDrawingMode(null);
   }, [selectedArea]);
 
-  const onAutocompleteLoad = useCallback((autocomplete) => {
-    autocompleteRef.current = autocomplete;
-  }, []);
-
   const handlePlaceSelect = useCallback(() => {
-    if (autocompleteRef.current) {
-      const place = autocompleteRef.current.getPlace();
-      if (place.geometry) {
-        const newCenter = {
-          lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lng()
-        };
-        setMapCenter(newCenter);
-        mapRef.current?.panTo(newCenter);
-        setMapZoom(18);
-        setAddress(place.formatted_address);
-      }
-    }
+    // Handle place selection
   }, []);
 
   const handleFindLeads = useCallback(async () => {
@@ -136,28 +113,8 @@ const FindLeads = () => {
     }
   }, [listName, leads, selectedArea]);
 
-  const instructionSteps = [
-    { title: "Welcome to Find Leads!", content: "This tool helps you find leads in a specific area. Let's walk through how to use it." },
-    { title: "Step 1: Choose an Area", content: "First, navigate to the area you're interested in. You can use the search bar to find a specific address." },
-    { title: "Step 2: Draw a Rectangle", content: "Click and drag on the map to draw a rectangle around the area you want to search." },
-    { title: "Step 3: Find Leads", content: "Click the 'Find Leads in Selected Area' button to search for leads within your selected area." },
-    { title: "You're All Set!", content: "You now know how to use the Find Leads tool. Click 'Get Started' to begin your search." }
-  ];
-
-  const handleNextStep = () => {
-    if (currentStep < instructionSteps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      setShowInstructions(false);
-    }
-  };
-
-  const handleCloseInstructions = () => {
-    setShowInstructions(false);
-  };
-
   if (loadError) return <div>Error loading maps</div>;
-  if (!isLoaded) return <div>Loading maps</div>;
+  if (!isLoaded) return <div>Loading maps...</div>;
 
   return (
     <div className="space-y-6">
@@ -168,7 +125,7 @@ const FindLeads = () => {
         </CardHeader>
         <CardContent>
           <div className="mb-4">
-            <Autocomplete onLoad={onAutocompleteLoad} onPlaceChanged={handlePlaceSelect}>
+            <Autocomplete onLoad={handlePlaceSelect} onPlaceChanged={handlePlaceSelect}>
               <Input type="text" placeholder="Enter an address" value={address} onChange={(e) => setAddress(e.target.value)} />
             </Autocomplete>
           </div>
@@ -201,21 +158,6 @@ const FindLeads = () => {
           <Button className="mt-4" onClick={handleFindLeads}>Find Leads in Selected Area</Button>
         </CardContent>
       </Card>
-
-      <Dialog open={showInstructions} onOpenChange={setShowInstructions}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{instructionSteps[currentStep].title}</DialogTitle>
-          </DialogHeader>
-          <p>{instructionSteps[currentStep].content}</p>
-          <DialogFooter>
-            <Button onClick={handleCloseInstructions}>Skip</Button>
-            <Button onClick={handleNextStep}>
-              {currentStep === instructionSteps.length - 1 ? "Get Started" : "Next"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
