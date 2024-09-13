@@ -16,14 +16,12 @@ const AdminDashboard = () => {
   const [contactTrend, setContactTrend] = useState([]);
   const [supplementDistribution, setSupplementDistribution] = useState([]);
   const [inspectionStatus, setInspectionStatus] = useState([]);
-  const [supplementPerformance, setSupplementPerformance] = useState(0);
 
   useEffect(() => {
     fetchKPIs();
     fetchContactTrend();
     fetchSupplementDistribution();
     fetchInspectionStatus();
-    fetchSupplementPerformance();
   }, []);
 
   const fetchKPIs = async () => {
@@ -62,15 +60,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchSupplementPerformance = async () => {
-    const { data, error } = await supabase.rpc('get_supplement_performance');
-    if (error) {
-      console.error('Error fetching supplement performance:', error);
-    } else if (data) {
-      setSupplementPerformance(data.performance);
-    }
-  };
-
   const kpiData = [
     { name: 'Contacts', value: kpis.contacts, icon: <Users className="h-8 w-8 text-blue-500" /> },
     { name: 'Supplements', value: kpis.supplements, icon: <FileText className="h-8 w-8 text-green-500" /> },
@@ -79,12 +68,6 @@ const AdminDashboard = () => {
   ];
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
-
-  const getSupplementPerformanceColor = (performance) => {
-    if (performance < 10) return 'bg-red-500';
-    if (performance > 30) return 'bg-green-500';
-    return 'bg-yellow-500';
-  };
 
   return (
     <div className="space-y-6 p-6 bg-gray-50">
@@ -161,22 +144,6 @@ const AdminDashboard = () => {
                 <Bar dataKey="count" fill="#82ca9d" />
               </BarChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Supplement Performance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center">
-              <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mr-4">
-                <div 
-                  className={`h-2.5 rounded-full ${getSupplementPerformanceColor(supplementPerformance)}`} 
-                  style={{width: `${supplementPerformance}%`}}
-                ></div>
-              </div>
-              <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{supplementPerformance.toFixed(2)}%</span>
-            </div>
           </CardContent>
         </Card>
       </div>

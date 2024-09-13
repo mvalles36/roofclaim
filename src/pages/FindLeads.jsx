@@ -10,7 +10,7 @@ const libraries = ['places', 'drawing'];
 
 const mapContainerStyle = {
   width: '100%',
-  height: '80vh'
+  height: '60vh'
 };
 
 const center = {
@@ -147,7 +147,7 @@ const FindLeads = () => {
           />
         </Autocomplete>
       </div>
-      <div className="relative" style={{ height: '80vh' }}>
+      <div className="relative" style={{ height: '60vh' }}>
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           center={center}
