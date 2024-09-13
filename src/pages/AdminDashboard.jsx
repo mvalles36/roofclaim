@@ -11,13 +11,11 @@ const AdminDashboard = () => {
     contacts: 0,
     supplements: 0,
     inspections: 0,
-    claims: 0,
     revenue: 0
   });
   const [contactTrend, setContactTrend] = useState([]);
   const [supplementDistribution, setSupplementDistribution] = useState([]);
   const [inspectionStatus, setInspectionStatus] = useState([]);
-  const [claimTrend, setClaimTrend] = useState([]);
   const [supplementPerformance, setSupplementPerformance] = useState(0);
 
   useEffect(() => {
@@ -25,7 +23,6 @@ const AdminDashboard = () => {
     fetchContactTrend();
     fetchSupplementDistribution();
     fetchInspectionStatus();
-    fetchClaimTrend();
     fetchSupplementPerformance();
   }, []);
 
@@ -65,15 +62,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchClaimTrend = async () => {
-    const { data, error } = await supabase.rpc('get_claim_trend');
-    if (error) {
-      console.error('Error fetching claim trend:', error);
-    } else if (data) {
-      setClaimTrend(data);
-    }
-  };
-
   const fetchSupplementPerformance = async () => {
     const { data, error } = await supabase.rpc('get_supplement_performance');
     if (error) {
@@ -87,7 +75,6 @@ const AdminDashboard = () => {
     { name: 'Contacts', value: kpis.contacts, icon: <Users className="h-8 w-8 text-blue-500" /> },
     { name: 'Supplements', value: kpis.supplements, icon: <FileText className="h-8 w-8 text-green-500" /> },
     { name: 'Inspections', value: kpis.inspections, icon: <Clipboard className="h-8 w-8 text-yellow-500" /> },
-    { name: 'Claims', value: kpis.claims, icon: <BarChart2 className="h-8 w-8 text-purple-500" /> },
     { name: 'Revenue', value: `$${kpis.revenue.toLocaleString()}`, icon: <DollarSign className="h-8 w-8 text-red-500" /> },
   ];
 
@@ -102,7 +89,7 @@ const AdminDashboard = () => {
   return (
     <div className="space-y-6 p-6 bg-gray-50">
       <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {kpiData.map((kpi) => (
           <Card key={kpi.name} className="hover:shadow-lg transition-shadow duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -178,42 +165,22 @@ const AdminDashboard = () => {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Claim Trend</CardTitle>
+            <CardTitle>Supplement Performance</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={claimTrend}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="count" stroke="#82ca9d" />
-              </LineChart>
-            </ResponsiveContainer>
+            <div className="flex items-center">
+              <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mr-4">
+                <div 
+                  className={`h-2.5 rounded-full ${getSupplementPerformanceColor(supplementPerformance)}`} 
+                  style={{width: `${supplementPerformance}%`}}
+                ></div>
+              </div>
+              <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{supplementPerformance.toFixed(2)}%</span>
+            </div>
           </CardContent>
         </Card>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Supplement Performance</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center">
-            <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mr-4">
-              <div 
-                className={`h-2.5 rounded-full ${getSupplementPerformanceColor(supplementPerformance)}`} 
-                style={{width: `${supplementPerformance}%`}}
-              ></div>
-            </div>
-            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{supplementPerformance.toFixed(2)}%</span>
-          </div>
-        </CardContent>
-      </Card>
       <div className="flex space-x-4">
-        <Button asChild>
-          <Link to="/claim-management">Manage Claims</Link>
-        </Button>
         <Button asChild>
           <Link to="/inspection-scheduling">Schedule Inspections</Link>
         </Button>
@@ -222,6 +189,9 @@ const AdminDashboard = () => {
         </Button>
         <Button asChild>
           <Link to="/supplement-tracking">Supplement Tracking</Link>
+        </Button>
+        <Button asChild>
+          <Link to="/tasks">Tasks</Link>
         </Button>
       </div>
     </div>

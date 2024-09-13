@@ -10,7 +10,7 @@ const libraries = ['places', 'drawing'];
 
 const mapContainerStyle = {
   width: '100%',
-  height: 'calc(100vh - 64px)'
+  height: '80vh'
 };
 
 const center = {
@@ -132,46 +132,50 @@ const FindLeads = () => {
   if (!isLoaded) return <div>Loading maps...</div>;
 
   return (
-    <div className="h-full w-full relative">
-      <Autocomplete
-        onLoad={onAutocompleteLoad}
-        onPlaceChanged={onPlaceChanged}
-      >
-        <Input 
-          type="text" 
-          placeholder="Enter an address" 
-          value={address} 
-          onChange={(e) => setAddress(e.target.value)}
-          className="absolute top-4 left-4 z-10 w-64"
-        />
-      </Autocomplete>
-      <GoogleMap
-        mapContainerStyle={mapContainerStyle}
-        center={center}
-        zoom={12}
-        onLoad={onMapLoad}
-      >
-        <DrawingManager
-          onRectangleComplete={onRectangleComplete}
-          options={{
-            drawingControl: true,
-            drawingControlOptions: {
-              position: window.google.maps.ControlPosition.TOP_CENTER,
-              drawingModes: [window.google.maps.drawing.OverlayType.RECTANGLE],
-            },
-            rectangleOptions: {
-              fillColor: '#FF0000',
-              fillOpacity: 0.3,
-              strokeWeight: 2,
-              clickable: false,
-              editable: true,
-              zIndex: 1,
-            },
-          }}
-        />
-      </GoogleMap>
+    <div className="h-full w-full relative p-4">
+      <div className="mb-4">
+        <Autocomplete
+          onLoad={onAutocompleteLoad}
+          onPlaceChanged={onPlaceChanged}
+        >
+          <Input 
+            type="text" 
+            placeholder="Enter an address" 
+            value={address} 
+            onChange={(e) => setAddress(e.target.value)}
+            className="w-full"
+          />
+        </Autocomplete>
+      </div>
+      <div className="relative" style={{ height: '80vh' }}>
+        <GoogleMap
+          mapContainerStyle={mapContainerStyle}
+          center={center}
+          zoom={12}
+          onLoad={onMapLoad}
+        >
+          <DrawingManager
+            onRectangleComplete={onRectangleComplete}
+            options={{
+              drawingControl: true,
+              drawingControlOptions: {
+                position: window.google.maps.ControlPosition.TOP_CENTER,
+                drawingModes: [window.google.maps.drawing.OverlayType.RECTANGLE],
+              },
+              rectangleOptions: {
+                fillColor: '#FF0000',
+                fillOpacity: 0.3,
+                strokeWeight: 2,
+                clickable: false,
+                editable: true,
+                zIndex: 1,
+              },
+            }}
+          />
+        </GoogleMap>
+      </div>
       <Button 
-        className="absolute bottom-4 right-4 z-10" 
+        className="mt-4" 
         onClick={handleFindLeads}
       >
         Find Leads in Selected Area

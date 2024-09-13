@@ -12,12 +12,11 @@ import EmployeeDashboard from './pages/EmployeeDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import InspectionScheduling from './pages/InspectionScheduling';
 import InspectionReport from './pages/InspectionReport';
-import ClaimManagement from './pages/ClaimManagement';
 import InstallationTracking from './pages/InstallationTracking';
-import Calendar from './pages/Calendar';
 import FindLeads from './pages/FindLeads';
 import Contacts from './pages/Contacts';
 import SupplementTracking from './pages/SupplementTracking';
+import Tasks from './pages/Tasks';
 
 const queryClient = new QueryClient();
 
@@ -62,12 +61,11 @@ const App = () => {
                   />
                   <Route path="/inspection-scheduling" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><InspectionScheduling /></ProtectedRoute>} />
                   <Route path="/inspection-report" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><InspectionReport /></ProtectedRoute>} />
-                  <Route path="/claim-management" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><ClaimManagement /></ProtectedRoute>} />
                   <Route path="/installation-tracking" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><InstallationTracking /></ProtectedRoute>} />
-                  <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
                   <Route path="/find-leads" element={<ProtectedRoute allowedRoles={['admin']}><FindLeads /></ProtectedRoute>} />
                   <Route path="/contacts" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><Contacts /></ProtectedRoute>} />
                   <Route path="/supplement-tracking" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><SupplementTracking /></ProtectedRoute>} />
+                  <Route path="/tasks" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><Tasks /></ProtectedRoute>} />
                 </Routes>
               </main>
             </div>
