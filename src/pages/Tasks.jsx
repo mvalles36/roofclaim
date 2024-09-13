@@ -27,6 +27,11 @@ const Tasks = () => {
   };
 
   const handleAddTask = async () => {
+    if (!newTask.title || !newTask.assignee || !newTask.department) {
+      alert('Please fill out all fields.');
+      return;
+    }
+
     const { data, error } = await supabase
       .from('tasks')
       .insert([newTask]);
