@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -117,20 +116,21 @@ const FindLeads = () => {
   if (!isLoaded) return <div>Loading maps...</div>;
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Find Leads</h1>
-      <Card>
-        <CardHeader>
-          <CardTitle>Search Area</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4">
-            <Autocomplete onLoad={handlePlaceSelect} onPlaceChanged={handlePlaceSelect}>
-              <Input type="text" placeholder="Enter an address" value={address} onChange={(e) => setAddress(e.target.value)} />
-            </Autocomplete>
-          </div>
+    <div className="h-screen flex flex-col">
+      <h1 className="text-3xl font-bold p-4">Find Leads</h1>
+      <div className="flex-grow relative">
+        <div className="absolute inset-0">
+          <Autocomplete onLoad={handlePlaceSelect} onPlaceChanged={handlePlaceSelect}>
+            <Input 
+              type="text" 
+              placeholder="Enter an address" 
+              value={address} 
+              onChange={(e) => setAddress(e.target.value)}
+              className="absolute top-4 left-4 z-10 w-64"
+            />
+          </Autocomplete>
           <GoogleMap
-            mapContainerStyle={{ width: '100%', height: '400px' }}
+            mapContainerStyle={{ width: '100%', height: '100%' }}
             center={mapCenter}
             zoom={mapZoom}
             onLoad={onMapLoad}
@@ -155,9 +155,14 @@ const FindLeads = () => {
               }}
             />
           </GoogleMap>
-          <Button className="mt-4" onClick={handleFindLeads}>Find Leads in Selected Area</Button>
-        </CardContent>
-      </Card>
+          <Button 
+            className="absolute bottom-4 right-4 z-10" 
+            onClick={handleFindLeads}
+          >
+            Find Leads in Selected Area
+          </Button>
+        </div>
+      </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>

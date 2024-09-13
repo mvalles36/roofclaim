@@ -2,11 +2,15 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { supabase } from '../integrations/supabase/supabase';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Contacts = () => {
   const [contacts, setContacts] = useState([]);
   const [newContact, setNewContact] = useState({ name: '', email: '', phone: '' });
+  const [selectedContact, setSelectedContact] = useState(null);
 
   useEffect(() => {
     fetchContacts();
@@ -36,6 +40,25 @@ const Contacts = () => {
     } else {
       fetchContacts();
       setNewContact({ name: '', email: '', phone: '' });
+    }
+  };
+
+  const fetchContactDetails = async (contactId) => {
+    const { data, error } = await supabase
+      .from('users')
+      .select(`
+        *,
+        insurance_policies (*),
+        inspections (*),
+        supplements (*)
+      `)
+      .eq('id', contactId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching contact details:', error);
+    } else {
+      setSelectedContact(data);
     }
   };
 
@@ -83,6 +106,75 @@ const Contacts = () => {
                   <p>{contact.email}</p>
                   <p>{contact.phone}</p>
                 </div>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button onClick={() => fetchContactDetails(contact.id)}>View Details</Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-3xl">
+                    <DialogHeader>
+                      <DialogTitle>{selectedContact?.name}</DialogTitle>
+                    </DialogHeader>
+                    {selectedContact && (
+                      <Tabs defaultValue="insurance">
+                        <TabsList>
+                          <TabsTrigger value="insurance">Insurance Policies</TabsTrigger>
+                          <TabsTrigger value="inspections">Inspections</TabsTrigger>
+                          <TabsTrigger value="supplements">Supplements</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="insurance">
+                          <h3 className="text-lg font-semibold mb-2">Insurance Policies</h3>
+                          {selectedContact.insurance_policies.length > 0 ? (
+                            <ul>
+                              {selectedContact.insurance_policies.map((policy) => (
+                                <li key={policy.id}>
+                                  <p>Policy Number: {policy.policy_number}</p>
+                                  <p>Provider: {policy.provider}</p>
+                                  <a href={policy.document_url} target="_blank" rel="noopener noreferrer">View Policy Document</a>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p>No insurance policies found.</p>
+                          )}
+                        </TabsContent>
+                        <TabsContent value="inspections">
+                          <h3 className="text-lg font-semibold mb-2">Inspections</h3>
+                          {selectedContact.inspections.length > 0 ? (
+                            <ul>
+                              {selectedContact.inspections.map((inspection) => (
+                                <li key={inspection.id}>
+                                  <p>Date: {new Date(inspection.inspection_date).toLocaleDateString()}</p>
+                                  <p>Status: {inspection.status}</p>
+                                  {inspection.report_url && (
+                                    <a href={inspection.report_url} target="_blank" rel="noopener noreferrer">View Inspection Report</a>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p>No inspections found.</p>
+                          )}
+                        </TabsContent>
+                        <TabsContent value="supplements">
+                          <h3 className="text-lg font-semibold mb-2">Supplements</h3>
+                          {selectedContact.supplements.length > 0 ? (
+                            <ul>
+                              {selectedContact.supplements.map((supplement) => (
+                                <li key={supplement.id}>
+                                  <p>Date: {new Date(supplement.created_at).toLocaleDateString()}</p>
+                                  <p>Status: {supplement.status}</p>
+                                  <p>Amount: ${supplement.amount}</p>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p>No supplements found.</p>
+                          )}
+                        </TabsContent>
+                      </Tabs>
+                    )}
+                  </DialogContent>
+                </Dialog>
               </li>
             ))}
           </ul>
