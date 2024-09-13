@@ -6,9 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { supabase } from '../integrations/supabase/supabase';
 import axios from 'axios';
 import { useLoadScript, GoogleMap, DrawingManager, Autocomplete } from '@react-google-maps/api';
-import { Modal } from '@/components/ui/modal';  // Assuming you have a Modal component
-import { motion } from 'framer-motion';  // For animations
-import '../styles/index.css';
+import { motion } from 'framer-motion';
 
 const libraries = ['places', 'drawing'];
 
@@ -18,7 +16,7 @@ const FindLeads = () => {
   const [leads, setLeads] = useState([]);
   const [listName, setListName] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [mapCenter, setMapCenter] = useState({ lat: 32.7555, lng: -97.3308 }); // Fort Worth, Texas
+  const [mapCenter, setMapCenter] = useState({ lat: 32.7555, lng: -97.3308 });
   const [mapZoom, setMapZoom] = useState(12);
   const [showInstructions, setShowInstructions] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
@@ -31,11 +29,11 @@ const FindLeads = () => {
     libraries,
   });
 
- const onMapLoad = useCallback((map) => {
+  const onMapLoad = useCallback((map) => {
     mapRef.current = map;
   }, []);
 
- const onDrawingManagerLoad = useCallback((drawingManager) => {
+  const onDrawingManagerLoad = useCallback((drawingManager) => {
     drawingManagerRef.current = drawingManager;
   }, []);
 
@@ -61,7 +59,7 @@ const FindLeads = () => {
         };
         setMapCenter(newCenter);
         mapRef.current?.panTo(newCenter);
-        setMapZoom(18); // Zoom in closer to see individual houses
+        setMapZoom(18);
         setAddress(place.formatted_address);
       }
     }
@@ -82,9 +80,9 @@ const FindLeads = () => {
         params: {
           id: import.meta.env.VITE_MELISSA_DATA_API_KEY,
           format: "json",
-          recs: "20", // Increase the number of records to fetch
+          recs: "20",
           opt: "IncludeApartments:off;IncludeUndeliverable:off;IncludeEmptyLots:off",
-          bbox: `${sw.lat()},${sw.lng()},${ne.lat()},${ne.lng()}` // Use bounding box
+          bbox: `${sw.lat()},${sw.lng()},${ne.lat()},${ne.lng()}`
         }
       });
 
@@ -110,57 +108,40 @@ const FindLeads = () => {
     }
   }, [selectedArea]);
 
- const handleSaveList = useCallback(async () => {
-    // ... (unchanged)
-  }, [listName, leads, selectedArea]);
-  
- const instructionSteps = [
-    {
-      title: "Welcome to Find Leads!",
-      content: "This tool helps you find leads in a specific area. Let's walk through how to use it.",
-      animation: null
-    },
-    {
-      title: "Step 1: Choose an Area",
-      content: "First, navigate to the area you're interested in. You can use the search bar to find a specific address.",
-      animation: (
-        <motion.div
-          animate={{ x: [0, 200, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="h-8 w-32 bg-blue-500 rounded"
-        />
-      )
-    },
-    {
-      title: "Step 2: Draw a Rectangle",
-      content: "Click and drag on the map to draw a rectangle around the area you want to search.",
-      animation: (
-        <motion.div
-          initial={{ width: 0, height: 0 }}
-          animate={{ width: 200, height: 100 }}
-          transition={{ duration: 1, repeat: Infinity }}
-          className="border-2 border-red-500"
-        />
-      )
-    },
-    {
-      title: "Step 3: Find Leads",
-      content: "Click the 'Find Leads in Selected Area' button to search for leads within your selected area.",
-      animation: (
-        <motion.div
-          animate={{ scale: [1, 1.1, 1] }}
-          transition={{ duration: 1, repeat: Infinity }}
-          className="p-2 bg-green-500 rounded text-white"
-        >
-          Find Leads
-        </motion.div>
-      )
-    },
-    {
-      title: "You're All Set!",
-      content: "You now know how to use the Find Leads tool. Click 'Get Started' to begin your search.",
-      animation: null
+  const handleSaveList = useCallback(async () => {
+    if (!listName || leads.length === 0) {
+      alert('Please provide a list name and ensure there are leads to save.');
+      return;
     }
+
+    try {
+      const { data, error } = await supabase
+        .from('lead_lists')
+        .insert([
+          { 
+            name: listName, 
+            leads: leads,
+            area: JSON.stringify(selectedArea.getBounds().toJSON())
+          }
+        ]);
+
+      if (error) throw error;
+
+      alert('Lead list saved successfully!');
+      setIsDialogOpen(false);
+      setListName('');
+    } catch (error) {
+      console.error('Error saving lead list:', error);
+      alert('An error occurred while saving the lead list. Please try again.');
+    }
+  }, [listName, leads, selectedArea]);
+
+  const instructionSteps = [
+    { title: "Welcome to Find Leads!", content: "This tool helps you find leads in a specific area. Let's walk through how to use it." },
+    { title: "Step 1: Choose an Area", content: "First, navigate to the area you're interested in. You can use the search bar to find a specific address." },
+    { title: "Step 2: Draw a Rectangle", content: "Click and drag on the map to draw a rectangle around the area you want to search." },
+    { title: "Step 3: Find Leads", content: "Click the 'Find Leads in Selected Area' button to search for leads within your selected area." },
+    { title: "You're All Set!", content: "You now know how to use the Find Leads tool. Click 'Get Started' to begin your search." }
   ];
 
   const handleNextStep = () => {
@@ -187,16 +168,8 @@ const FindLeads = () => {
         </CardHeader>
         <CardContent>
           <div className="mb-4">
-            <Autocomplete
-              onLoad={onAutocompleteLoad}
-              onPlaceChanged={handlePlaceSelect}
-            >
-              <Input
-                type="text"
-                placeholder="Enter an address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
+            <Autocomplete onLoad={onAutocompleteLoad} onPlaceChanged={handlePlaceSelect}>
+              <Input type="text" placeholder="Enter an address" value={address} onChange={(e) => setAddress(e.target.value)} />
             </Autocomplete>
           </div>
           <GoogleMap
@@ -229,24 +202,36 @@ const FindLeads = () => {
         </CardContent>
       </Card>
 
-      <Modal isOpen={showInstructions} onClose={handleCloseInstructions}>
-        <div className="p-6">
-          <h2 className="text-2xl font-bold mb-4">{instructionSteps[currentStep].title}</h2>
-          <p className="mb-4">{instructionSteps[currentStep].content}</p>
-          <div className="flex justify-center mb-4">
-            {instructionSteps[currentStep].animation}
-          </div>
-          <div className="flex justify-between">
+      <Dialog open={showInstructions} onOpenChange={setShowInstructions}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{instructionSteps[currentStep].title}</DialogTitle>
+          </DialogHeader>
+          <p>{instructionSteps[currentStep].content}</p>
+          <DialogFooter>
             <Button onClick={handleCloseInstructions}>Skip</Button>
             <Button onClick={handleNextStep}>
               {currentStep === instructionSteps.length - 1 ? "Get Started" : "Next"}
             </Button>
-          </div>
-        </div>
-      </Modal>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        {/* ... (Dialog content remains unchanged) ... */}
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save Lead List</DialogTitle>
+          </DialogHeader>
+          <Input
+            placeholder="Enter list name"
+            value={listName}
+            onChange={(e) => setListName(e.target.value)}
+          />
+          <p>Found {leads.length} leads</p>
+          <DialogFooter>
+            <Button onClick={handleSaveList}>Save List</Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );
