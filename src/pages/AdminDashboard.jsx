@@ -3,166 +3,119 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from '../integrations/supabase/supabase';
 import { Link } from 'react-router-dom';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-import { DollarSign, Users, FileText, Clipboard, BarChart2 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { DollarSign, Users, FileText, Clipboard } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [kpis, setKpis] = useState({
-    contacts: 0,
-    supplements: 0,
-    inspections: 0,
-    revenue: 0
+    totalRevenue: 0,
+    totalLeads: 0,
+    totalInspections: 0,
+    totalSupplements: 0
   });
-  const [contactTrend, setContactTrend] = useState([]);
-  const [supplementDistribution, setSupplementDistribution] = useState([]);
-  const [inspectionStatus, setInspectionStatus] = useState([]);
+  const [revenueData, setRevenueData] = useState([]);
+  const [leadData, setLeadData] = useState([]);
 
   useEffect(() => {
     fetchKPIs();
-    fetchContactTrend();
-    fetchSupplementDistribution();
-    fetchInspectionStatus();
+    fetchRevenueData();
+    fetchLeadData();
   }, []);
 
   const fetchKPIs = async () => {
-    const { data, error } = await supabase.rpc('get_kpis');
+    const { data, error } = await supabase.rpc('get_admin_kpis');
     if (error) {
       console.error('Error fetching KPIs:', error);
-    } else if (data) {
+    } else {
       setKpis(data);
     }
   };
 
-  const fetchContactTrend = async () => {
-    const { data, error } = await supabase.rpc('get_contact_trend');
+  const fetchRevenueData = async () => {
+    const { data, error } = await supabase.rpc('get_monthly_revenue');
     if (error) {
-      console.error('Error fetching contact trend:', error);
-    } else if (data) {
-      setContactTrend(data);
+      console.error('Error fetching revenue data:', error);
+    } else {
+      setRevenueData(data);
     }
   };
 
-  const fetchSupplementDistribution = async () => {
-    const { data, error } = await supabase.rpc('get_supplement_distribution');
+  const fetchLeadData = async () => {
+    const { data, error } = await supabase.rpc('get_daily_leads');
     if (error) {
-      console.error('Error fetching supplement distribution:', error);
-    } else if (data) {
-      setSupplementDistribution(data);
+      console.error('Error fetching lead data:', error);
+    } else {
+      setLeadData(data);
     }
   };
-
-  const fetchInspectionStatus = async () => {
-    const { data, error } = await supabase.rpc('get_inspection_status');
-    if (error) {
-      console.error('Error fetching inspection status:', error);
-    } else if (data) {
-      setInspectionStatus(data);
-    }
-  };
-
-  const kpiData = [
-    { name: 'Contacts', value: kpis.contacts, icon: <Users className="h-8 w-8 text-blue-500" /> },
-    { name: 'Supplements', value: kpis.supplements, icon: <FileText className="h-8 w-8 text-green-500" /> },
-    { name: 'Inspections', value: kpis.inspections, icon: <Clipboard className="h-8 w-8 text-yellow-500" /> },
-    { name: 'Revenue', value: `$${kpis.revenue.toLocaleString()}`, icon: <DollarSign className="h-8 w-8 text-red-500" /> },
-  ];
-
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   return (
-    <div className="space-y-6 p-6 bg-gray-50">
-      <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+    <div className="space-y-6 p-6">
+      <h1 className="text-3xl font-bold">Admin Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {kpiData.map((kpi) => (
-          <Card key={kpi.name} className="hover:shadow-lg transition-shadow duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{kpi.name}</CardTitle>
-              {kpi.icon}
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{kpi.value}</div>
-            </CardContent>
-          </Card>
-        ))}
+        <KPICard title="Total Revenue" value={`$${kpis.totalRevenue.toLocaleString()}`} icon={<DollarSign className="h-8 w-8 text-green-500" />} />
+        <KPICard title="Total Leads" value={kpis.totalLeads} icon={<Users className="h-8 w-8 text-blue-500" />} />
+        <KPICard title="Total Inspections" value={kpis.totalInspections} icon={<Clipboard className="h-8 w-8 text-yellow-500" />} />
+        <KPICard title="Total Supplements" value={kpis.totalSupplements} icon={<FileText className="h-8 w-8 text-purple-500" />} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Contact Trend</CardTitle>
+            <CardTitle>Monthly Revenue</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={contactTrend}>
+              <BarChart data={revenueData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="revenue" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Daily Leads</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={leadData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="count" stroke="#8884d8" />
+                <Line type="monotone" dataKey="leads" stroke="#82ca9d" />
               </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Supplement Distribution</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={supplementDistribution}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {supplementDistribution.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Inspection Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={inspectionStatus}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="status" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="count" fill="#82ca9d" />
-              </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
       <div className="flex space-x-4">
         <Button asChild>
-          <Link to="/inspection-scheduling">Schedule Inspections</Link>
-        </Button>
-        <Button asChild>
           <Link to="/find-leads">Find Leads</Link>
         </Button>
         <Button asChild>
-          <Link to="/supplement-tracking">Supplement Tracking</Link>
-        </Button>
-        <Button asChild>
-          <Link to="/tasks">Tasks</Link>
+          <Link to="/tasks">Manage Tasks</Link>
         </Button>
       </div>
     </div>
   );
 };
+
+const KPICard = ({ title, value, icon }) => (
+  <Card>
+    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle className="text-sm font-medium">{title}</CardTitle>
+      {icon}
+    </CardHeader>
+    <CardContent>
+      <div className="text-2xl font-bold">{value}</div>
+    </CardContent>
+  </Card>
+);
 
 export default AdminDashboard;

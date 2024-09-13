@@ -3,14 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from '../integrations/supabase/supabase';
-import axios from 'axios';
 import { useLoadScript, GoogleMap, DrawingManager, Autocomplete } from '@react-google-maps/api';
 
 const libraries = ['places', 'drawing'];
 
 const mapContainerStyle = {
   width: '100%',
-  height: '60vh'
+  height: '400px'
 };
 
 const center = {
@@ -68,31 +67,16 @@ const FindLeads = () => {
     const sw = bounds.getSouthWest();
 
     try {
-      const response = await axios.get('https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup', {
-        params: {
-          id: import.meta.env.VITE_MELISSA_DATA_API_KEY,
-          format: "json",
-          recs: "20",
-          opt: "IncludeApartments:off;IncludeUndeliverable:off;IncludeEmptyLots:off",
-          bbox: `${sw.lat()},${sw.lng()},${ne.lat()},${ne.lng()}`
-        }
+      const { data, error } = await supabase.rpc('find_leads_in_area', {
+        ne_lat: ne.lat(),
+        ne_lng: ne.lng(),
+        sw_lat: sw.lat(),
+        sw_lng: sw.lng()
       });
 
-      const processedLeads = response.data.Records
-        .filter(record => {
-          const latLng = new window.google.maps.LatLng(record.Latitude, record.Longitude);
-          return bounds.contains(latLng);
-        })
-        .map(record => ({
-          name: record.AddressLine1,
-          address: `${record.AddressLine1}, ${record.City}, ${record.State} ${record.PostalCode}`,
-          telephone: record.TelephoneNumber,
-          email: record.EmailAddress,
-          income: record.Income,
-          coordinates: JSON.stringify({ lat: record.Latitude, lng: record.Longitude }),
-        }));
+      if (error) throw error;
 
-      setLeads(processedLeads);
+      setLeads(data);
       setIsDialogOpen(true);
     } catch (error) {
       console.error('Error finding leads:', error);
@@ -132,8 +116,9 @@ const FindLeads = () => {
   if (!isLoaded) return <div>Loading maps...</div>;
 
   return (
-    <div className="h-full w-full relative p-4">
-      <div className="mb-4">
+    <div className="p-4 space-y-4">
+      <h1 className="text-2xl font-bold">Find Leads</h1>
+      <div className="flex items-center space-x-2">
         <Autocomplete
           onLoad={onAutocompleteLoad}
           onPlaceChanged={onPlaceChanged}
@@ -143,11 +128,12 @@ const FindLeads = () => {
             placeholder="Enter an address" 
             value={address} 
             onChange={(e) => setAddress(e.target.value)}
-            className="w-full"
+            className="flex-grow"
           />
         </Autocomplete>
+        <Button onClick={() => mapRef.current.setZoom(18)}>Search</Button>
       </div>
-      <div className="relative" style={{ height: '60vh' }}>
+      <div className="border rounded">
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           center={center}
@@ -174,12 +160,7 @@ const FindLeads = () => {
           />
         </GoogleMap>
       </div>
-      <Button 
-        className="mt-4" 
-        onClick={handleFindLeads}
-      >
-        Find Leads in Selected Area
-      </Button>
+      <Button onClick={handleFindLeads}>Find Leads in Selected Area</Button>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
