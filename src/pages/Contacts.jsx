@@ -7,6 +7,7 @@ import { supabase } from '../integrations/supabase/supabase';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 
 const Contacts = () => {
   const [contacts, setContacts] = useState([]);
@@ -14,6 +15,18 @@ const Contacts = () => {
   const [selectedContact, setSelectedContact] = useState(null);
   const [leadStatus, setLeadStatus] = useState('');
   const { userRole } = useSupabaseAuth();
+  const [newContact, setNewContact] = useState({
+    full_name: '',
+    email: '',
+    phone_number: '',
+    address: '',
+    preferred_contact_method: '',
+    lead_source: '',
+    lead_status: 'New',
+    salesperson_assigned: '',
+    roofing_material_preferences: '',
+    notes: ''
+  });
 
   useEffect(() => {
     fetchContacts();
@@ -50,6 +63,30 @@ const Contacts = () => {
     }
   };
 
+  const handleAddContact = async () => {
+    const { data, error } = await supabase
+      .from('contacts')
+      .insert([newContact]);
+
+    if (error) {
+      console.error('Error adding contact:', error);
+    } else {
+      fetchContacts();
+      setNewContact({
+        full_name: '',
+        email: '',
+        phone_number: '',
+        address: '',
+        preferred_contact_method: '',
+        lead_source: '',
+        lead_status: 'New',
+        salesperson_assigned: '',
+        roofing_material_preferences: '',
+        notes: ''
+      });
+    }
+  };
+
   const canViewFullDetails = ['sales', 'sales_manager', 'admin'].includes(userRole);
 
   return (
@@ -61,6 +98,77 @@ const Contacts = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
         className="mb-4"
       />
+      <Card>
+        <CardHeader>
+          <CardTitle>Add New Contact</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={(e) => { e.preventDefault(); handleAddContact(); }} className="space-y-4">
+            <Input
+              placeholder="Full Name"
+              value={newContact.full_name}
+              onChange={(e) => setNewContact({ ...newContact, full_name: e.target.value })}
+            />
+            <Input
+              placeholder="Email"
+              type="email"
+              value={newContact.email}
+              onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
+            />
+            <Input
+              placeholder="Phone Number"
+              value={newContact.phone_number}
+              onChange={(e) => setNewContact({ ...newContact, phone_number: e.target.value })}
+            />
+            <Input
+              placeholder="Address"
+              value={newContact.address}
+              onChange={(e) => setNewContact({ ...newContact, address: e.target.value })}
+            />
+            <Select
+              onValueChange={(value) => setNewContact({ ...newContact, preferred_contact_method: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Preferred Contact Method" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="email">Email</SelectItem>
+                <SelectItem value="phone">Phone</SelectItem>
+                <SelectItem value="text">Text</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              onValueChange={(value) => setNewContact({ ...newContact, lead_source: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Lead Source" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="referral">Referral</SelectItem>
+                <SelectItem value="website">Website</SelectItem>
+                <SelectItem value="social_media">Social Media</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input
+              placeholder="Salesperson Assigned"
+              value={newContact.salesperson_assigned}
+              onChange={(e) => setNewContact({ ...newContact, salesperson_assigned: e.target.value })}
+            />
+            <Input
+              placeholder="Roofing Material Preferences"
+              value={newContact.roofing_material_preferences}
+              onChange={(e) => setNewContact({ ...newContact, roofing_material_preferences: e.target.value })}
+            />
+            <Textarea
+              placeholder="Notes"
+              value={newContact.notes}
+              onChange={(e) => setNewContact({ ...newContact, notes: e.target.value })}
+            />
+            <Button type="submit">Add Contact</Button>
+          </form>
+        </CardContent>
+      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Contact List</CardTitle>
@@ -104,9 +212,13 @@ const Contacts = () => {
                           <p><strong>Address:</strong> {contact.address}</p>
                           <p><strong>Preferred Contact Method:</strong> {contact.preferred_contact_method}</p>
                           <p><strong>Lead Source:</strong> {contact.lead_source}</p>
+                          <p><strong>Roofing Material Preferences:</strong> {contact.roofing_material_preferences}</p>
+                          <p><strong>Last Interaction Date:</strong> {new Date(contact.last_interaction_date).toLocaleDateString()}</p>
+                          <p><strong>Notes:</strong> {contact.notes}</p>
                           {canViewFullDetails && (
                             <>
                               <p><strong>Lead Status:</strong> {contact.lead_status}</p>
+                              <p><strong>Salesperson Assigned:</strong> {contact.salesperson_assigned}</p>
                               <Select
                                 value={leadStatus}
                                 onValueChange={(value) => {

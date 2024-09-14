@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { supabase } from '../integrations/supabase/supabase';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { HomeIcon, UsersIcon, ClipboardIcon, FileTextIcon, MapPinIcon, CalendarIcon, BarChartIcon, UserIcon, SettingsIcon, LogOutIcon, CheckSquareIcon } from "lucide-react";
+import { HomeIcon, UsersIcon, ClipboardIcon, FileTextIcon, MapPinIcon, CalendarIcon, BarChartIcon, UserIcon, SettingsIcon, LogOutIcon, CheckSquareIcon, BriefcaseIcon, CreditCardIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -33,14 +33,17 @@ const Navigation = () => {
   };
 
   const navItems = [
-    { role: ['customer', 'employee', 'admin'], icon: <HomeIcon className="h-5 w-5" />, label: 'Dashboard', to: '/' },
-    { role: ['employee', 'admin'], icon: <ClipboardIcon className="h-5 w-5" />, label: 'Inspections', to: '/inspection-scheduling' },
-    { role: ['employee', 'admin'], icon: <FileTextIcon className="h-5 w-5" />, label: 'Claims', to: '/claim-management' },
-    { role: ['employee', 'admin'], icon: <UsersIcon className="h-5 w-5" />, label: 'Contacts', to: '/contacts' },
-    { role: ['customer', 'employee', 'admin'], icon: <CalendarIcon className="h-5 w-5" />, label: 'Calendar', to: '/calendar' },
-    { role: ['admin'], icon: <MapPinIcon className="h-5 w-5" />, label: 'Find Leads', to: '/find-leads' },
-    { role: ['employee', 'admin'], icon: <BarChartIcon className="h-5 w-5" />, label: 'Supplements', to: '/supplement-tracking' },
-    { role: ['employee', 'admin'], icon: <CheckSquareIcon className="h-5 w-5" />, label: 'Tasks', to: '/tasks' },
+    { role: ['customer', 'employee', 'admin', 'sales', 'sales_manager', 'support', 'supplement_specialist', 'roofing_crew_lead'], icon: <HomeIcon className="h-5 w-5" />, label: 'Dashboard', to: '/' },
+    { role: ['employee', 'admin', 'sales', 'sales_manager'], icon: <UsersIcon className="h-5 w-5" />, label: 'Contacts', to: '/contacts' },
+    { role: ['employee', 'admin', 'sales', 'sales_manager', 'support', 'supplement_specialist'], icon: <UserIcon className="h-5 w-5" />, label: 'Customers', to: '/customers' },
+    { role: ['employee', 'admin', 'sales', 'sales_manager', 'roofing_crew_lead'], icon: <BriefcaseIcon className="h-5 w-5" />, label: 'Jobs', to: '/jobs' },
+    { role: ['employee', 'admin', 'sales', 'sales_manager'], icon: <CreditCardIcon className="h-5 w-5" />, label: 'Invoices', to: '/invoices' },
+    { role: ['employee', 'admin', 'sales', 'sales_manager'], icon: <ClipboardIcon className="h-5 w-5" />, label: 'Inspections', to: '/inspection-scheduling' },
+    { role: ['employee', 'admin', 'sales', 'sales_manager'], icon: <FileTextIcon className="h-5 w-5" />, label: 'Claims', to: '/claim-management' },
+    { role: ['customer', 'employee', 'admin', 'sales', 'sales_manager'], icon: <CalendarIcon className="h-5 w-5" />, label: 'Calendar', to: '/calendar' },
+    { role: ['admin', 'sales_manager'], icon: <MapPinIcon className="h-5 w-5" />, label: 'Find Leads', to: '/find-leads' },
+    { role: ['employee', 'admin', 'sales', 'sales_manager', 'supplement_specialist'], icon: <BarChartIcon className="h-5 w-5" />, label: 'Supplements', to: '/supplement-tracking' },
+    { role: ['employee', 'admin', 'sales', 'sales_manager', 'roofing_crew_lead'], icon: <CheckSquareIcon className="h-5 w-5" />, label: 'Tasks', to: '/tasks' },
   ];
 
   if (!session) return null;
