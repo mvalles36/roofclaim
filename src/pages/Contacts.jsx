@@ -1,19 +1,19 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from '../integrations/supabase/supabase';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from '../integrations/supabase/supabase';
+import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const Contacts = () => {
   const [contacts, setContacts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedContact, setSelectedContact] = useState(null);
-  const [leadStatus, setLeadStatus] = useState('');
   const { userRole } = useSupabaseAuth();
   const [newContact, setNewContact] = useState({
     full_name: '',
@@ -25,7 +25,8 @@ const Contacts = () => {
     lead_status: 'New',
     salesperson_assigned: '',
     roofing_material_preferences: '',
-    notes: ''
+    notes: '',
+    last_interaction_date: new Date().toISOString().split('T')[0]
   });
 
   useEffect(() => {
@@ -33,10 +34,15 @@ const Contacts = () => {
   }, []);
 
   const fetchContacts = async () => {
-    const { data, error } = await supabase
-      .from('contacts')
-      .select('*')
-      .order('full_name', { ascending: true });
+    let query = supabase.from('contacts').select('*');
+    
+    if (userRole === 'sales' || userRole === 'sales_manager') {
+      // Fetch only assigned contacts for sales roles
+      const { data: { user } } = await supabase.auth.getUser();
+      query = query.eq('salesperson_assigned', user.id);
+    }
+
+    const { data, error } = await query.order('full_name', { ascending: true });
 
     if (error) {
       console.error('Error fetching contacts:', error);
@@ -45,28 +51,8 @@ const Contacts = () => {
     }
   };
 
-  const filteredContacts = contacts.filter(contact =>
-    contact.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    contact.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleUpdateLeadStatus = async (contactId, newStatus) => {
-    const { error } = await supabase
-      .from('contacts')
-      .update({ lead_status: newStatus })
-      .eq('id', contactId);
-
-    if (error) {
-      console.error('Error updating lead status:', error);
-    } else {
-      fetchContacts();
-    }
-  };
-
   const handleAddContact = async () => {
-    const { data, error } = await supabase
-      .from('contacts')
-      .insert([newContact]);
+    const { data, error } = await supabase.from('contacts').insert([newContact]);
 
     if (error) {
       console.error('Error adding contact:', error);
@@ -82,10 +68,42 @@ const Contacts = () => {
         lead_status: 'New',
         salesperson_assigned: '',
         roofing_material_preferences: '',
-        notes: ''
+        notes: '',
+        last_interaction_date: new Date().toISOString().split('T')[0]
       });
     }
   };
+
+  const handleUpdateContact = async (updatedContact) => {
+    const { error } = await supabase
+      .from('contacts')
+      .update(updatedContact)
+      .eq('id', updatedContact.id);
+
+    if (error) {
+      console.error('Error updating contact:', error);
+    } else {
+      fetchContacts();
+    }
+  };
+
+  const handleUpdateLeadStatus = async (contactId, newStatus) => {
+    const { error } = await supabase
+      .from('contacts')
+      .update({ lead_status: newStatus })
+      .eq('id', contactId);
+
+    if (error) {
+      console.error('Error updating lead status:', error);
+    } else {
+      fetchContacts();
+    }
+  };
+
+  const filteredContacts = contacts.filter(contact =>
+    contact.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    contact.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const canViewFullDetails = ['sales', 'sales_manager', 'admin'].includes(userRole);
 
@@ -220,11 +238,8 @@ const Contacts = () => {
                               <p><strong>Lead Status:</strong> {contact.lead_status}</p>
                               <p><strong>Salesperson Assigned:</strong> {contact.salesperson_assigned}</p>
                               <Select
-                                value={leadStatus}
-                                onValueChange={(value) => {
-                                  setLeadStatus(value);
-                                  handleUpdateLeadStatus(contact.id, value);
-                                }}
+                                value={contact.lead_status}
+                                onValueChange={(value) => handleUpdateLeadStatus(contact.id, value)}
                               >
                                 <SelectTrigger>
                                   <SelectValue placeholder="Update Lead Status" />
