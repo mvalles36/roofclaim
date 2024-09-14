@@ -3,17 +3,30 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { toast } from 'sonner';
 
 const Jobs = () => {
   const [jobs, setJobs] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [newJob, setNewJob] = useState({
+    customer_id: '',
+    job_type: '',
+    roof_type: '',
+    job_status: 'Pending',
+    job_cost_estimate: '',
+    start_date: '',
+    assigned_crew: '',
+    job_notes: ''
+  });
   const { userRole } = useSupabaseAuth();
 
   useEffect(() => {
     fetchJobs();
+    fetchCustomers();
   }, []);
 
   const fetchJobs = async () => {
@@ -27,6 +40,43 @@ const Jobs = () => {
       toast.error('Failed to fetch jobs');
     } else {
       setJobs(data);
+    }
+  };
+
+  const fetchCustomers = async () => {
+    const { data, error } = await supabase
+      .from('customers')
+      .select('id, full_name');
+
+    if (error) {
+      console.error('Error fetching customers:', error);
+      toast.error('Failed to fetch customers');
+    } else {
+      setCustomers(data);
+    }
+  };
+
+  const handleCreateJob = async () => {
+    const { data, error } = await supabase
+      .from('jobs')
+      .insert([newJob]);
+
+    if (error) {
+      console.error('Error creating job:', error);
+      toast.error('Failed to create job');
+    } else {
+      toast.success('Job created successfully');
+      fetchJobs();
+      setNewJob({
+        customer_id: '',
+        job_type: '',
+        roof_type: '',
+        job_status: 'Pending',
+        job_cost_estimate: '',
+        start_date: '',
+        assigned_crew: '',
+        job_notes: ''
+      });
     }
   };
 
@@ -94,6 +144,61 @@ const Jobs = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
         className="mb-4"
       />
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button>Create New Job</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Job</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Select onValueChange={(value) => setNewJob({ ...newJob, customer_id: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a customer" />
+              </SelectTrigger>
+              <SelectContent>
+                {customers.map((customer) => (
+                  <SelectItem key={customer.id} value={customer.id}>{customer.full_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              placeholder="Job Type"
+              value={newJob.job_type}
+              onChange={(e) => setNewJob({ ...newJob, job_type: e.target.value })}
+            />
+            <Input
+              placeholder="Roof Type"
+              value={newJob.roof_type}
+              onChange={(e) => setNewJob({ ...newJob, roof_type: e.target.value })}
+            />
+            <Input
+              placeholder="Job Cost Estimate"
+              type="number"
+              value={newJob.job_cost_estimate}
+              onChange={(e) => setNewJob({ ...newJob, job_cost_estimate: e.target.value })}
+            />
+            <Input
+              placeholder="Start Date"
+              type="date"
+              value={newJob.start_date}
+              onChange={(e) => setNewJob({ ...newJob, start_date: e.target.value })}
+            />
+            <Input
+              placeholder="Assigned Crew"
+              value={newJob.assigned_crew}
+              onChange={(e) => setNewJob({ ...newJob, assigned_crew: e.target.value })}
+            />
+            <Input
+              placeholder="Job Notes"
+              value={newJob.job_notes}
+              onChange={(e) => setNewJob({ ...newJob, job_notes: e.target.value })}
+            />
+            <Button onClick={handleCreateJob}>Create Job</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       <Card>
         <CardHeader>
           <CardTitle>Job List</CardTitle>
@@ -126,15 +231,19 @@ const Jobs = () => {
                       <p><strong>End Date:</strong> {job.end_date ? new Date(job.end_date).toLocaleDateString() : 'Not completed'}</p>
                       <p><strong>Assigned Crew:</strong> {job.assigned_crew}</p>
                       <p><strong>Notes:</strong> {job.job_notes}</p>
-                      <select
+                      <Select
                         value={job.job_status}
-                        onChange={(e) => handleUpdateJobStatus(job.id, e.target.value)}
-                        className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                        onValueChange={(value) => handleUpdateJobStatus(job.id, value)}
                       >
-                        <option value="Pending">Pending</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
-                      </select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Update status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Pending">Pending</SelectItem>
+                          <SelectItem value="In Progress">In Progress</SelectItem>
+                          <SelectItem value="Completed">Completed</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </DialogContent>
                 </Dialog>
