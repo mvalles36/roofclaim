@@ -6,9 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { supabase } from '../integrations/supabase/supabase';
 import axios from 'axios';
 import { useLoadScript, GoogleMap, DrawingManager, Autocomplete } from '@react-google-maps/api';
-import { Modal } from '@/components/ui/modal';  // Assuming you have a Modal component
-import { motion } from 'framer-motion';  // For animations
-import '../styles/index.css';
+import { motion } from 'framer-motion';
 
 const libraries = ['places', 'drawing'];
 
@@ -22,7 +20,7 @@ const FindLeads = () => {
   const [mapZoom, setMapZoom] = useState(12);
   const [showInstructions, setShowInstructions] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
-  const [dontShowAgain, setDontShowAgain] = useState(false); // New state for "Don't show again"
+  const [dontShowAgain, setDontShowAgain] = useState(false);
   const mapRef = useRef(null);
   const drawingManagerRef = useRef(null);
   const autocompleteRef = useRef(null);
@@ -33,7 +31,6 @@ const FindLeads = () => {
   });
 
   useEffect(() => {
-    // Check if the user has previously chosen to skip instructions
     const skipInstructions = localStorage.getItem('skipInstructions');
     if (skipInstructions === 'true') {
       setShowInstructions(false);
@@ -70,7 +67,7 @@ const FindLeads = () => {
         };
         setMapCenter(newCenter);
         mapRef.current?.panTo(newCenter);
-        setMapZoom(20); // Zoom in closer to see individual houses
+        setMapZoom(20);
         setAddress(place.formatted_address);
       }
     }
@@ -91,9 +88,9 @@ const FindLeads = () => {
         params: {
           id: import.meta.env.VITE_MELISSA_DATA_API_KEY,
           format: "json",
-          recs: "20", // Increase the number of records to fetch
+          recs: "20",
           opt: "IncludeApartments:off;IncludeUndeliverable:off;IncludeEmptyLots:off",
-          bbox: `${sw.lat()},${sw.lng()},${ne.lat()},${ne.lng()}` // Use bounding box
+          bbox: `${sw.lat()},${sw.lng()},${ne.lat()},${ne.lng()}`
         }
       });
 
@@ -240,83 +237,94 @@ const FindLeads = () => {
               />
             </Autocomplete>
           </div>
-          <GoogleMap
-            mapContainerStyle={{ width: '100%', height: '400px' }}
-            center={mapCenter}
-            zoom={mapZoom}
-            onLoad={onMapLoad}
-          >
-            <DrawingManager
-              onLoad={onDrawingManagerLoad}
-              onRectangleComplete={onRectangleComplete}
-              options={{
-                drawingControl: true,
-                drawingControlOptions: {
-                  position: window.google.maps.ControlPosition.TOP_CENTER,
-                  drawingModes: [window.google.maps.drawing.OverlayType.RECTANGLE],
-                },
-                rectangleOptions: {
-                  fillColor: '#FF0000',
-                  fillOpacity: 0.3,
-                  strokeWeight: 2,
-                  clickable: false,
-                  editable: true,
-                  zIndex: 1,
-                },
-              }}
-            />
-          </GoogleMap>
+          <div style={{ height: '400px', width: '100%' }}>
+            <GoogleMap
+              mapContainerStyle={{ height: '100%', width: '100%' }}
+              center={mapCenter}
+              zoom={mapZoom}
+              onLoad={onMapLoad}
+            >
+              <DrawingManager
+                onLoad={onDrawingManagerLoad}
+                onRectangleComplete={onRectangleComplete}
+                options={{
+                  drawingControl: true,
+                  drawingControlOptions: {
+                    position: window.google.maps.ControlPosition.TOP_CENTER,
+                    drawingModes: [window.google.maps.drawing.OverlayType.RECTANGLE],
+                  },
+                  rectangleOptions: {
+                    fillColor: '#FF0000',
+                    fillOpacity: 0.3,
+                    strokeWeight: 2,
+                    clickable: false,
+                    editable: true,
+                    zIndex: 1,
+                  },
+                }}
+              />
+            </GoogleMap>
+          </div>
           <Button className="mt-4" onClick={handleFindLeads}>Find Leads in Selected Area</Button>
         </CardContent>
       </Card>
 
-      <Modal isOpen={showInstructions} onClose={handleCloseInstructions}>
-        <div className="p-6">
-          <h2 className="text-2xl font-bold mb-4">{instructionSteps[currentStep].title}</h2>
-          <p className="mb-4">{instructionSteps[currentStep].content}</p>
-          <div className="flex justify-center mb-4">
-            {instructionSteps[currentStep].animation}
-          </div>
-          <div className="flex items-center mb-4">
-            <input
-              type="checkbox"
-              id="dontShowAgain"
-              checked={dontShowAgain}
-              onChange={(e) => setDontShowAgain(e.target.checked)}
-              className="mr-2"
-            />
-            <label htmlFor="dontShowAgain">Don't show this again</label>
-          </div>
-          <div className="flex justify-between">
-            <Button onClick={handleCloseInstructions}>Skip</Button>
-            <Button onClick={handleNextStep}>
-              {currentStep === instructionSteps.length - 1 ? "Get Started" : "Next"}
-            </Button>
+      {showInstructions && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md">
+            <h2 className="text-2xl font-bold mb-4">{instructionSteps[currentStep].title}</h2>
+            <p className="mb-4">{instructionSteps[currentStep].content}</p>
+            <div className="flex justify-center mb-4">
+              {instructionSteps[currentStep].animation}
+            </div>
+            <div className="flex items-center mb-4">
+              <input
+                type="checkbox"
+                id="dontShowAgain"
+                checked={dontShowAgain}
+                onChange={(e) => setDontShowAgain(e.target.checked)}
+                className="mr-2"
+              />
+              <label htmlFor="dontShowAgain">Don't show this again</label>
+            </div>
+            <div className="flex justify-between">
+              <Button onClick={handleCloseInstructions}>Skip</Button>
+              <Button onClick={handleNextStep}>
+                {currentStep === instructionSteps.length - 1 ? "Get Started" : "Next"}
+              </Button>
+            </div>
           </div>
         </div>
-      </Modal>
+      )}
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogHeader>
-          <DialogTitle>Leads Found</DialogTitle>
-        </DialogHeader>
         <DialogContent>
-          {/* Display leads in the dialog */}
-          <ul>
-            {leads.map((lead, index) => (
-              <li key={index}>
-                <div>{lead.name}</div>
-                <div>{lead.address}</div>
-                <div>{lead.telephone}</div>
-                <div>{lead.email}</div>
-                <div>{lead.income}</div>
-              </li>
-            ))}
-          </ul>
+          <DialogHeader>
+            <DialogTitle>Leads Found</DialogTitle>
+          </DialogHeader>
+          <div className="max-h-96 overflow-y-auto">
+            <ul>
+              {leads.map((lead, index) => (
+                <li key={index} className="mb-2">
+                  <div>{lead.name}</div>
+                  <div>{lead.address}</div>
+                  <div>{lead.telephone}</div>
+                  <div>{lead.email}</div>
+                  <div>{lead.income}</div>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <DialogFooter>
+            <Input
+              placeholder="Enter list name"
+              value={listName}
+              onChange={(e) => setListName(e.target.value)}
+              className="mb-2"
+            />
+            <Button onClick={handleSaveList}>Save List</Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogFooter>
-          <Button onClick={handleSaveList}>Save List</Button>
-        </DialogFooter>
       </Dialog>
     </div>
   );
