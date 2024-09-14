@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from '../integrations/supabase/supabase';
+import { toast } from 'sonner';
 
 const Customers = () => {
   const [customers, setCustomers] = useState([]);
@@ -25,8 +26,24 @@ const Customers = () => {
 
     if (error) {
       console.error('Error fetching customers:', error);
+      toast.error('Failed to fetch customers');
     } else {
       setCustomers(data);
+    }
+  };
+
+  const handleUpdateCustomer = async (updatedCustomer) => {
+    const { error } = await supabase
+      .from('customers')
+      .update(updatedCustomer)
+      .eq('id', updatedCustomer.id);
+
+    if (error) {
+      console.error('Error updating customer:', error);
+      toast.error('Failed to update customer');
+    } else {
+      fetchCustomers();
+      toast.success('Customer updated successfully');
     }
   };
 

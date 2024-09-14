@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
+import { toast } from 'sonner';
 
 const Invoices = () => {
   const [invoices, setInvoices] = useState([]);
@@ -23,8 +24,24 @@ const Invoices = () => {
 
     if (error) {
       console.error('Error fetching invoices:', error);
+      toast.error('Failed to fetch invoices');
     } else {
       setInvoices(data);
+    }
+  };
+
+  const handleUpdatePaymentStatus = async (invoiceId, newStatus) => {
+    const { error } = await supabase
+      .from('invoices')
+      .update({ payment_status: newStatus })
+      .eq('id', invoiceId);
+
+    if (error) {
+      console.error('Error updating payment status:', error);
+      toast.error('Failed to update payment status');
+    } else {
+      fetchInvoices();
+      toast.success('Payment status updated successfully');
     }
   };
 
@@ -76,6 +93,15 @@ const Invoices = () => {
                       {invoice.late_payment_fees > 0 && (
                         <p><strong>Late Fees:</strong> ${invoice.late_payment_fees}</p>
                       )}
+                      <select
+                        value={invoice.payment_status}
+                        onChange={(e) => handleUpdatePaymentStatus(invoice.invoice_id, e.target.value)}
+                        className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                      >
+                        <option value="Unpaid">Unpaid</option>
+                        <option value="Partially Paid">Partially Paid</option>
+                        <option value="Paid">Paid</option>
+                      </select>
                     </div>
                   </DialogContent>
                 </Dialog>

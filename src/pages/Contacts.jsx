@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from '../integrations/supabase/supabase';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { toast } from 'sonner';
 
 const Contacts = () => {
   const [contacts, setContacts] = useState([]);
@@ -37,7 +38,6 @@ const Contacts = () => {
     let query = supabase.from('contacts').select('*');
     
     if (userRole === 'sales' || userRole === 'sales_manager') {
-      // Fetch only assigned contacts for sales roles
       const { data: { user } } = await supabase.auth.getUser();
       query = query.eq('salesperson_assigned', user.id);
     }
@@ -46,6 +46,7 @@ const Contacts = () => {
 
     if (error) {
       console.error('Error fetching contacts:', error);
+      toast.error('Failed to fetch contacts');
     } else {
       setContacts(data);
     }
@@ -56,6 +57,7 @@ const Contacts = () => {
 
     if (error) {
       console.error('Error adding contact:', error);
+      toast.error('Failed to add contact');
     } else {
       fetchContacts();
       setNewContact({
@@ -71,6 +73,7 @@ const Contacts = () => {
         notes: '',
         last_interaction_date: new Date().toISOString().split('T')[0]
       });
+      toast.success('Contact added successfully');
     }
   };
 
@@ -82,8 +85,10 @@ const Contacts = () => {
 
     if (error) {
       console.error('Error updating contact:', error);
+      toast.error('Failed to update contact');
     } else {
       fetchContacts();
+      toast.success('Contact updated successfully');
     }
   };
 
@@ -95,8 +100,45 @@ const Contacts = () => {
 
     if (error) {
       console.error('Error updating lead status:', error);
+      toast.error('Failed to update lead status');
     } else {
       fetchContacts();
+      toast.success('Lead status updated successfully');
+      if (newStatus === 'Converted') {
+        await convertLeadToCustomer(contactId);
+      }
+    }
+  };
+
+  const convertLeadToCustomer = async (contactId) => {
+    const { data: contact, error: fetchError } = await supabase
+      .from('contacts')
+      .select('*')
+      .eq('id', contactId)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching contact:', fetchError);
+      toast.error('Failed to convert lead to customer');
+      return;
+    }
+
+    const { error: insertError } = await supabase.from('customers').insert([{
+      full_name: contact.full_name,
+      email: contact.email,
+      phone_number: contact.phone_number,
+      address: contact.address,
+      preferred_contact_method: contact.preferred_contact_method,
+      customer_type: 'Residential', // Default value, can be updated later
+      contact_id: contact.id
+    }]);
+
+    if (insertError) {
+      console.error('Error converting lead to customer:', insertError);
+      toast.error('Failed to convert lead to customer');
+    } else {
+      toast.success('Lead converted to customer successfully');
+      // Trigger job creation here if needed
     }
   };
 
