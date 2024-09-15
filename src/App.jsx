@@ -12,6 +12,7 @@ import EmployeeDashboard from './pages/EmployeeDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import SalesDashboard from './pages/SalesDashboard';
 import SupplementSpecialistDashboard from './pages/SupplementSpecialistDashboard';
+import ProjectManagerDashboard from './pages/ProjectManagerDashboard';
 import InspectionScheduling from './pages/InspectionScheduling';
 import InspectionReport from './pages/InspectionReport';
 import InstallationTracking from './pages/InstallationTracking';
@@ -58,6 +59,7 @@ const App = () => {
                           if (userRole === 'admin') return <AdminDashboard />;
                           if (userRole === 'sales') return <SalesDashboard />;
                           if (userRole === 'supplement_specialist') return <SupplementSpecialistDashboard />;
+                          if (userRole === 'project_manager') return <ProjectManagerDashboard />;
                           if (userRole === 'employee') return <EmployeeDashboard />;
                           return <CustomerDashboard />;
                         }}
@@ -72,6 +74,7 @@ const App = () => {
                   <Route path="/supplement-tracking" element={<ProtectedRoute allowedRoles={['admin', 'employee', 'supplement_specialist']}><SupplementTracking /></ProtectedRoute>} />
                   <Route path="/tasks" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><Tasks /></ProtectedRoute>} />
                   <Route path="/insurance-mortgage-tracker" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><InsuranceMortgageTracker /></ProtectedRoute>} />
+                  <Route path="/project-manager" element={<ProtectedRoute allowedRoles={['admin', 'project_manager']}><ProjectManagerDashboard /></ProtectedRoute>} />
                 </Routes>
               </main>
             </div>
