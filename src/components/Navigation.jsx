@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { supabase } from '../integrations/supabase/supabase';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { HomeIcon, UsersIcon, ClipboardIcon, FileTextIcon, MapPinIcon, CalendarIcon, BarChartIcon, UserIcon, SettingsIcon, LogOutIcon, CheckSquareIcon, BriefcaseIcon, CreditCardIcon, ListTodoIcon } from "lucide-react";
+import { HomeIcon, UsersIcon, ClipboardIcon, FileTextIcon, MapPinIcon, CalendarIcon, BarChartIcon, UserIcon, SettingsIcon, LogOutIcon, CheckSquareIcon, BriefcaseIcon, CreditCardIcon, ListTodoIcon, ListCheckIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -39,6 +39,7 @@ const Navigation = () => {
     { role: ['employee', 'admin', 'sales', 'sales_manager', 'roofing_crew_lead'], icon: <BriefcaseIcon className="h-5 w-5" />, label: 'Jobs', to: '/jobs' },
     { role: ['employee', 'admin', 'sales', 'sales_manager'], icon: <CreditCardIcon className="h-5 w-5" />, label: 'Invoices', to: '/invoices' },
     { role: ['employee', 'admin', 'sales', 'sales_manager'], icon: <ClipboardIcon className="h-5 w-5" />, label: 'Inspections', to: '/inspection-scheduling' },
+    { role: ['employee', 'admin', 'sales', 'sales_manager', 'supplement_specialist'], icon: <ListCheckIcon className="h-5 w-5" />, label: 'Inspection Reports', to: '/inspection-reports' },
     { role: ['employee', 'admin', 'sales', 'sales_manager'], icon: <FileTextIcon className="h-5 w-5" />, label: 'Claims', to: '/claim-management' },
     { role: ['customer', 'employee', 'admin', 'sales', 'sales_manager'], icon: <CalendarIcon className="h-5 w-5" />, label: 'Calendar', to: '/calendar' },
     { role: ['admin', 'sales_manager'], icon: <MapPinIcon className="h-5 w-5" />, label: 'Find Leads', to: '/find-leads' },

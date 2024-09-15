@@ -14,7 +14,7 @@ import SalesDashboard from './pages/SalesDashboard';
 import SupplementSpecialistDashboard from './pages/SupplementSpecialistDashboard';
 import ProjectManagerDashboard from './pages/ProjectManagerDashboard';
 import InspectionScheduling from './pages/InspectionScheduling';
-import InspectionReport from './pages/InspectionReport';
+import InspectionReports from './pages/InspectionReports';
 import InstallationTracking from './pages/InstallationTracking';
 import FindLeads from './pages/FindLeads';
 import Contacts from './pages/Contacts';
@@ -68,8 +68,8 @@ const App = () => {
                       </ProtectedRoute>
                     }
                   />
-                  <Route path="/inspection-scheduling" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><InspectionScheduling /></ProtectedRoute>} />
-                  <Route path="/inspection-report" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><InspectionReport /></ProtectedRoute>} />
+                  <Route path="/inspection-scheduling" element={<ProtectedRoute allowedRoles={['admin', 'employee', 'sales', 'sales_manager']}><InspectionScheduling /></ProtectedRoute>} />
+                  <Route path="/inspection-reports" element={<ProtectedRoute allowedRoles={['admin', 'employee', 'sales', 'sales_manager', 'supplement_specialist']}><InspectionReports /></ProtectedRoute>} />
                   <Route path="/installation-tracking" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><InstallationTracking /></ProtectedRoute>} />
                   <Route path="/find-leads" element={<ProtectedRoute allowedRoles={['admin']}><FindLeads /></ProtectedRoute>} />
                   <Route path="/contacts" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><Contacts /></ProtectedRoute>} />
