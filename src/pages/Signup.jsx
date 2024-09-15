@@ -19,6 +19,11 @@ const Signup = () => {
     setError(null);
     setSuccess(false);
 
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
     try {
       // Step 1: Sign up the user with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -34,13 +39,13 @@ const Signup = () => {
           new_user_id: authData.user.id,
           new_user_email: email,
           new_user_name: name,
-          new_user_role: 'customer' // Default role for signup
+          new_user_role: 'sales' // Default role for signup
         });
 
         if (insertError) throw insertError;
 
         setSuccess(true);
-        console.log('Signup process completed successfully');
+        setTimeout(() => navigate('/login'), 2000); // Redirect after 2 seconds
       } else {
         throw new Error('User object not found in auth response');
       }
@@ -49,11 +54,11 @@ const Signup = () => {
       setError(error.message);
 
       if (error.message.includes('duplicate key value violates unique constraint')) {
-        setError('An account with this email already exists. Please try logging in.');
+        setError('Looks like your email is already on the VIP list! Try logging in instead—you’ve been here before!');
       } else if (error.message.includes('invalid email')) {
-        setError('Please enter a valid email address.');
+        setError('Uh-oh, looks like that’s not a real email. Did you accidentally type in your grocery list? Give it another go!"');
       } else if (error.message.includes('password')) {
-        setError('Password must be at least 6 characters long.');
+        setError('Your password needs at least 6 characters. We promise, it's worth the extra keystrokes!');
       }
     }
   };
@@ -63,7 +68,7 @@ const Signup = () => {
       <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
       {error && (
         <Alert variant="destructive" className="mb-4">
-          <AlertTitle>Error</AlertTitle>
+          <AlertTitle>Something weird just happened!</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
@@ -71,13 +76,13 @@ const Signup = () => {
         <Alert className="mb-4">
           <AlertTitle>Success</AlertTitle>
           <AlertDescription>
-            Registration successful! Please check your email for confirmation.
+           “You’re in! 🎉 Check your email for the magic link to complete your registration. We’ll see you on the inside!”
           </AlertDescription>
         </Alert>
       )}
       <form onSubmit={handleSignup} className="space-y-4">
         <div>
-          <Label htmlFor="name">Name</Label>
+          <Label htmlFor="name">Full Name</Label>
           <Input
             id="name"
             type="text"
@@ -109,7 +114,7 @@ const Signup = () => {
         <Button type="submit" className="w-full">Sign Up</Button>
       </form>
       <p className="mt-4 text-center">
-        Already have an account? <Link to="/login" className="text-blue-600 hover:underline">Log in</Link>
+        Already Registered? <Link to="/login" className="text-blue-600 hover:underline">Log in</Link>
       </p>
     </div>
   );
