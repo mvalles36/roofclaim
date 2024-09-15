@@ -79,15 +79,15 @@ const App = () => {
                   <Route path="/find-leads" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager']}><FindLeads /></ProtectedRoute>} />
                   <Route path="/contacts" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Contacts /></ProtectedRoute>} />
                   <Route path="/supplement-tracking" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><SupplementTracking /></ProtectedRoute>} />
-                  <Route path="/tasks" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist' ]}><Tasks /></ProtectedRoute>} />
+                  <Route path="/tasks" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Tasks /></ProtectedRoute>} />
                   <Route path="/insurance-mortgage-tracker" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><InsuranceMortgageTracker /></ProtectedRoute>} />
-                  <Route path="/invoices" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}<Invoices /></ProtectedRoute>} />
+                  <Route path="/invoices" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Invoices /></ProtectedRoute>} />
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-                  <Route path="/customers" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}<Customers /></ProtectedRoute>} />
-                  <Route path="/jobs" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}<Jobs /></ProtectedRoute>} />
-                  <Route path="/invoices" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}<Invoices /></ProtectedRoute>} />
-            </Routes>
+                  <Route path="/customers" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Customers /></ProtectedRoute>} />
+                  <Route path="/jobs" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Jobs /></ProtectedRoute>} />
+                  <Route path="/invoices" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Invoices /></ProtectedRoute>} />
+                </Routes>
               </main>
             </div>
           </BrowserRouter>
