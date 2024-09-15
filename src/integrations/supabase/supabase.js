@@ -30,3 +30,22 @@ const createLeadsTable = async () => {
 };
 
 createLeadsTable();
+
+// New RPC calls for Supplement Specialist Dashboard
+export const getSupplementKPIs = async () => {
+  const { data, error } = await supabase.rpc('get_supplement_kpis');
+  if (error) throw error;
+  return data;
+};
+
+export const getCurrentSupplementRequests = async () => {
+  const { data, error } = await supabase.rpc('get_current_supplement_requests');
+  if (error) throw error;
+  return data;
+};
+
+export const getSupplementPerformanceHistory = async () => {
+  const { data, error } = await supabase.rpc('get_supplement_performance_history');
+  if (error) throw error;
+  return data;
+};

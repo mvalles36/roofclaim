@@ -10,6 +10,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import CustomerDashboard from './pages/CustomerDashboard';
 import EmployeeDashboard from './pages/EmployeeDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import SalesDashboard from './pages/SalesDashboard';
+import SupplementSpecialistDashboard from './pages/SupplementSpecialistDashboard';
 import InspectionScheduling from './pages/InspectionScheduling';
 import InspectionReport from './pages/InspectionReport';
 import InstallationTracking from './pages/InstallationTracking';
@@ -53,6 +55,8 @@ const App = () => {
                       <ProtectedRoute>
                         {({ userRole }) => {
                           if (userRole === 'admin') return <AdminDashboard />;
+                          if (userRole === 'sales') return <SalesDashboard />;
+                          if (userRole === 'supplement_specialist') return <SupplementSpecialistDashboard />;
                           if (userRole === 'employee') return <EmployeeDashboard />;
                           return <CustomerDashboard />;
                         }}
@@ -64,7 +68,7 @@ const App = () => {
                   <Route path="/installation-tracking" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><InstallationTracking /></ProtectedRoute>} />
                   <Route path="/find-leads" element={<ProtectedRoute allowedRoles={['admin']}><FindLeads /></ProtectedRoute>} />
                   <Route path="/contacts" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><Contacts /></ProtectedRoute>} />
-                  <Route path="/supplement-tracking" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><SupplementTracking /></ProtectedRoute>} />
+                  <Route path="/supplement-tracking" element={<ProtectedRoute allowedRoles={['admin', 'employee', 'supplement_specialist']}><SupplementTracking /></ProtectedRoute>} />
                   <Route path="/tasks" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><Tasks /></ProtectedRoute>} />
                 </Routes>
               </main>
