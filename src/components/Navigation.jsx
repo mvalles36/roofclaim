@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { supabase } from '../integrations/supabase/supabase';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { HomeIcon, UsersIcon, ClipboardIcon, FileTextIcon, MapPinIcon, CalendarIcon, BarChartIcon, UserIcon, SettingsIcon, LogOutIcon, CheckSquareIcon, BriefcaseIcon, CreditCardIcon } from "lucide-react";
+import { HomeIcon, UsersIcon, ClipboardIcon, FileTextIcon, MapPinIcon, CalendarIcon, BarChartIcon, UserIcon, SettingsIcon, LogOutIcon, CheckSquareIcon, BriefcaseIcon, CreditCardIcon, ListTodoIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -43,7 +43,7 @@ const Navigation = () => {
     { role: ['customer', 'employee', 'admin', 'sales', 'sales_manager'], icon: <CalendarIcon className="h-5 w-5" />, label: 'Calendar', to: '/calendar' },
     { role: ['admin', 'sales_manager'], icon: <MapPinIcon className="h-5 w-5" />, label: 'Find Leads', to: '/find-leads' },
     { role: ['employee', 'admin', 'sales', 'sales_manager', 'supplement_specialist'], icon: <BarChartIcon className="h-5 w-5" />, label: 'Supplements', to: '/supplement-tracking' },
-    { role: ['employee', 'admin', 'sales', 'sales_manager', 'roofing_crew_lead'], icon: <CheckSquareIcon className="h-5 w-5" />, label: 'Tasks', to: '/tasks' },
+    { role: ['employee', 'admin', 'sales', 'sales_manager', 'roofing_crew_lead'], icon: <ListTodoIcon className="h-5 w-5" />, label: 'Tasks', to: '/tasks' },
   ];
 
   if (!session) return null;
