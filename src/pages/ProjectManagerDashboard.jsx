@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { supabase } from '../integrations/supabase/supabase';
 
 const ProjectManagerDashboard = () => {
-  const [projects, setProjects] = useState([]);
+  const [jobs, setJobs] = useState([]);
   const [performanceMetrics, setPerformanceMetrics] = useState({
     onTimeCompletion: 0,
     customerSatisfaction: 0,
@@ -20,14 +19,14 @@ const ProjectManagerDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const { data: projectsData, error: projectsError } = await supabase
-        .from('projects')
+      const { data: jobsData, error: jobsError } = await supabase
+        .from('jobs')
         .select('*')
         .order('start_date', { ascending: false })
         .limit(5);
 
-      if (projectsError) throw projectsError;
-      setProjects(projectsData);
+      if (jobsError) throw jobsError;
+      setJobs(jobsData);
 
       const { data: metricsData, error: metricsError } = await supabase
         .rpc('get_project_manager_metrics');
@@ -53,7 +52,7 @@ const ProjectManagerDashboard = () => {
         <MetricCard
           title="On-Time Completion"
           value={`${performanceMetrics.onTimeCompletion}%`}
-          description="Projects completed on schedule"
+          description="Jobs completed on schedule"
         />
         <MetricCard
           title="Customer Satisfaction"
@@ -69,19 +68,19 @@ const ProjectManagerDashboard = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Active Projects</CardTitle>
+          <CardTitle>Active Jobs</CardTitle>
         </CardHeader>
         <CardContent>
-          {projects.map((project) => (
-            <div key={project.id} className="mb-4">
+          {jobs.map((job) => (
+            <div key={job.id} className="mb-4">
               <div className="flex justify-between items-center mb-2">
-                <h3 className="font-semibold">{project.name}</h3>
-                <span>{project.status}</span>
+                <h3 className="font-semibold">{job.job_type}</h3>
+                <span>{job.job_status}</span>
               </div>
-              <Progress value={project.progress} className="mb-2" />
+              <Progress value={job.progress} className="mb-2" />
               <div className="text-sm text-gray-500">
-                Start: {new Date(project.start_date).toLocaleDateString()} | 
-                Due: {new Date(project.end_date).toLocaleDateString()}
+                Start: {new Date(job.start_date).toLocaleDateString()} | 
+                Due: {job.end_date ? new Date(job.end_date).toLocaleDateString() : 'Not set'}
               </div>
             </div>
           ))}
