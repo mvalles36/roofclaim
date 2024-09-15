@@ -41,11 +41,14 @@ const Login = () => {
 
   const navigateBasedOnRole = (role) => {
     switch (role) {
-      case 'customer':
-        navigate('/CustomerDashboard');
+      case 'sales':
+        navigate('/SalesDashboard');
         break;
-      case 'employee':
-        navigate('/EmployeeDashboard');
+      case 'supplement_specialist':
+        navigate('/SupplementSpecialistDashboard');
+        break;
+      case 'manager':
+        navigate('/ProjectManagerDashboard');
         break;
       case 'admin':
         navigate('/AdminDashboard');
@@ -102,12 +105,12 @@ const Login = () => {
   return (
     <Card className="max-w-md mx-auto mt-8">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">RoofClaim CRM Login</CardTitle>
+        <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
       </CardHeader>
       <CardContent>
         {error && (
           <Alert variant="destructive" className="mb-4">
-            <AlertTitle>Error</AlertTitle>
+            <AlertTitle>Something isn't Right!?!</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -138,7 +141,7 @@ const Login = () => {
         </form>
         <div className="mt-4 text-center space-y-2">
           <Link to="/forgot-password" className="text-black-600 hover:underline block">Forgot Password?</Link>
-          <Link to="/signup" className="text-black-600 hover:underline block">Don't have an account? Sign up</Link>
+          <Link to="/signup" className="text-black-600 hover:underline block">Need to register? Sign up</Link>
         </div>
       </CardContent>
     </Card>
