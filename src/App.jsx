@@ -19,6 +19,7 @@ import FindLeads from './pages/FindLeads';
 import Contacts from './pages/Contacts';
 import SupplementTracking from './pages/SupplementTracking';
 import Tasks from './pages/Tasks';
+import InsuranceMortgageTracker from './pages/InsuranceMortgageTracker';
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const App = () => {
                   <Route path="/contacts" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><Contacts /></ProtectedRoute>} />
                   <Route path="/supplement-tracking" element={<ProtectedRoute allowedRoles={['admin', 'employee', 'supplement_specialist']}><SupplementTracking /></ProtectedRoute>} />
                   <Route path="/tasks" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><Tasks /></ProtectedRoute>} />
+                  <Route path="/insurance-mortgage-tracker" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><InsuranceMortgageTracker /></ProtectedRoute>} />
                 </Routes>
               </main>
             </div>
