@@ -21,6 +21,8 @@ import Contacts from './pages/Contacts';
 import SupplementTracking from './pages/SupplementTracking';
 import Tasks from './pages/Tasks';
 import InsuranceMortgageTracker from './pages/InsuranceMortgageTracker';
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 
 const queryClient = new QueryClient();
 
@@ -75,6 +77,8 @@ const App = () => {
                   <Route path="/tasks" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><Tasks /></ProtectedRoute>} />
                   <Route path="/insurance-mortgage-tracker" element={<ProtectedRoute allowedRoles={['admin', 'employee']}><InsuranceMortgageTracker /></ProtectedRoute>} />
                   <Route path="/project-manager" element={<ProtectedRoute allowedRoles={['admin', 'project_manager']}><ProjectManagerDashboard /></ProtectedRoute>} />
+                  <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                  <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                 </Routes>
               </main>
             </div>
