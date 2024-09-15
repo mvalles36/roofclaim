@@ -33,18 +33,18 @@ const Navigation = () => {
   };
 
   const navItems = [
-    { role: ['customer', 'employee', 'admin', 'sales', 'sales_manager', 'support', 'supplement_specialist', 'roofing_crew_lead'], icon: <HomeIcon className="h-5 w-5" />, label: 'Dashboard', to: '/' },
-    { role: ['employee', 'admin', 'sales', 'sales_manager'], icon: <UsersIcon className="h-5 w-5" />, label: 'Contacts', to: '/contacts' },
-    { role: ['employee', 'admin', 'sales', 'sales_manager', 'support', 'supplement_specialist'], icon: <UserIcon className="h-5 w-5" />, label: 'Customers', to: '/customers' },
-    { role: ['employee', 'admin', 'sales', 'sales_manager', 'roofing_crew_lead'], icon: <BriefcaseIcon className="h-5 w-5" />, label: 'Jobs', to: '/jobs' },
-    { role: ['employee', 'admin', 'sales', 'sales_manager'], icon: <CreditCardIcon className="h-5 w-5" />, label: 'Invoices', to: '/invoices' },
-    { role: ['employee', 'admin', 'sales', 'sales_manager'], icon: <ClipboardIcon className="h-5 w-5" />, label: 'Inspections', to: '/inspection-scheduling' },
-    { role: ['employee', 'admin', 'sales', 'sales_manager', 'supplement_specialist'], icon: <ListCheckIcon className="h-5 w-5" />, label: 'Inspection Reports', to: '/inspection-reports' },
-    { role: ['employee', 'admin', 'sales', 'sales_manager'], icon: <FileTextIcon className="h-5 w-5" />, label: 'Claims', to: '/claim-management' },
-    { role: ['customer', 'employee', 'admin', 'sales', 'sales_manager'], icon: <CalendarIcon className="h-5 w-5" />, label: 'Calendar', to: '/calendar' },
-    { role: ['admin', 'sales_manager'], icon: <MapPinIcon className="h-5 w-5" />, label: 'Find Leads', to: '/find-leads' },
-    { role: ['employee', 'admin', 'sales', 'sales_manager', 'supplement_specialist'], icon: <BarChartIcon className="h-5 w-5" />, label: 'Supplements', to: '/supplement-tracking' },
-    { role: ['employee', 'admin', 'sales', 'sales_manager', 'roofing_crew_lead'], icon: <ListTodoIcon className="h-5 w-5" />, label: 'Tasks', to: '/tasks' },
+    { role: ['admin', 'sales', 'manager', 'support', 'supplement_specialist', 'roofing_crew_lead'], icon: <HomeIcon className="h-5 w-5" />, label: 'Dashboard', to: '/' },
+    { role: ['admin', 'sales', 'manager'], icon: <UsersIcon className="h-5 w-5" />, label: 'Contacts', to: '/contacts' },
+    { role: ['admin', 'sales', 'manager', 'support', 'supplement_specialist'], icon: <UserIcon className="h-5 w-5" />, label: 'Customers', to: '/customers' },
+    { role: ['admin', 'sales', 'manager', 'roofing_crew_lead'], icon: <BriefcaseIcon className="h-5 w-5" />, label: 'Jobs', to: '/jobs' },
+    { role: ['admin','sales', 'manager'], icon: <CreditCardIcon className="h-5 w-5" />, label: 'Invoices', to: '/invoices' },
+    { role: ['admin', 'sales', 'manager'], icon: <ClipboardIcon className="h-5 w-5" />, label: 'Inspections', to: '/inspection-scheduling' },
+    { role: ['admin', 'sales', 'manager', 'supplement_specialist'], icon: <ListCheckIcon className="h-5 w-5" />, label: 'Inspection Reports', to: '/inspection-reports' },
+    { role: ['admin', 'sales', 'manager'], icon: <FileTextIcon className="h-5 w-5" />, label: 'Claims', to: '/claim-management' },
+    { role: ['admin', 'sales', 'manager'], icon: <CalendarIcon className="h-5 w-5" />, label: 'Calendar', to: '/calendar' },
+    { role: ['admin', 'manager'], icon: <MapPinIcon className="h-5 w-5" />, label: 'Find Leads', to: '/find-leads' },
+    { role: ['admin', 'sales', 'manager', 'supplement_specialist'], icon: <BarChartIcon className="h-5 w-5" />, label: 'Supplements', to: '/supplement-tracking' },
+    { role: ['admin', 'sales', 'manager', 'roofing_crew_lead'], icon: <ListTodoIcon className="h-5 w-5" />, label: 'Tasks', to: '/tasks' },
   ];
 
   if (!session) return null;
