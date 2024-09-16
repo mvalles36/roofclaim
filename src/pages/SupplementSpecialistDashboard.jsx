@@ -7,6 +7,7 @@ const SupplementSpecialistDashboard = () => {
   const [kpis, setKpis] = useState({});
   const [currentRequests, setCurrentRequests] = useState([]);
   const [performanceHistory, setPerformanceHistory] = useState([]);
+  const [selectedRequest, setSelectedRequest] = useState(null); // Track selected request
 
   useEffect(() => {
     fetchDashboardData();
@@ -27,6 +28,10 @@ const SupplementSpecialistDashboard = () => {
     }
   };
 
+  const handleRequestSelection = (request) => {
+    setSelectedRequest(request);
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Supplement Specialist Dashboard</h1>
@@ -42,11 +47,33 @@ const SupplementSpecialistDashboard = () => {
         <CardContent>
           <ul className="space-y-2">
             {currentRequests.map((request, index) => (
-              <li key={index}>{request.description}</li>
+              <li key={index}>
+                <button onClick={() => handleRequestSelection(request)} className="text-left hover:underline">
+                  {request.description}
+                </button>
+              </li>
             ))}
           </ul>
         </CardContent>
       </Card>
+      {selectedRequest && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Selected Request Details</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* Display details of the selected request here (e.g., customer information, claim details) */}
+            <p>Customer Name: {selectedRequest.customerName}</p>
+            <p>Claim Number: {selectedRequest.claimNumber}</p>
+            <p>Description: {selectedRequest.description}</p>
+            {/* Add buttons or functionality to approve/reject the request */}
+            <div className="flex justify-end space-x-2">
+              <Button variant="primary">Approve Request</Button>
+              <Button variant="secondary">Reject Request</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       <Card>
         <CardHeader>
           <CardTitle>Performance History</CardTitle>
@@ -80,4 +107,4 @@ const KPICard = ({ title, value }) => (
   </Card>
 );
 
-export default SupplementSpecialistDashboard;
+export default SupplementSpecialistDashboard
