@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PasswordStrengthMeter } from 'your-password-strength-meter-library'; // Replace with your chosen library
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
@@ -20,6 +21,7 @@ const ResetPassword = () => {
       // The user has arrived from a password reset email
       const accessToken = hash.split('&')[0].split('=')[1];
       supabase.auth.setSession({ access_token: accessToken, refresh_token: '' });
+      // TODO: Check if token is expired (implement expiry logic)
     } else {
       // Redirect to login if the user hasn't come from a reset email
       navigate('/login');
@@ -65,6 +67,7 @@ const ResetPassword = () => {
           </Alert>
         )}
         <form onSubmit={handleResetPassword} className="space-y-4">
+          { /* TODO: Pre-fill email if available from token */}
           <div>
             <Label htmlFor="password">New Password</Label>
             <Input
@@ -75,23 +78,8 @@ const ResetPassword = () => {
               required
               className="w-full"
             />
+            {/* TODO: Implement PasswordStrengthMeter component */}
+            <PasswordStrengthMeter password={password} />
           </div>
           <div>
             <Label htmlFor="confirmPassword">Confirm New Password</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              className="w-full"
-            />
-          </div>
-          <Button type="submit" className="w-full">Set New Password</Button>
-        </form>
-      </CardContent>
-    </Card>
-  );
-};
-
-export default ResetPassword;
