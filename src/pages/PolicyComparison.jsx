@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { supabase } from '../integrations/supabase/supabase';
 import axios from 'axios';
+import { DocumentAI } from '@google-cloud/document-ai'; // Import DocumentAI library
 
 const PolicyComparison = () => {
   const [policyDetails, setPolicyDetails] = useState('');
@@ -21,33 +22,53 @@ const PolicyComparison = () => {
     setFileFunction(file);
   };
 
-  const extractTextFromFile = async (file) => {
-    // This is a placeholder for OCR functionality
-    // In a real implementation, you would send the file to a backend service for OCR processing
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target.result);
-      reader.readAsText(file);
+  const extractTextFromDocument = async (file) => {
+    const projectId = 'your-project-id'; // Replace with your GCP project ID
+    const location = 'your-location'; // Replace with your Document AI location
+    const documentAI = new DocumentAI({ projectId, location });
+
+    // Use Document AI to process the uploaded file
+    const [response] = await documentAI.processDocument({
+      rawDocument: {
+        content: file.arrayBuffer,
+      },
     });
+
+    // Extract relevant text and entities based on your needs
+    const extractedText = response.document.text;
+    const extractedEntities = []; // Placeholder for extracted entities
+
+    return { extractedText, extractedEntities };
   };
 
   const handleComparison = async () => {
     setIsLoading(true);
     try {
-      let policyText = policyDetails;
-      let damageText = damageReport;
+      let policyData, damageData;
 
       if (policyFile) {
-        policyText = await extractTextFromFile(policyFile);
-      }
-      if (damageReportFile) {
-        damageText = await extractTextFromFile(damageReportFile);
+        const { extractedText, extractedEntities } = await extractTextFromDocument(policyFile);
+        policyData = { text: extractedText, entities: extractedEntities };
+      } else {
+        policyData = { text: policyDetails };
       }
 
-      // This is a placeholder for the actual API call to your backend
+      if (damageReportFile) {
+        const { extractedText } = await extractTextFromDocument(damageReportFile);
+        damageData = { text: extractedText };
+      } else {
+        damageData = { text: damageReport };
+      }
+
+      // Use AutoML Entity Extraction and Dialogflow for advanced analysis (placeholder)
+      const identifiedCoverageGaps = []; // Placeholder for identified gaps
+      const supplementRecommendations = []; // Placeholder for supplement recommendations
+
       const response = await axios.post('/api/compare-policy', {
-        policyDetails: policyText,
-        damageReport: damageText
+        policyData,
+        damageData,
+        identifiedCoverageGaps,
+        supplementRecommendations,
       });
       setComparisonResult(response.data);
     } catch (error) {
@@ -66,80 +87,4 @@ const PolicyComparison = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="policyFile">Upload Insurance Policy</Label>
-            <Input
-              id="policyFile"
-              type="file"
-              onChange={(e) => handleFileUpload(e, setPolicyFile)}
-              accept=".pdf,.doc,.docx"
-            />
-          </div>
-          <div>
-            <Label htmlFor="policyDetails">Insurance Policy Details</Label>
-            <Textarea
-              id="policyDetails"
-              value={policyDetails}
-              onChange={(e) => setPolicyDetails(e.target.value)}
-              placeholder="Enter key details from the insurance policy..."
-            />
-          </div>
-          <div>
-            <Label htmlFor="damageReportFile">Upload Damage Report</Label>
-            <Input
-              id="damageReportFile"
-              type="file"
-              onChange={(e) => handleFileUpload(e, setDamageReportFile)}
-              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-            />
-          </div>
-          <div>
-            <Label htmlFor="damageReport">Roof Damage Report</Label>
-            <Textarea
-              id="damageReport"
-              value={damageReport}
-              onChange={(e) => setDamageReport(e.target.value)}
-              placeholder="Enter details from the roof damage report..."
-            />
-          </div>
-          <Button onClick={handleComparison} disabled={isLoading}>
-            {isLoading ? 'Comparing...' : 'Compare Policy'}
-          </Button>
-        </CardContent>
-      </Card>
-      {comparisonResult && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Comparison Results</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <h3 className="font-semibold mb-2">Identified Gaps:</h3>
-            <ul className="list-disc list-inside mb-4">
-              {comparisonResult.gaps.map((gap, index) => (
-                <li key={index}>{gap}</li>
-              ))}
-            </ul>
-            <h3 className="font-semibold mb-2">Recommendations:</h3>
-            <ul className="list-disc list-inside mb-4">
-              {comparisonResult.recommendations.map((rec, index) => (
-                <li key={index}>{rec}</li>
-              ))}
-            </ul>
-            <Alert>
-              <AlertTitle>Supplement Suggestion</AlertTitle>
-              <AlertDescription>
-                Based on the comparison, we recommend creating a supplement for the following items:
-                <ul className="list-disc list-inside mt-2">
-                  {comparisonResult.supplementItems.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  );
-};
-
-export default PolicyComparison;
+            <Label htmlFor="policyFile">
