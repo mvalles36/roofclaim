@@ -15,14 +15,24 @@ const Tasks = () => {
   const [tasks, setTasks] = useState([]);
   const [viewMode, setViewMode] = useState('list');
   const { userRole } = useSupabaseAuth();
+  const [newTask, setNewTask] = useState({
+    title: '',
+    description: '',
+    status: 'pending',
+    priority: 'low',
+    assignee_role: '',
+    due_date: '',
+  });
+  const [assignees, setAssignees] = useState([]);
 
   useEffect(() => {
     fetchTasks();
+    fetchAssignees();
   }, [userRole]);
 
   const fetchTasks = async () => {
     let query = supabase.from('tasks').select('*');
-    
+
     if (userRole !== 'admin' && userRole !== 'project_manager') {
       query = query.eq('assignee_role', userRole);
     }
@@ -36,8 +46,36 @@ const Tasks = () => {
     }
   };
 
-  const handleTaskCreated = () => {
-    fetchTasks();
+  const fetchAssignees = async () => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, role');
+
+    if (error) {
+      console.error('Error fetching assignees:', error);
+    } else {
+      setAssignees(data);
+    }
+  };
+
+  const handleTaskCreated = async () => {
+    const { data, error } = await supabase
+      .from('tasks')
+      .insert([newTask]);
+
+    if (error) {
+      console.error('Error creating task:', error);
+    } else {
+      fetchTasks();
+      setNewTask({
+        title: '',
+        description: '',
+        status: 'pending',
+        priority: 'low',
+        assignee_role: '',
+        due_date: '',
+      });
+    }
   };
 
   const handleTaskUpdated = async (taskId, updates) => {
@@ -74,7 +112,12 @@ const Tasks = () => {
             <CardTitle>Create New Task</CardTitle>
           </CardHeader>
           <CardContent>
-            <TaskForm onTaskCreated={handleTaskCreated} />
+            <TaskForm
+              onTaskCreated={handleTaskCreated}
+              assignees={assignees}
+              initialTask={newTask}
+              onTaskChanged={setNewTask}
+            />
           </CardContent>
         </Card>
       )}
