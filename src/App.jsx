@@ -102,4 +102,10 @@ const App = () => {
   );
 };
 
-export default App;
+const AppWrapper = () => (
+  <SupabaseAuthProvider>
+    <App />
+  </SupabaseAuthProvider>
+);
+
+export default AppWrapper;
