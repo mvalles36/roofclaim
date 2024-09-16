@@ -1,72 +1,50 @@
-# Welcome to your GPT Engineer project
+# RoofCare Assist
 
-## Project info
+## Project Setup
 
-**Project**: roofcare-assist
+1. Clone the repository
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Set up environment variables:
+   Create a `.env` file in the root directory and add the following:
+   ```
+   VITE_SUPABASE_PROJECT_URL=your_supabase_project_url
+   VITE_SUPABASE_API_KEY=your_supabase_api_key
+   VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+   VITE_MELISSA_DATA_API_KEY=your_melissa_data_api_key
+   VITE_ROBOFLOW_API_KEY=your_roboflow_api_key
+   ```
 
-**URL**: https://run.gptengineer.app/projects/60657c6a-3937-449b-8f92-7941ad15608f/improve
+## Running the Application
 
-## How can I edit this code?
+To start the development server:
 
-There are several ways of editing your application.
-
-**Use GPT Engineer**
-
-Simply visit the GPT Engineer project at [GPT Engineer](https://gptengineer.app/projects/60657c6a-3937-449b-8f92-7941ad15608f/improve) and start prompting.
-
-Changes made via gptengineer.app will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in the GPT Engineer UI.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Seeding the Database
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+To populate the database with sample data:
 
-**Use GitHub Codespaces**
+1. Ensure your Supabase credentials are correctly set in the `.env` file.
+2. Run the seeding script:
+   ```
+   npm run seed
+   ```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+This will create sample users, customers, jobs, invoices, and supplements in your Supabase database.
 
-## What technologies are used for this project?
+## Building for Production
 
-This project is built with .
+To create a production build:
 
-- Vite
-- React
-- shadcn-ui
-- Tailwind CSS
+```
+npm run build
+```
 
-## How can I deploy this project?
+## Additional Information
 
-All GPT Engineer projects can be deployed directly via the GPT Engineer app.
-
-Simply visit your project at [GPT Engineer](https://gptengineer.app/projects/60657c6a-3937-449b-8f92-7941ad15608f/improve) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.gptengineer.app/tips-tricks/custom-domain/)
+For more details on the project structure and components, please refer to the source code and comments within the files.
