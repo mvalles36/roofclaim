@@ -29,6 +29,7 @@ import Jobs from './pages/Jobs';
 import PolicyComparison from './pages/PolicyComparison';
 import Claims from './pages/Claims';
 import ClaimManagement from './pages/ClaimManagement';
+import DamageDetection from './pages/DamageDetection';
 
 const queryClient = new QueryClient();
 
@@ -88,7 +89,7 @@ const App = () => {
                   <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                   <Route path="/customers" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Customers /></ProtectedRoute>} />
                   <Route path="/jobs" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Jobs /></ProtectedRoute>} />
-                  <Route path="/invoices" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Invoices /></ProtectedRoute>} />
+                  <Route path="/damage-detection" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><DamageDetection /></ProtectedRoute>} />
                 </Routes>
               </main>
             </div>
