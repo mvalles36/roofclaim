@@ -33,6 +33,7 @@ const InsuranceMortgageTracker = () => {
 
     if (error) {
       console.error('Error fetching checks:', error);
+      // Implement user-friendly error display in production
     } else {
       setChecks(data);
     }
@@ -45,6 +46,7 @@ const InsuranceMortgageTracker = () => {
 
     if (error) {
       console.error('Error fetching customers:', error);
+      // Implement user-friendly error display in production
     } else {
       setCustomers(data);
     }
@@ -57,19 +59,22 @@ const InsuranceMortgageTracker = () => {
 
     if (error) {
       console.error('Error fetching jobs:', error);
+      // Implement user-friendly error display in production
     } else {
       setJobs(data);
     }
   };
 
   const handleAddCheck = async () => {
-    const { data, error } = await supabase
-      .from('insurance_mortgage_checks')
-      .insert([newCheck]);
+    try {
+      const { data, error } = await supabase
+        .from('insurance_mortgage_checks')
+        .insert([newCheck]);
 
-    if (error) {
-      console.error('Error adding check:', error);
-    } else {
+      if (error) {
+        throw error; // Re-throw error for handling
+      }
+
       fetchChecks();
       setNewCheck({
         type: 'insurance',
@@ -78,6 +83,9 @@ const InsuranceMortgageTracker = () => {
         customer_id: '',
         job_id: '',
       });
+    } catch (error) {
+      console.error('Error adding check:', error);
+      // Implement user-friendly error display in production
     }
   };
 
@@ -89,6 +97,7 @@ const InsuranceMortgageTracker = () => {
 
     if (error) {
       console.error('Error updating check status:', error);
+      // Implement user-friendly error display in production
     } else {
       fetchChecks();
     }
@@ -108,6 +117,7 @@ const InsuranceMortgageTracker = () => {
               <Select
                 value={newCheck.type}
                 onValueChange={(value) => setNewCheck({ ...newCheck, type: value })}
+                // Add ARIA attributes for screen reader support
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select check type" />
@@ -133,6 +143,7 @@ const InsuranceMortgageTracker = () => {
               <Select
                 value={newCheck.customer_id}
                 onValueChange={(value) => setNewCheck({ ...newCheck, customer_id: value })}
+                // Add ARIA attributes for screen reader support
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select customer" />
@@ -149,6 +160,7 @@ const InsuranceMortgageTracker = () => {
               <Select
                 value={newCheck.job_id}
                 onValueChange={(value) => setNewCheck({ ...newCheck, job_id: value })}
+                // Add ARIA attributes for screen reader support
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select job" />
@@ -169,7 +181,7 @@ const InsuranceMortgageTracker = () => {
           <CardTitle>Check List</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
+          <Table aria-label="Insurance and Mortgage Check List">
             <TableHeader>
               <TableRow>
                 <TableHead>Type</TableHead>
@@ -192,6 +204,7 @@ const InsuranceMortgageTracker = () => {
                     <Select
                       value={check.status}
                       onValueChange={(value) => handleUpdateCheckStatus(check.id, value)}
+                      // Add ARIA attributes for screen reader support
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Update status" />
