@@ -95,6 +95,8 @@
 
     "@mui/material": "^6.1.0",
 
+    "@syncfusion/ej2-react-documenteditor": "^26.2.14",
+
     "axios": "^1.7.7",
 
     "class-variance-authority": "^0.7.0",
