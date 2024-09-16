@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { supabase } from '../integrations/supabase/supabase';
 import axios from 'axios';
-import { DocumentAI } from '@google-cloud/document-ai'; // Import DocumentAI library
+import { DocumentAI } from '@google-cloud/documentai'; // Import DocumentAI library
 
 const PolicyComparison = () => {
   const [policyDetails, setPolicyDetails] = useState('');
