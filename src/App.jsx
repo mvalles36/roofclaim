@@ -7,6 +7,7 @@ import Navigation from './components/Navigation';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import AdminDashboard from './pages/AdminDashboard';
 import SalesDashboard from './pages/SalesDashboard';
 import SupplementSpecialistDashboard from './pages/SupplementSpecialistDashboard';
@@ -58,6 +59,7 @@ const App = () => {
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
                   <Route
                     path="/"
                     element={

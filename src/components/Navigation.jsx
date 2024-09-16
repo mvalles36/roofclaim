@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { supabase } from '../integrations/supabase/supabase';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
@@ -11,6 +11,7 @@ const Navigation = () => {
   const { session, userRole, logout } = useSupabaseAuth();
   const [userName, setUserName] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (session) {
@@ -29,6 +30,15 @@ const Navigation = () => {
       console.error('Error fetching user name:', error);
     } else if (data) {
       setUserName(data.name);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error logging out:', error);
     }
   };
 
@@ -83,7 +93,7 @@ const Navigation = () => {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={logout}>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOutIcon className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>

@@ -6,101 +6,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const { session, login } = useSupabaseAuth();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setUser(session.user);
-        fetchUserRole(session.user.id);
-      }
-    };
-    checkSession();
-  }, []);
-
-  const fetchUserRole = async (userId) => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', userId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching user role:', error);
-    } else if (data) {
-      navigateBasedOnRole(data.role);
+    if (session) {
+      navigate('/');
     }
-  };
-
-  const navigateBasedOnRole = (role) => {
-    switch (role) {
-      case 'sales':
-        navigate('/SalesDashboard');
-        break;
-      case 'supplement_specialist':
-        navigate('/SupplementSpecialistDashboard');
-        break;
-      case 'manager':
-        navigate('/ProjectManagerDashboard');
-        break;
-      case 'admin':
-        navigate('/AdminDashboard');
-        break;
-      default:
-        navigate('/');
-    }
-  };
+  }, [session, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await login(email, password);
       if (error) throw error;
-      console.log('Login successful:', data);
-      if (data.user) {
-        fetchUserRole(data.user.id);
-      }
     } catch (error) {
       console.error('Login error:', error);
       setError(error.message);
     }
   };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setError(null);
-    navigate('/login');
-  };
-
-  if (user) {
-    return (
-      <Card className="max-w-md mx-auto mt-8">
-        <CardHeader>
-          <CardTitle>Welcome back!</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Alert>
-            <AlertTitle>You are logged in</AlertTitle>
-            <AlertDescription>
-              Email: {user.email}
-              <br />
-              User ID: {user.id}
-            </AlertDescription>
-          </Alert>
-          <Button onClick={handleLogout} className="mt-4 w-full">Logout</Button>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <Card className="max-w-md mx-auto mt-8">
@@ -110,7 +41,7 @@ const Login = () => {
       <CardContent>
         {error && (
           <Alert variant="destructive" className="mb-4">
-            <AlertTitle>Something isn't Right!?!</AlertTitle>
+            <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -140,8 +71,8 @@ const Login = () => {
           <Button type="submit" className="w-full">Login</Button>
         </form>
         <div className="mt-4 text-center space-y-2">
-          <Link to="/forgot-password" className="text-black-600 hover:underline block">Forgot Password?</Link>
-          <Link to="/signup" className="text-black-600 hover:underline block">Need to register? Sign up</Link>
+          <Link to="/forgot-password" className="text-blue-600 hover:underline block">Forgot Password?</Link>
+          <Link to="/signup" className="text-blue-600 hover:underline block">Need to register? Sign up</Link>
         </div>
       </CardContent>
     </Card>

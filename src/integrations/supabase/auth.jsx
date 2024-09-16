@@ -63,12 +63,18 @@ export const SupabaseAuthProviderInner = ({ children }) => {
     }
   };
 
+  const login = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return data;
+  };
+
   const logout = async () => {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
     setSession(null);
     setUserRole(null);
     queryClient.invalidateQueries('user');
-    setLoading(false);
   };
 
   const updateProfile = async (updates) => {
@@ -85,7 +91,7 @@ export const SupabaseAuthProviderInner = ({ children }) => {
   };
 
   return (
-    <SupabaseAuthContext.Provider value={{ session, userRole, loading, logout, updateProfile }}>
+    <SupabaseAuthContext.Provider value={{ session, userRole, loading, login, logout, updateProfile }}>
       {children}
     </SupabaseAuthContext.Provider>
   );
