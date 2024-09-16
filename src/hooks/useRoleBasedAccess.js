@@ -12,6 +12,12 @@ export const useRoleBasedAccess = () => {
 
   const hasPermission = (permission) => {
     if (!userRole || !rolePermissions[userRole]) return false;
+
+    // Check if the user has the 'read:all' permission
+    if (userRole === 'admin' && rolePermissions[userRole].includes('read:all')) {
+      return true;
+    }
+
     return rolePermissions[userRole].includes(permission);
   };
 
