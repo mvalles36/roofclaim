@@ -34,13 +34,13 @@ import DamageDetection from './pages/DamageDetection';
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { session, userRole } = useSupabaseAuth();
+  const auth = useSupabaseAuth();
 
-  if (!session) {
+  if (!auth.session) {
     return <Navigate to="/login" />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(userRole)) {
+  if (allowedRoles && !allowedRoles.includes(auth.userRole)) {
     return <Navigate to="/" />;
   }
 
@@ -48,14 +48,14 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 };
 
 const App = () => {
-  const { session } = useSupabaseAuth();
+  const auth = useSupabaseAuth();
 
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <BrowserRouter>
-          {session ? (
+          {auth.session ? (
             <div className="flex h-screen bg-gray-100">
               <Navigation />
               <main className="flex-1 overflow-y-auto p-8">
