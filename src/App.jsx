@@ -47,31 +47,27 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 };
 
 const App = () => {
+  const { session, loading } = useSupabaseAuth();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <SupabaseAuthProvider>
-          <BrowserRouter>
+        <BrowserRouter>
+          {session ? (
             <div className="flex h-screen bg-gray-100">
               <Navigation />
               <main className="flex-1 overflow-y-auto p-8">
                 <Routes>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
                   <Route
                     path="/"
                     element={
                       <ProtectedRoute>
-                        {({ userRole }) => {
-                          if (userRole === 'admin') return <AdminDashboard />;
-                          if (userRole === 'sales') return <SalesDashboard />;
-                          if (userRole === 'supplement_specialist') return <SupplementSpecialistDashboard />;
-                          if (userRole === 'manager') return <ProjectManagerDashboard />;
-                          return <Dashboard />;
-                        }}
+                        <Dashboard />
                       </ProtectedRoute>
                     }
                   />
@@ -93,8 +89,16 @@ const App = () => {
                 </Routes>
               </main>
             </div>
-          </BrowserRouter>
-        </SupabaseAuthProvider>
+          ) : (
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+          )}
+        </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
   );

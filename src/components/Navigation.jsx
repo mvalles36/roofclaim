@@ -63,7 +63,7 @@ const Navigation = () => {
   return (
     <div className="flex flex-col h-screen bg-gray-800 text-white w-64">
       <div className="p-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">RoofCare Assist</h1>
+        <h1 className="text-2xl font-bold">RoofClaim</h1>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="w-10 h-10 rounded-full p-0">
