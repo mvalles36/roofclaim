@@ -34,10 +34,11 @@ import DamageDetection from './pages/DamageDetection';
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { session, userRole, loading } = useSupabaseAuth();
+  const { session, userRole } = useSupabaseAuth();
 
-  if (loading) return <div>Loading...</div>;
-  if (!session) return <Navigate to="/login" />;
+  if (!session) {
+    return <Navigate to="/login" />;
+  }
 
   if (allowedRoles && !allowedRoles.includes(userRole)) {
     return <Navigate to="/" />;
@@ -47,11 +48,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 };
 
 const App = () => {
-  const { session, loading } = useSupabaseAuth();
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const { session } = useSupabaseAuth();
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -86,6 +83,7 @@ const App = () => {
                   <Route path="/customers" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Customers /></ProtectedRoute>} />
                   <Route path="/jobs" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Jobs /></ProtectedRoute>} />
                   <Route path="/damage-detection" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><DamageDetection /></ProtectedRoute>} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </main>
             </div>
