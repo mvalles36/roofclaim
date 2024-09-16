@@ -3,9 +3,12 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { supabase } from '../integrations/supabase/supabase';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { HomeIcon, UsersIcon, ClipboardIcon, FileTextIcon, MapPinIcon, CalendarIcon, BarChartIcon, UserIcon, SettingsIcon, LogOutIcon, CheckSquareIcon, BriefcaseIcon, CreditCardIcon, ListTodoIcon, ListCheckIcon, CameraIcon } from "lucide-react";
+import { HomeIcon, UsersIcon, ClipboardIcon, FileTextIcon, MapPinIcon, CalendarIcon, BarChartIcon, UserIcon, SettingsIcon, LogOutIcon, CheckSquareIcon, BriefcaseIcon, CreditCardIcon, ListTodoIcon, ListCheckIcon, CameraIcon, DocumentIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
+// Import your DocumentHub component here
+import DocumentHub from './DocumentHub.jsx'; // Replace with the actual path to your DocumentHub component
 
 const Navigation = () => {
   const { session, userRole, logout } = useSupabaseAuth();
@@ -54,72 +57,4 @@ const Navigation = () => {
     { role: ['admin', 'sales', 'manager'], icon: <CalendarIcon className="h-5 w-5" />, label: 'Calendar', to: '/calendar' },
     { role: ['admin', 'manager'], icon: <MapPinIcon className="h-5 w-5" />, label: 'Find Leads', to: '/find-leads' },
     { role: ['admin', 'sales', 'manager', 'supplement_specialist'], icon: <BarChartIcon className="h-5 w-5" />, label: 'Supplements', to: '/supplement-tracking' },
-    { role: ['admin', 'sales', 'manager', 'roofing_crew_lead'], icon: <ListTodoIcon className="h-5 w-5" />, label: 'Tasks', to: '/tasks' },
-    { role: ['admin', 'sales', 'manager', 'supplement_specialist'], icon: <CameraIcon className="h-5 w-5" />, label: 'Damage Detection', to: '/damage-detection' },
-  ];
-
-  if (!session) return null;
-
-  return (
-    <div className="flex flex-col h-screen bg-gray-800 text-white w-64">
-      <div className="p-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">RoofClaim</h1>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="w-10 h-10 rounded-full p-0">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={`https://api.dicebear.com/6.x/initials/svg?seed=${userName}`} alt={userName} />
-                <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end" forceMount>
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{userName}</p>
-                <p className="text-xs leading-none text-muted-foreground">{session.user.email}</p>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Link to="/profile" className="flex items-center">
-                <UserIcon className="mr-2 h-4 w-4" />
-                <span>Profile</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Link to="/settings" className="flex items-center">
-                <SettingsIcon className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
-              <LogOutIcon className="mr-2 h-4 w-4" />
-              <span>Log out</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <nav className="flex-1 overflow-y-auto">
-        <ul className="space-y-2 p-4">
-          {navItems.map((item, index) => (
-            item.role.includes(userRole) && (
-              <li key={index}>
-                <Link 
-                  to={item.to} 
-                  className={`flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-700 transition-colors ${location.pathname === item.to ? 'bg-gray-700' : ''}`}
-                >
-                  {item.icon}
-                  <span>{item.label}</span>
-                </Link>
-              </li>
-            )
-          ))}
-        </ul>
-      </nav>
-    </div>
-  );
-};
-
-export default Navigation;
+    { role: ['admin', 'sales', 'manager', 'roofing_crew_lead
