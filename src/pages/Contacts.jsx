@@ -22,23 +22,29 @@ const Contacts = () => {
     lead_status: 'New',
   });
   const [selectedContact, setSelectedContact] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); // Added for loading state
 
   useEffect(() => {
     fetchContacts();
   }, [session]);
 
   const fetchContacts = async () => {
-    const { data, error } = await supabase
-      .from('contacts')
-      .select('*')
-      .eq('user_id', session.user.id)
-      .order('created_at', { ascending: false });
+    setIsLoading(true); // Set loading state to true
+    try {
+      const { data, error } = await supabase
+        .from('contacts')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching contacts:', error);
-      toast.error('Failed to fetch contacts');
-    } else {
-      setContacts(data);
+      if (error) {
+        console.error('Error fetching contacts:', error);
+        toast.error('Failed to fetch contacts');
+      } else {
+        setContacts(data);
+      }
+    } finally {
+      setIsLoading(false); // Set loading state to false regardless of success or failure
     }
   };
 
@@ -100,84 +106,3 @@ const Contacts = () => {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="mb-4"
-      />
-      {hasPermission('write:contacts') && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Add New Contact</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={(e) => { e.preventDefault(); handleAddContact(); }} className="space-y-4">
-              <Input
-                placeholder="Full Name"
-                value={newContact.full_name}
-                onChange={(e) => setNewContact({ ...newContact, full_name: e.target.value })}
-              />
-              <Input
-                placeholder="Email"
-                type="email"
-                value={newContact.email}
-                onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
-              />
-              <Input
-                placeholder="Phone Number"
-                value={newContact.phone_number}
-                onChange={(e) => setNewContact({ ...newContact, phone_number: e.target.value })}
-              />
-              <Button type="submit">Add Contact</Button>
-            </form>
-          </CardContent>
-        </Card>
-      )}
-      <Card>
-        <CardHeader>
-          <CardTitle>Contact List</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2">
-            {filteredContacts.map((contact) => (
-              <li key={contact.id} className="flex justify-between items-center">
-                <div>
-                  <p className="font-semibold cursor-pointer" onClick={() => setSelectedContact(contact)}>
-                    {contact.full_name}
-                  </p>
-                  <p>{contact.email}</p>
-                  <p>Status: {contact.lead_status}</p>
-                </div>
-                {hasPermission('write:contacts') && (
-                  <Select
-                    value={contact.lead_status}
-                    onValueChange={(value) => handleUpdateLeadStatus(contact.id, value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Update Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="New">New</SelectItem>
-                      <SelectItem value="Contacted">Contacted</SelectItem>
-                      <SelectItem value="Qualified">Qualified</SelectItem>
-                      <SelectItem value="Proposal">Proposal</SelectItem>
-                      <SelectItem value="Converted">Converted</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
-      {selectedContact && (
-        <Dialog open={!!selectedContact} onOpenChange={() => setSelectedContact(null)}>
-          <DialogContent className="max-w-3xl">
-            <DialogHeader>
-              <DialogTitle>{selectedContact.full_name}</DialogTitle>
-            </DialogHeader>
-            <ContactView contactId={selectedContact.id} />
-          </DialogContent>
-        </Dialog>
-      )}
-    </div>
-  );
-};
-
-export default Contacts;
