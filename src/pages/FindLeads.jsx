@@ -1,41 +1,26 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from '../integrations/supabase/supabase';
 import axios from 'axios';
-import { useLoadScript, GoogleMap, DrawingManager, Autocomplete } from '@react-google-maps/api';
-import { motion } from 'framer-motion';
+import { useLoadScript, GoogleMap, DrawingManager } from '@react-google-maps/api';
 
 const libraries = ['places', 'drawing'];
 
 const FindLeads = () => {
-  const [address, setAddress] = useState('');
   const [selectedArea, setSelectedArea] = useState(null);
   const [leads, setLeads] = useState([]);
-  const [listName, setListName] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [mapCenter, setMapCenter] = useState({ lat: 32.7555, lng: -97.3308 }); // Fort Worth, Texas
   const [mapZoom, setMapZoom] = useState(12);
-  const [showInstructions, setShowInstructions] = useState(true);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [dontShowAgain, setDontShowAgain] = useState(false);
   const mapRef = useRef(null);
   const drawingManagerRef = useRef(null);
-  const autocompleteRef = useRef(null);
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
     libraries,
   });
-
-  useEffect(() => {
-    const skipInstructions = localStorage.getItem('skipInstructions');
-    if (skipInstructions === 'true') {
-      setShowInstructions(false);
-    }
-  }, []);
 
   const onMapLoad = useCallback((map) => {
     mapRef.current = map;
@@ -53,25 +38,20 @@ const FindLeads = () => {
     drawingManagerRef.current.setDrawingMode(null);
   }, [selectedArea]);
 
-  const onAutocompleteLoad = useCallback((autocomplete) => {
-    autocompleteRef.current = autocomplete;
-  }, []);
-
-  const handlePlaceSelect = useCallback(() => {
-    if (autocompleteRef.current) {
-      const place = autocompleteRef.current.getPlace();
-      if (place.geometry) {
-        const newCenter = {
-          lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lng()
-        };
-        setMapCenter(newCenter);
-        mapRef.current?.panTo(newCenter);
-        setMapZoom(20);
-        setAddress(place.formatted_address);
-      }
-    }
-  }, []);
+  const calculateCenterAndRadius = (sw, ne) => {
+    const centerLat = (sw.lat() + ne.lat()) / 2;
+    const centerLng = (sw.lng() + ne.lng()) / 2;
+    
+    const swLatLng = new window.google.maps.LatLng(sw.lat(), sw.lng());
+    const centerLatLng = new window.google.maps.LatLng(centerLat, centerLng);
+    
+    const radius = window.google.maps.geometry.spherical.computeDistanceBetween(centerLatLng, swLatLng) / 1609.34;
+    
+    return {
+      center: { lat: centerLat, lng: centerLng },
+      radius,
+    };
+  };
 
   const handleFindLeads = useCallback(async () => {
     if (!selectedArea) {
@@ -83,6 +63,8 @@ const FindLeads = () => {
     const ne = bounds.getNorthEast();
     const sw = bounds.getSouthWest();
 
+    const { center, radius } = calculateCenterAndRadius(sw, ne);
+
     try {
       const response = await axios.get('https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup', {
         params: {
@@ -90,7 +72,9 @@ const FindLeads = () => {
           format: "json",
           recs: "20",
           opt: "IncludeApartments:off;IncludeUndeliverable:off;IncludeEmptyLots:off",
-          bbox: `${sw.lat()},${sw.lng()},${ne.lat()},${ne.lng()}`
+          lat: center.lat,
+          lon: center.lng,
+          MaxDistance: radius
         }
       });
 
@@ -106,111 +90,28 @@ const FindLeads = () => {
           email: record.EmailAddress,
           income: record.Income,
           coordinates: JSON.stringify({ lat: record.Latitude, lng: record.Longitude }),
+          mak: record.MAK,
+          user_id: supabase.auth.user().id,  // Capture the current user's ID
         }));
 
-      setLeads(processedLeads);
-      setIsDialogOpen(true);
+      // Save leads directly to Supabase with user ID
+      const { error } = await supabase
+        .from('leads')
+        .insert(processedLeads);
+
+      if (error) throw error;
+
+      setLeads(processedLeads); // Set leads in state to show the count in the dialog
+      setIsDialogOpen(true); // Open dialog to show the count of leads
     } catch (error) {
       console.error('Error finding leads:', error);
       alert('An error occurred while finding leads. Please try again.');
     }
   }, [selectedArea]);
 
-  const handleSaveList = useCallback(async () => {
-    if (!listName.trim()) {
-      alert('Please enter a name for the list.');
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('leads')
-        .insert(leads.map(lead => ({
-          name: lead.name,
-          address: lead.address,
-          telephone: lead.telephone,
-          email: lead.email,
-          income: lead.income,
-          coordinates: lead.coordinates,
-          list_name: listName
-        })));
-
-      if (error) throw error;
-
-      alert('List saved successfully!');
-      setIsDialogOpen(false);
-      setLeads([]);
-      setListName('');
-      setAddress('');
-      setSelectedArea(null);
-    } catch (error) {
-      console.error('Error saving list:', error);
-      alert('An error occurred while saving the list. Please try again.');
-    }
-  }, [listName, leads]);
-
-  const instructionSteps = [
-    {
-      title: "Welcome to Find Leads!",
-      content: "This tool helps you find leads in a specific area. Let's walk through how to use it.",
-      animation: null
-    },
-    {
-      title: "Step 1: Choose an Area",
-      content: "First, navigate to the area you're interested in. You can use the search bar to find a specific address.",
-      animation: (
-        <motion.div
-          animate={{ x: [0, 200, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="h-8 w-32 bg-blue-500 rounded"
-        />
-      )
-    },
-    {
-      title: "Step 2: Draw a Rectangle",
-      content: "Click and drag on the map to draw a rectangle around the area you want to search.",
-      animation: (
-        <motion.div
-          initial={{ width: 0, height: 0 }}
-          animate={{ width: 200, height: 100 }}
-          transition={{ duration: 1, repeat: Infinity }}
-          className="border-2 border-red-500"
-        />
-      )
-    },
-    {
-      title: "Step 3: Find Leads",
-      content: "Click the 'Find Leads in Selected Area' button to search for leads within your selected area.",
-      animation: (
-        <motion.div
-          animate={{ scale: [1, 1.1, 1] }}
-          transition={{ duration: 1, repeat: Infinity }}
-          className="p-2 bg-green-500 rounded text-white"
-        >
-          Find Leads
-        </motion.div>
-      )
-    },
-    {
-      title: "You're All Set!",
-      content: "You now know how to use the Find Leads tool. Click 'Get Started' to begin your search.",
-      animation: null
-    }
-  ];
-
-  const handleNextStep = () => {
-    if (currentStep < instructionSteps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      setShowInstructions(false);
-    }
-  };
-
-  const handleCloseInstructions = () => {
-    if (dontShowAgain) {
-      localStorage.setItem('skipInstructions', 'true');
-    }
-    setShowInstructions(false);
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setLeads([]); // Reset leads after closing the dialog
   };
 
   if (loadError) return <div>Error loading maps</div>;
@@ -224,19 +125,6 @@ const FindLeads = () => {
           <CardTitle>Search Area</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="mb-4">
-            <Autocomplete
-              onLoad={onAutocompleteLoad}
-              onPlaceChanged={handlePlaceSelect}
-            >
-              <Input
-                type="text"
-                placeholder="Enter an address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-            </Autocomplete>
-          </div>
           <div style={{ height: '400px', width: '100%' }}>
             <GoogleMap
               mapContainerStyle={{ height: '100%', width: '100%' }}
@@ -269,60 +157,16 @@ const FindLeads = () => {
         </CardContent>
       </Card>
 
-      {showInstructions && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-md">
-            <h2 className="text-2xl font-bold mb-4">{instructionSteps[currentStep].title}</h2>
-            <p className="mb-4">{instructionSteps[currentStep].content}</p>
-            <div className="flex justify-center mb-4">
-              {instructionSteps[currentStep].animation}
-            </div>
-            <div className="flex items-center mb-4">
-              <input
-                type="checkbox"
-                id="dontShowAgain"
-                checked={dontShowAgain}
-                onChange={(e) => setDontShowAgain(e.target.checked)}
-                className="mr-2"
-              />
-              <label htmlFor="dontShowAgain">Don't show this again</label>
-            </div>
-            <div className="flex justify-between">
-              <Button onClick={handleCloseInstructions}>Skip</Button>
-              <Button onClick={handleNextStep}>
-                {currentStep === instructionSteps.length - 1 ? "Get Started" : "Next"}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Leads Found</DialogTitle>
           </DialogHeader>
-          <div className="max-h-96 overflow-y-auto">
-            <ul>
-              {leads.map((lead, index) => (
-                <li key={index} className="mb-2">
-                  <div>{lead.name}</div>
-                  <div>{lead.address}</div>
-                  <div>{lead.telephone}</div>
-                  <div>{lead.email}</div>
-                  <div>{lead.income}</div>
-                </li>
-              ))}
-            </ul>
+          <div>
+            <p>{leads.length} leads were found and saved to your database.</p>
           </div>
           <DialogFooter>
-            <Input
-              placeholder="Enter list name"
-              value={listName}
-              onChange={(e) => setListName(e.target.value)}
-              className="mb-2"
-            />
-            <Button onClick={handleSaveList}>Save List</Button>
+            <Button onClick={handleCloseDialog}>Dismiss</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
