@@ -34,13 +34,13 @@ import DamageDetection from './pages/DamageDetection';
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const auth = useSupabaseAuth();
+  const { session, userRole } = useSupabaseAuth();
 
-  if (!auth.session) {
+  if (!session) {
     return <Navigate to="/login" />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(auth.userRole)) {
+  if (allowedRoles && !allowedRoles.includes(userRole)) {
     return <Navigate to="/" />;
   }
 
@@ -48,64 +48,64 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 };
 
 const App = () => {
-  const auth = useSupabaseAuth();
+  const { session } = useSupabaseAuth();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <BrowserRouter>
-          {auth.session ? (
-            <div className="flex h-screen bg-gray-100">
-              <Navigation />
-              <main className="flex-1 overflow-y-auto p-8">
-                <Routes>
-                  <Route
-                    path="/"
-                    element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route path="/inspection-reports" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><InspectionReports /></ProtectedRoute>} />
-                  <Route path="/inspection-report" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><InspectionReport /></ProtectedRoute>} />
-                  <Route path="/claim-management" element={<ProtectedRoute allowedRoles={['admin', 'supplement_specialist']}><ClaimManagement /></ProtectedRoute>} />
-                  <Route path="/claims" element={<ProtectedRoute allowedRoles={['admin', 'supplement_specialist']}><Claims /></ProtectedRoute>} />
-                  <Route path="/find-leads" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager']}><FindLeads /></ProtectedRoute>} />
-                  <Route path="/contacts" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Contacts /></ProtectedRoute>} />
-                  <Route path="/supplement-tracking" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><SupplementTracking /></ProtectedRoute>} />
-                  <Route path="/tasks" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Tasks /></ProtectedRoute>} />
-                  <Route path="/insurance-mortgage-tracker" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><InsuranceMortgageTracker /></ProtectedRoute>} />
-                  <Route path="/invoices" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Invoices /></ProtectedRoute>} />
-                  <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                  <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-                  <Route path="/customers" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Customers /></ProtectedRoute>} />
-                  <Route path="/jobs" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Jobs /></ProtectedRoute>} />
-                  <Route path="/damage-detection" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><DamageDetection /></ProtectedRoute>} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </main>
-            </div>
-          ) : (
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="*" element={<Navigate to="/login" replace />} />
-            </Routes>
-          )}
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <TooltipProvider>
+      <Toaster />
+      <BrowserRouter>
+        {session ? (
+          <div className="flex h-screen bg-gray-100">
+            <Navigation />
+            <main className="flex-1 overflow-y-auto p-8">
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/inspection-reports" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><InspectionReports /></ProtectedRoute>} />
+                <Route path="/inspection-report" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><InspectionReport /></ProtectedRoute>} />
+                <Route path="/claim-management" element={<ProtectedRoute allowedRoles={['admin', 'supplement_specialist']}><ClaimManagement /></ProtectedRoute>} />
+                <Route path="/claims" element={<ProtectedRoute allowedRoles={['admin', 'supplement_specialist']}><Claims /></ProtectedRoute>} />
+                <Route path="/find-leads" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager']}><FindLeads /></ProtectedRoute>} />
+                <Route path="/contacts" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Contacts /></ProtectedRoute>} />
+                <Route path="/supplement-tracking" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><SupplementTracking /></ProtectedRoute>} />
+                <Route path="/tasks" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Tasks /></ProtectedRoute>} />
+                <Route path="/insurance-mortgage-tracker" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><InsuranceMortgageTracker /></ProtectedRoute>} />
+                <Route path="/invoices" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Invoices /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                <Route path="/customers" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Customers /></ProtectedRoute>} />
+                <Route path="/jobs" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Jobs /></ProtectedRoute>} />
+                <Route path="/damage-detection" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><DamageDetection /></ProtectedRoute>} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </main>
+          </div>
+        ) : (
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+        )}
+      </BrowserRouter>
+    </TooltipProvider>
   );
 };
 
 const AppWrapper = () => (
-  <SupabaseAuthProvider>
-    <App />
-  </SupabaseAuthProvider>
+  <QueryClientProvider client={queryClient}>
+    <SupabaseAuthProvider>
+      <App />
+    </SupabaseAuthProvider>
+  </QueryClientProvider>
 );
 
 export default AppWrapper;
