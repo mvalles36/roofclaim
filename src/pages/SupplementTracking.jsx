@@ -18,10 +18,11 @@ const SupplementTracking = () => {
   const [documents, setDocuments] = useState({
     insurancePolicy: null,
     insuranceEstimate: null,
-    roofInspectionReport: null
+    roofInspectionReport: null,
   });
   const [uploadProgress, setUploadProgress] = useState(0);
   const [supplementResult, setSupplementResult] = useState(null);
+  const [supplementStatus, setSupplementStatus] = useState('pending'); // Add new state for supplement status
 
   useEffect(() => {
     fetchCustomers();
@@ -53,7 +54,7 @@ const SupplementTracking = () => {
       setDocuments({
         insurancePolicy: data.find(doc => doc.type === 'insurancePolicy'),
         insuranceEstimate: data.find(doc => doc.type === 'insuranceEstimate'),
-        roofInspectionReport: data.find(doc => doc.type === 'roofInspectionReport')
+        roofInspectionReport: data.find(doc => doc.type === 'roofInspectionReport'),
       });
       updateUploadProgress();
     }
@@ -62,7 +63,7 @@ const SupplementTracking = () => {
   const handleFileUpload = async (file, type) => {
     const { data, error } = await supabase.storage
       .from('customer-documents')
-      .upload(`${selectedCustomer}/${type}/${file.name}`, file);
+      .upload(`<span class="math-inline">\{selectedCustomer\}/</span>{type}/${file.name}`, file);
 
     if (error) {
       console.error('Error uploading file:', error);
@@ -72,7 +73,7 @@ const SupplementTracking = () => {
         .insert({
           customer_id: selectedCustomer,
           type: type,
-          file_path: data.path
+          file_path: data.path,
         });
 
       if (insertError) {
@@ -89,8 +90,8 @@ const SupplementTracking = () => {
   };
 
   const handleAnalyze = async () => {
-    // This is where you'd integrate with your AI service to analyze the documents
-    // For now, we'll use dummy data
+    // Integrate with your AI service here
+    // For now, use dummy data
     setSupplementResult({
       policyholderName: "John Doe",
       policyNumber: "123456789",
@@ -101,94 +102,4 @@ const SupplementTracking = () => {
       scopeOfWork: "Replacement of damaged shingles, underlayment, and flashing.",
       initialEstimate: {
         item: "20 sq. of asphalt shingles",
-        cost: 5000
-      },
-      supplementalCosts: [
-        { item: "Additional Shingles", cost: 2000 },
-        { item: "Labor for Extra Repairs", cost: 1000 },
-        { item: "Additional Underlayment", cost: 800 },
-        { item: "Flashing Replacement", cost: 500 }
-      ],
-      totalSupplementAmount: 4300,
-      justification: "Increased damage discovered during secondary inspection; additional materials and labor required to complete the repair.",
-      submittedBy: {
-        name: "Jane Smith",
-        company: "XYZ Roofing",
-        contactInfo: "(555) 123-4567"
-      }
-    });
-  };
-
-  return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Automated Supplements</h1>
-      <Card>
-        <CardHeader>
-          <CardTitle>Customer Selection</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Select onValueChange={setSelectedCustomer}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a customer" />
-            </SelectTrigger>
-            <SelectContent>
-              {customers.map(customer => (
-                <SelectItem key={customer.id} value={customer.id}>{customer.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
-      {selectedCustomer && (
-        <>
-          <Card>
-            <CardHeader>
-              <CardTitle>Document Upload</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <FileUploader
-                  label="Insurance Policy"
-                  onUpload={(file) => handleFileUpload(file, 'insurancePolicy')}
-                  file={documents.insurancePolicy}
-                />
-                <FileUploader
-                  label="Insurance Company's Estimate"
-                  onUpload={(file) => handleFileUpload(file, 'insuranceEstimate')}
-                  file={documents.insuranceEstimate}
-                />
-                <FileUploader
-                  label="Drone Roof Inspection Report"
-                  onUpload={(file) => handleFileUpload(file, 'roofInspectionReport')}
-                  file={documents.roofInspectionReport}
-                />
-                <Progress value={uploadProgress} className="w-full" />
-              </div>
-            </CardContent>
-          </Card>
-          <Button 
-            onClick={handleAnalyze} 
-            disabled={uploadProgress < 100}
-          >
-            Analyze and Generate Supplement
-          </Button>
-        </>
-      )}
-      {supplementResult && <SupplementAnalyzer result={supplementResult} />}
-      <Tabs defaultValue="list">
-        <TabsList>
-          <TabsTrigger value="list">Supplement List</TabsTrigger>
-          <TabsTrigger value="inbox">Supplement Inbox</TabsTrigger>
-        </TabsList>
-        <TabsContent value="list">
-          <SupplementList />
-        </TabsContent>
-        <TabsContent value="inbox">
-          <SupplementInbox />
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
-};
-
-export default SupplementTracking;
+        cost: 500
