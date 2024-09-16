@@ -11,7 +11,7 @@ const ContactView = ({ contactId }) => {
 
   const fetchContactDetails = async () => {
     const { data, error } = await supabase
-      .from('users')
+      .from('contacts')
       .select(`
         *,
         insurance_policies (*),
@@ -40,10 +40,17 @@ const ContactView = ({ contactId }) => {
       </TabsList>
       <TabsContent value="details">
         <h3 className="text-lg font-semibold mb-2">Contact Details</h3>
-        <p>Name: {contactDetails.name}</p>
+        <p>Name: {contactDetails.full_name}</p>
         <p>Email: {contactDetails.email}</p>
-        <p>Phone: {contactDetails.phone}</p>
+        <p>Phone: {contactDetails.phone_number}</p>
         <p>Address: {contactDetails.address}</p>
+        {contactDetails.latitude && contactDetails.longitude && (
+          <img
+            src={`https://maps.googleapis.com/maps/api/streetview?size=400x200&location=${contactDetails.latitude},${contactDetails.longitude}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`}
+            alt="Street View"
+            className="mt-4 rounded-lg"
+          />
+        )}
       </TabsContent>
       <TabsContent value="insurance">
         <h3 className="text-lg font-semibold mb-2">Insurance Policies</h3>

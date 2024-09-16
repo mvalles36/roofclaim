@@ -8,11 +8,12 @@ import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { useRoleBasedAccess } from '../hooks/useRoleBasedAccess';
 import { toast } from 'sonner';
+import ContactView from '../components/ContactView';
 
 const Contacts = () => {
   const [contacts, setContacts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const { userRole } = useSupabaseAuth();
+  const { userRole, session } = useSupabaseAuth();
   const { hasPermission } = useRoleBasedAccess();
   const [newContact, setNewContact] = useState({
     full_name: '',
@@ -20,15 +21,17 @@ const Contacts = () => {
     phone_number: '',
     lead_status: 'New',
   });
+  const [selectedContact, setSelectedContact] = useState(null);
 
   useEffect(() => {
     fetchContacts();
-  }, []);
+  }, [session]);
 
   const fetchContacts = async () => {
     const { data, error } = await supabase
       .from('contacts')
       .select('*')
+      .eq('user_id', session.user.id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -40,7 +43,10 @@ const Contacts = () => {
   };
 
   const handleAddContact = async () => {
-    const { data, error } = await supabase.from('contacts').insert([newContact]);
+    const { data, error } = await supabase.from('contacts').insert([{
+      ...newContact,
+      user_id: session.user.id
+    }]);
 
     if (error) {
       console.error('Error adding contact:', error);
@@ -132,7 +138,9 @@ const Contacts = () => {
             {filteredContacts.map((contact) => (
               <li key={contact.id} className="flex justify-between items-center">
                 <div>
-                  <p className="font-semibold">{contact.full_name}</p>
+                  <p className="font-semibold cursor-pointer" onClick={() => setSelectedContact(contact)}>
+                    {contact.full_name}
+                  </p>
                   <p>{contact.email}</p>
                   <p>Status: {contact.lead_status}</p>
                 </div>
@@ -158,6 +166,16 @@ const Contacts = () => {
           </ul>
         </CardContent>
       </Card>
+      {selectedContact && (
+        <Dialog open={!!selectedContact} onOpenChange={() => setSelectedContact(null)}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>{selectedContact.full_name}</DialogTitle>
+            </DialogHeader>
+            <ContactView contactId={selectedContact.id} />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
