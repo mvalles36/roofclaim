@@ -54,11 +54,11 @@ const Signup = () => {
       setError(error.message);
 
       if (error.message.includes('duplicate key value violates unique constraint')) {
-        setError('Looks like your email is already on the VIP list! Try logging in instead—you’ve been here before!');
+        setError(`Looks like your email is already on the VIP list! Try logging in instead—you've been here before!`);
       } else if (error.message.includes('invalid email')) {
-        setError('Uh-oh, looks like that’s not a real email. Did you accidentally type in your grocery list? Give it another go!"');
+        setError(`Uh-oh, looks like that's not a real email. Did you accidentally type in your grocery list? Give it another go!`);
       } else if (error.message.includes('password')) {
-        setError('Your password needs at least 6 characters. We promise, it's worth the extra keystrokes!');
+        setError(`Your password needs at least 6 characters. We promise, it's worth the extra keystrokes!`);
       }
     }
   };
@@ -76,7 +76,7 @@ const Signup = () => {
         <Alert className="mb-4">
           <AlertTitle>Success</AlertTitle>
           <AlertDescription>
-           “You’re in! 🎉 Check your email for the magic link to complete your registration. We’ll see you on the inside!”
+            You're in! 🎉 Check your email for the magic link to complete your registration. We'll see you on the inside!
           </AlertDescription>
         </Alert>
       )}
