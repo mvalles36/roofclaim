@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PasswordStrengthMeter } from 'your-password-strength-meter-library'; // Replace with your chosen library
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
@@ -18,12 +17,9 @@ const ResetPassword = () => {
   useEffect(() => {
     const hash = window.location.hash;
     if (hash && hash.includes('type=recovery')) {
-      // The user has arrived from a password reset email
       const accessToken = hash.split('&')[0].split('=')[1];
       supabase.auth.setSession({ access_token: accessToken, refresh_token: '' });
-      // TODO: Check if token is expired (implement expiry logic)
     } else {
-      // Redirect to login if the user hasn't come from a reset email
       navigate('/login');
     }
   }, [navigate]);
@@ -77,7 +73,6 @@ const ResetPassword = () => {
               required
               className="w-full"
             />
-            <PasswordStrengthMeter password={password} />
           </div>
           <div>
             <Label htmlFor="confirmPassword">Confirm New Password</Label>

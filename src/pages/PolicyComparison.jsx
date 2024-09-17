@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { supabase } from '../integrations/supabase/supabase';
 import axios from 'axios';
-import { DocumentAI } from '@google-cloud/documentai'; // Import DocumentAI library
+import { DocumentAI } from '@google-cloud/documentai';
 
 const PolicyComparison = () => {
   const [policyDetails, setPolicyDetails] = useState('');
@@ -23,20 +23,18 @@ const PolicyComparison = () => {
   };
 
   const extractTextFromDocument = async (file) => {
-    const projectId = 'your-project-id'; // Replace with your GCP project ID
-    const location = 'your-location'; // Replace with your Document AI location
+    const projectId = 'your-project-id';
+    const location = 'your-location';
     const documentAI = new DocumentAI({ projectId, location });
 
-    // Use Document AI to process the uploaded file
     const [response] = await documentAI.processDocument({
       rawDocument: {
         content: file.arrayBuffer,
       },
     });
 
-    // Extract relevant text and entities based on your needs
     const extractedText = response.document.text;
-    const extractedEntities = []; // Placeholder for extracted entities
+    const extractedEntities = [];
 
     return { extractedText, extractedEntities };
   };
@@ -60,9 +58,8 @@ const PolicyComparison = () => {
         damageData = { text: damageReport };
       }
 
-      // Use AutoML Entity Extraction and Dialogflow for advanced analysis (placeholder)
-      const identifiedCoverageGaps = []; // Placeholder for identified gaps
-      const supplementRecommendations = []; // Placeholder for supplement recommendations
+      const identifiedCoverageGaps = [];
+      const supplementRecommendations = [];
 
       const response = await axios.post('/api/compare-policy', {
         policyData,
@@ -87,4 +84,58 @@ const PolicyComparison = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="policyFile">
+            <Label htmlFor="policyFile">Upload Insurance Policy</Label>
+            <Input
+              id="policyFile"
+              type="file"
+              onChange={(e) => handleFileUpload(e, setPolicyFile)}
+              accept=".pdf,.doc,.docx"
+            />
+          </div>
+          <div>
+            <Label htmlFor="policyDetails">Insurance Policy Details</Label>
+            <Textarea
+              id="policyDetails"
+              value={policyDetails}
+              onChange={(e) => setPolicyDetails(e.target.value)}
+              placeholder="Enter key details from the insurance policy..."
+            />
+          </div>
+          <div>
+            <Label htmlFor="damageReportFile">Upload Damage Report</Label>
+            <Input
+              id="damageReportFile"
+              type="file"
+              onChange={(e) => handleFileUpload(e, setDamageReportFile)}
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+            />
+          </div>
+          <div>
+            <Label htmlFor="damageReport">Roof Damage Report</Label>
+            <Textarea
+              id="damageReport"
+              value={damageReport}
+              onChange={(e) => setDamageReport(e.target.value)}
+              placeholder="Enter details from the roof damage report..."
+            />
+          </div>
+          <Button onClick={handleComparison} disabled={isLoading}>
+            {isLoading ? 'Comparing...' : 'Compare Policy'}
+          </Button>
+          {comparisonResult && (
+            <Alert>
+              <AlertTitle>Comparison Results</AlertTitle>
+              <AlertDescription>
+                <p>Identified Gaps: {comparisonResult.gaps.join(', ')}</p>
+                <p>Recommendations: {comparisonResult.recommendations.join(', ')}</p>
+                <p>Suggested Supplement Items: {comparisonResult.supplementItems.join(', ')}</p>
+              </AlertDescription>
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default PolicyComparison;
