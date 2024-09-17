@@ -7,8 +7,8 @@ import { HomeIcon, UsersIcon, ClipboardIcon, FileTextIcon, MapPinIcon, BarChartI
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-const Navigation = () => {
-  const { session, userRole, logout } = useSupabaseAuth();
+const Navigation = ({ onLogout }) => {
+  const { session, userRole } = useSupabaseAuth();
   const [userName, setUserName] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ const Navigation = () => {
 
   const handleLogout = async () => {
     try {
-      await logout();
+      await onLogout();
       navigate('/login');
     } catch (error) {
       console.error('Error logging out:', error);

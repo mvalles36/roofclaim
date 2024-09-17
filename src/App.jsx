@@ -44,7 +44,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 };
 
 const App = () => {
-  const { session } = useSupabaseAuth();
+  const { session, logout } = useSupabaseAuth();
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <TooltipProvider>
@@ -52,7 +56,7 @@ const App = () => {
       <BrowserRouter>
         {session ? (
           <div className="flex h-screen bg-gray-100">
-            <Navigation />
+            <Navigation onLogout={handleLogout} />
             <main className="flex-1 overflow-y-auto p-8">
               <Routes>
                 <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
