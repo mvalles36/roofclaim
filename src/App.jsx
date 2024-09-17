@@ -8,28 +8,24 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
-import AdminDashboard from './pages/AdminDashboard';
-import SalesDashboard from './pages/SalesDashboard';
-import SupplementSpecialistDashboard from './pages/SupplementSpecialistDashboard';
-import ProjectManagerDashboard from './pages/ProjectManagerDashboard';
-import Inspections from './pages/Inspections';
-import InspectionReports from './pages/InspectionReports';
-import InspectionReport from './pages/InspectionReport';
-import FindLeads from './pages/FindLeads';
+import Dashboard from './pages/Dashboard';
 import Contacts from './pages/Contacts';
 import Customers from './pages/Customers';
-import Dashboard from './pages/Dashboard';
+import Jobs from './pages/Jobs';
+import Invoices from './pages/Invoices';
+import FindLeads from './pages/FindLeads';
 import SupplementTracking from './pages/SupplementTracking';
 import Tasks from './pages/Tasks';
 import InsuranceMortgageTracker from './pages/InsuranceMortgageTracker';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
-import Invoices from './pages/Invoices';
-import Jobs from './pages/Jobs';
 import PolicyComparison from './pages/PolicyComparison';
 import Claims from './pages/Claims';
 import ClaimManagement from './pages/ClaimManagement';
 import DamageDetection from './pages/DamageDetection';
+import DocumentHub from './pages/DocumentHub';
+import Inspections from './pages/Inspections';
+import InspectionReports from './pages/InspectionReports';
 
 const queryClient = new QueryClient();
 
@@ -59,29 +55,24 @@ const App = () => {
             <Navigation />
             <main className="flex-1 overflow-y-auto p-8">
               <Routes>
-                <Route
-                  path="/"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="/inspection-reports" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><InspectionReports /></ProtectedRoute>} />
-                <Route path="/inspection-report" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><InspectionReport /></ProtectedRoute>} />
-                <Route path="/claim-management" element={<ProtectedRoute allowedRoles={['admin', 'supplement_specialist']}><ClaimManagement /></ProtectedRoute>} />
-                <Route path="/claims" element={<ProtectedRoute allowedRoles={['admin', 'supplement_specialist']}><Claims /></ProtectedRoute>} />
-                <Route path="/find-leads" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager']}><FindLeads /></ProtectedRoute>} />
-                <Route path="/contacts" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Contacts /></ProtectedRoute>} />
-                <Route path="/supplement-tracking" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><SupplementTracking /></ProtectedRoute>} />
-                <Route path="/tasks" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Tasks /></ProtectedRoute>} />
-                <Route path="/insurance-mortgage-tracker" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><InsuranceMortgageTracker /></ProtectedRoute>} />
-                <Route path="/invoices" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Invoices /></ProtectedRoute>} />
+                <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/contacts" element={<ProtectedRoute><Contacts /></ProtectedRoute>} />
+                <Route path="/customers" element={<ProtectedRoute><Customers /></ProtectedRoute>} />
+                <Route path="/jobs" element={<ProtectedRoute><Jobs /></ProtectedRoute>} />
+                <Route path="/invoices" element={<ProtectedRoute><Invoices /></ProtectedRoute>} />
+                <Route path="/find-leads" element={<ProtectedRoute><FindLeads /></ProtectedRoute>} />
+                <Route path="/supplement-tracking" element={<ProtectedRoute><SupplementTracking /></ProtectedRoute>} />
+                <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
+                <Route path="/insurance-mortgage-tracker" element={<ProtectedRoute><InsuranceMortgageTracker /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-                <Route path="/customers" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Customers /></ProtectedRoute>} />
-                <Route path="/jobs" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><Jobs /></ProtectedRoute>} />
-                <Route path="/damage-detection" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'manager', 'supplement_specialist']}><DamageDetection /></ProtectedRoute>} />
+                <Route path="/policy-comparison" element={<ProtectedRoute><PolicyComparison /></ProtectedRoute>} />
+                <Route path="/claims" element={<ProtectedRoute><Claims /></ProtectedRoute>} />
+                <Route path="/claim-management" element={<ProtectedRoute><ClaimManagement /></ProtectedRoute>} />
+                <Route path="/damage-detection" element={<ProtectedRoute><DamageDetection /></ProtectedRoute>} />
+                <Route path="/document-hub" element={<ProtectedRoute><DocumentHub /></ProtectedRoute>} />
+                <Route path="/inspections" element={<ProtectedRoute><Inspections /></ProtectedRoute>} />
+                <Route path="/inspection-reports" element={<ProtectedRoute><InspectionReports /></ProtectedRoute>} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>
