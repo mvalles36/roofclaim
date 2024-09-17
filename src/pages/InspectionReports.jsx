@@ -122,3 +122,18 @@ const InspectionReports = () => {
       setNewReport(prev => ({
         ...prev,
         images: [...prev.images, newImage],
+      }));
+    } catch (error) {
+      console.error('Error processing image:', error);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold">Inspection Reports</h1>
+      {/* Add your UI components here */}
+    </div>
+  );
+};
+
+export default InspectionReports;

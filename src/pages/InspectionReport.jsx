@@ -19,23 +19,23 @@ const InspectionReport = () => {
     email: '',
   });
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadError, setUploadError] = useState(null); // Track upload errors
+  const [uploadError, setUploadError] = useState(null);
 
   const handleImageUpload = async (event) => {
     const files = Array.from(event.target.files);
     const totalFiles = files.length;
     let processedFiles = 0;
 
-    setUploadError(null); // Clear previous error messages
+    setUploadError(null);
 
     for (const file of files) {
       try {
         const { data, error } = await supabase.storage
           .from('inspection-images')
-          .upload(`<span class="math-inline">\{Date\.now\(\)\}\-</span>{file.name}`, file);
+          .upload(`${Date.now()}-${file.name}`, file);
 
         if (error) {
-          throw error; // Re-throw error to be caught in the catch block
+          throw error;
         }
 
         const { data: { publicUrl } } = supabase.storage
@@ -69,7 +69,6 @@ const InspectionReport = () => {
       setAnnotatedImages(prev => [...prev, { url: imageUrl, annotations: response.data }]);
     } catch (error) {
       console.error('Error processing image with Roboflow:', error);
-      // Handle Roboflow API errors appropriately (e.g., display a user-friendly message)
     }
   };
 
@@ -77,16 +76,13 @@ const InspectionReport = () => {
     const doc = new jsPDF();
     let yOffset = 20;
 
-    // Add customer information
     doc.setFontSize(16);
     doc.text('Inspection Report', 105, yOffset, { align: 'center' });
     yOffset += 20;
     doc.setFontSize(12);
     doc.text(`Customer: ${customerInfo.name}`, 20, yOffset);
     yOffset += 10;
-    // ... rest of the report generation logic using customerInfo
 
-    // Add annotated images with proper error handling
     if (annotatedImages.length === 0) {
       doc.text('No annotated images found. Please upload images for analysis.', 20, yOffset);
       yOffset += 10;
@@ -96,7 +92,7 @@ const InspectionReport = () => {
           doc.addPage();
           yOffset = 20;
         }
-        // ... existing logic to add image and annotations
+        // Add image and annotations logic here
       });
     }
 
@@ -104,3 +100,11 @@ const InspectionReport = () => {
   };
 
   return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold">Inspection Report</h1>
+      {/* Add your UI components here */}
+    </div>
+  );
+};
+
+export default InspectionReport;

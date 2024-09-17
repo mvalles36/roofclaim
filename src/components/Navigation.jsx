@@ -7,8 +7,6 @@ import { HomeIcon, UsersIcon, ClipboardIcon, FileTextIcon, MapPinIcon, BarChartI
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-import DocumentHub from './DocumentHub.jsx';
-
 const Navigation = () => {
   const { session, userRole, logout } = useSupabaseAuth();
   const [userName, setUserName] = useState('');
