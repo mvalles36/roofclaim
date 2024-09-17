@@ -11,20 +11,20 @@ import { FileUploader } from '../components/FileUploader';
 import axios from 'axios';
 import { DocumentEditor } from 'react-document-editor'; // Replace with your chosen document editing library
 import { SignaturePad } from 'react-signature-pad'; // Replace with your chosen signature library
-import { DocumentIcon, GearIcon } from 'lucide-react'; // Example icons
+import { FileText, Settings } from 'lucide-react'; // Changed from DocumentIcon to FileText
 
 const DocumentEditorPage = () => {
-  // ... other variables
-
+  const [templates, setTemplates] = useState([]);
+  const [documents, setDocuments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const templatesPerPage = 5; // Adjust as needed
 
   useEffect(() => {
     fetchTemplates();
+    fetchDocuments();
   }, []);
 
   const fetchTemplates = async () => {
-    // Fetch pre-made document templates from your database
     const { data, error } = await supabase
       .from('templates')
       .select('*');
@@ -36,7 +36,27 @@ const DocumentEditorPage = () => {
     }
   };
 
-  // ... other functions
+  const fetchDocuments = async () => {
+    const { data, error } = await supabase
+      .from('documents')
+      .select('*');
+
+    if (error) {
+      console.error('Error fetching documents:', error);
+    } else {
+      setDocuments(data);
+    }
+  };
+
+  const handleDocumentSelection = (documentId) => {
+    // Implement document selection logic
+    console.log('Selected document:', documentId);
+  };
+
+  const handleTemplateSelection = (templateId) => {
+    // Implement template selection logic
+    console.log('Selected template:', templateId);
+  };
 
   return (
     <div className="space-y-6">
@@ -61,7 +81,8 @@ const DocumentEditorPage = () => {
             <CardTitle>Document Editor</CardTitle>
           </CardHeader>
           <CardContent>
-            {/* ... document editor content */}
+            {/* Add your document editor component here */}
+            <p>Document editor placeholder</p>
           </CardContent>
         </Card>
       </div>
@@ -73,7 +94,7 @@ const DocumentEditorPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {templates.slice((currentPage - 1) * templatesPerPage, currentPage * templatesPerPage).map((template) => (
               <div key={template.id} className="flex flex-col items-center justify-center">
-                <DocumentIcon className="h-16 w-16 text-gray-500" />
+                <FileText className="h-16 w-16 text-gray-500" />
                 <p className="text-center">{template.name}</p>
                 <Button onClick={() => handleTemplateSelection(template.id)}>Select</Button>
               </div>
@@ -85,7 +106,6 @@ const DocumentEditorPage = () => {
           </div>
         </CardContent>
       </Card>
-      {/* ... other sections */}
     </div>
   );
 };
