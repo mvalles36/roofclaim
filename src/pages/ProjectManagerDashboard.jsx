@@ -12,7 +12,7 @@ const ProjectManagerDashboard = () => {
     averageBudgetVariance: 0,
   });
   const [resourceUtilization, setResourceUtilization] = useState([]);
-  const [selectedJobStatus, setSelectedJobStatus] = useState('all'); // Placeholder for job status filter
+  const [selectedJobStatus, setSelectedJobStatus] = useState('all');
 
   useEffect(() => {
     fetchDashboardData();
@@ -20,7 +20,6 @@ const ProjectManagerDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      // Fetch jobs with optional status filter
       const { data: jobsData, error: jobsError } = await supabase
         .from('jobs')
         .select('*')
@@ -57,7 +56,6 @@ const ProjectManagerDashboard = () => {
       <h1 className="text-3xl font-bold">Project Manager Dashboard</h1>
 
       <div className="flex justify-between items-center mb-4">
-        {/* Placeholder for job status filter */}
         <select value={selectedJobStatus} onChange={handleJobStatusChange}>
           <option value="all">All Jobs</option>
           <option value="in_progress">In Progress</option>
@@ -83,3 +81,22 @@ const ProjectManagerDashboard = () => {
           description="Average deviation from estimated budget"
         />
       </div>
+      
+      {/* Add more dashboard components here */}
+    </div>
+  );
+};
+
+const MetricCard = ({ title, value, description }) => (
+  <Card>
+    <CardHeader>
+      <CardTitle className="text-sm font-medium">{title}</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div className="text-2xl font-bold">{value}</div>
+      <p className="text-xs text-gray-500">{description}</p>
+    </CardContent>
+  </Card>
+);
+
+export default ProjectManagerDashboard;

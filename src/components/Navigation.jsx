@@ -7,8 +7,7 @@ import { HomeIcon, UsersIcon, ClipboardIcon, FileTextIcon, MapPinIcon, BarChartI
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-// Import your DocumentHub component here
-import DocumentHub from './DocumentHub.jsx'; // Replace with the actual path to your DocumentHub component
+import DocumentHub from './DocumentHub.jsx';
 
 const Navigation = () => {
   const { session, userRole, logout } = useSupabaseAuth();
@@ -53,4 +52,61 @@ const Navigation = () => {
     { role: ['admin','sales', 'manager'], icon: <CreditCardIcon className="h-5 w-5" />, label: 'Invoices', to: '/invoices' },
     { role: ['admin', 'manager'], icon: <MapPinIcon className="h-5 w-5" />, label: 'Find Leads', to: '/find-leads' },
     { role: ['admin', 'sales', 'manager', 'supplement_specialist'], icon: <FilesIcon className="h-5 w-5" />, label: 'Supplements', to: '/supplement-tracking' },
-   
+  ];
+
+  return (
+    <nav className="bg-gray-800 text-white w-64 min-h-screen p-4">
+      <div className="flex items-center mb-8">
+        <Avatar className="h-8 w-8 mr-2">
+          <AvatarImage src="/placeholder-avatar.jpg" alt={userName} />
+          <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
+        </Avatar>
+        <span className="font-semibold">{userName}</span>
+      </div>
+      <ul className="space-y-2">
+        {navItems.map((item, index) => (
+          item.role.includes(userRole) && (
+            <li key={index}>
+              <Link
+                to={item.to}
+                className={`flex items-center p-2 rounded hover:bg-gray-700 ${
+                  location.pathname === item.to ? 'bg-gray-700' : ''
+                }`}
+              >
+                {item.icon}
+                <span className="ml-3">{item.label}</span>
+              </Link>
+            </li>
+          )
+        ))}
+      </ul>
+      <div className="mt-auto">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="w-full justify-start">
+              <SettingsIcon className="mr-2 h-4 w-4" />
+              <span>Settings</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            <DropdownMenuItem onClick={() => navigate('/profile')}>
+              <UserIcon className="mr-2 h-4 w-4" />
+              <span>Profile</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/settings')}>
+              <SettingsIcon className="mr-2 h-4 w-4" />
+              <span>Settings</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOutIcon className="mr-2 h-4 w-4" />
+              <span>Logout</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </nav>
+  );
+};
+
+export default Navigation;

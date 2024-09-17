@@ -67,7 +67,6 @@ const ResetPassword = () => {
           </Alert>
         )}
         <form onSubmit={handleResetPassword} className="space-y-4">
-          { /* TODO: Pre-fill email if available from token */}
           <div>
             <Label htmlFor="password">New Password</Label>
             <Input
@@ -78,8 +77,24 @@ const ResetPassword = () => {
               required
               className="w-full"
             />
-            {/* TODO: Implement PasswordStrengthMeter component */}
             <PasswordStrengthMeter password={password} />
           </div>
           <div>
             <Label htmlFor="confirmPassword">Confirm New Password</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              className="w-full"
+            />
+          </div>
+          <Button type="submit" className="w-full">Reset Password</Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default ResetPassword;
