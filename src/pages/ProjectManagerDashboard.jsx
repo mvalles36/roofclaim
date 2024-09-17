@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { supabase } from '../integrations/supabase/supabase';
 
 const ProjectManagerDashboard = () => {
@@ -12,6 +12,8 @@ const ProjectManagerDashboard = () => {
     averageBudgetVariance: 0,
   });
   const [resourceUtilization, setResourceUtilization] = useState([]);
+  const [projectTimeline, setProjectTimeline] = useState([]);
+  const [budgetOverview, setBudgetOverview] = useState([]);
   const [selectedJobStatus, setSelectedJobStatus] = useState('all');
 
   useEffect(() => {
@@ -33,15 +35,23 @@ const ProjectManagerDashboard = () => {
 
       const { data: metricsData, error: metricsError } = await supabase
         .rpc('get_project_manager_metrics');
-
       if (metricsError) throw metricsError;
       setPerformanceMetrics(metricsData);
 
       const { data: utilizationData, error: utilizationError } = await supabase
         .rpc('get_resource_utilization');
-
-      if (utilizationError) throw metricsError;
+      if (utilizationError) throw utilizationError;
       setResourceUtilization(utilizationData);
+
+      const { data: timelineData, error: timelineError } = await supabase
+        .rpc('get_project_timeline');
+      if (timelineError) throw timelineError;
+      setProjectTimeline(timelineData);
+
+      const { data: budgetData, error: budgetError } = await supabase
+        .rpc('get_budget_overview');
+      if (budgetError) throw budgetError;
+      setBudgetOverview(budgetData);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     }
@@ -50,6 +60,8 @@ const ProjectManagerDashboard = () => {
   const handleJobStatusChange = (event) => {
     setSelectedJobStatus(event.target.value);
   };
+
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
   return (
     <div className="space-y-6">
@@ -82,7 +94,70 @@ const ProjectManagerDashboard = () => {
         />
       </div>
       
-      {/* Add more dashboard components here */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Resource Utilization</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={resourceUtilization}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="resource" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="utilization" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Project Timeline</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={projectTimeline}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="plannedProgress" stroke="#8884d8" />
+                <Line type="monotone" dataKey="actualProgress" stroke="#82ca9d" />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Budget Overview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={budgetOverview}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {budgetOverview.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
     </div>
   );
 };
