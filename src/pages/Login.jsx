@@ -36,7 +36,7 @@ const Login = () => {
   return (
     <Card className="max-w-md mx-auto mt-8">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
+        <CardTitle className="text-2xl font-bold text-center">roofClaim Login</CardTitle>
       </CardHeader>
       <CardContent>
         {error && (
