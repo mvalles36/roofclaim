@@ -6,41 +6,41 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from 'sonner';
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [message, setMessage] = useState(null);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const hash = window.location.hash;
-    if (hash && hash.includes('type=recovery')) {
-      const accessToken = hash.split('&')[0].split('=')[1];
-      supabase.auth.setSession({ access_token: accessToken, refresh_token: '' });
-    } else {
+    if (!hash || !hash.includes('type=recovery')) {
       navigate('/login');
     }
   }, [navigate]);
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
-    setMessage(null);
-    setError(null);
+    setLoading(true);
 
     if (password !== confirmPassword) {
-      setError("Passwords don't match");
+      toast.error("Passwords don't match");
+      setLoading(false);
       return;
     }
 
     try {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
-      setMessage('Password has been reset successfully. Redirecting to login...');
-      setTimeout(() => navigate('/login'), 3000);
+      toast.success('Password has been reset successfully');
+      setTimeout(() => navigate('/login'), 2000);
     } catch (error) {
-      setError(error.message);
+      console.error('Error resetting password:', error);
+      toast.error(error.message || 'An error occurred while resetting your password');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -50,18 +50,6 @@ const ResetPassword = () => {
         <CardTitle className="text-2xl font-bold text-center">Set New Password</CardTitle>
       </CardHeader>
       <CardContent>
-        {message && (
-          <Alert className="mb-4">
-            <AlertTitle>Success</AlertTitle>
-            <AlertDescription>{message}</AlertDescription>
-          </Alert>
-        )}
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
         <form onSubmit={handleResetPassword} className="space-y-4">
           <div>
             <Label htmlFor="password">New Password</Label>
@@ -85,7 +73,9 @@ const ResetPassword = () => {
               className="w-full"
             />
           </div>
-          <Button type="submit" className="w-full">Reset Password</Button>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Resetting...' : 'Reset Password'}
+          </Button>
         </form>
       </CardContent>
     </Card>
