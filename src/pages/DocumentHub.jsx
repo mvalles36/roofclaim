@@ -20,11 +20,13 @@ const DocumentHub = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editorContent, setEditorContent] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [labeledImages, setLabeledImages] = useState([]);
   const { userRole } = useSupabaseAuth();
 
   useEffect(() => {
     fetchTemplates();
     fetchContacts();
+    fetchLabeledImages();
   }, []);
 
   const fetchTemplates = async () => {
@@ -42,6 +44,19 @@ const DocumentHub = () => {
       console.error('Error fetching contacts:', error);
     } else {
       setContacts(data);
+    }
+  };
+
+  const fetchLabeledImages = async () => {
+    const { data, error } = await supabase
+      .from('damage_detection_images')
+      .select('*')
+      .not('label_id', 'is', null);
+
+    if (error) {
+      console.error('Error fetching labeled images:', error);
+    } else {
+      setLabeledImages(data);
     }
   };
 
@@ -72,7 +87,14 @@ const DocumentHub = () => {
   };
 
   const handleGenerateDocument = () => {
-    console.log('Generating document...');
+    let updatedContent = editorContent;
+    labeledImages.forEach(image => {
+      const placeholder = `{{image:${image.label_id}}}`;
+      if (updatedContent.includes(placeholder)) {
+        updatedContent = updatedContent.replace(placeholder, `<img src="${image.url}" alt="${image.label_id}" />`);
+      }
+    });
+    setEditorContent(updatedContent);
   };
 
   const handleSaveTemplate = async () => {
@@ -140,6 +162,7 @@ const DocumentHub = () => {
             isEditing={isEditing}
             setIsEditing={setIsEditing}
             handleSaveTemplate={handleSaveTemplate}
+            labeledImages={labeledImages}
           />
         </TabsContent>
       </Tabs>

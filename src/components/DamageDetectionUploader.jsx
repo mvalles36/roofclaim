@@ -1,13 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import axios from 'axios';
-import { supabase } from '../integrations/supabase/supabase';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { supabase } from '../integrations/supabase/supabase';
+import axios from 'axios';
 
-const DamageDetectionUploader = () => {
-  const [uploadedImages, setUploadedImages] = useState([]);
+const DamageDetectionUploader = ({ onUpload }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [processing, setProcessing] = useState(false);
 
@@ -20,20 +18,24 @@ const DamageDetectionUploader = () => {
       try {
         // Upload to Supabase
         const { data, error } = await supabase.storage
-          .from('drone-images')
+          .from('damage-detection-images')
           .upload(`${Date.now()}-${file.name}`, file);
 
         if (error) throw error;
 
         const { data: { publicUrl } } = supabase.storage
-          .from('drone-images')
+          .from('damage-detection-images')
           .getPublicUrl(data.path);
 
         // Process with Roboflow
         const imageBase64 = await convertToBase64(file);
         const roboflowResponse = await processWithRoboflow(imageBase64);
 
-        setUploadedImages(prev => [...prev, { url: publicUrl, predictions: roboflowResponse.predictions }]);
+        // Save image data to Supabase
+        await supabase.from('damage_detection_images').insert({
+          url: publicUrl,
+          annotations: roboflowResponse.predictions,
+        });
 
         processedFiles++;
         setUploadProgress((processedFiles / totalFiles) * 100);
@@ -41,10 +43,12 @@ const DamageDetectionUploader = () => {
         console.error('Error processing image:', error);
       }
     }
-    setProcessing(false);
-  }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+    setProcessing(false);
+    onUpload();
+  }, [onUpload]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: 'image/*', multiple: true });
 
   const convertToBase64 = (file) => {
     return new Promise((resolve, reject) => {
@@ -76,56 +80,17 @@ const DamageDetectionUploader = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Damage Detection Uploader</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div {...getRootProps()} className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer">
-          <input {...getInputProps()} />
-          {isDragActive ? (
-            <p>Drop the files here ...</p>
-          ) : (
-            <p>Drag 'n' drop some files here, or click to select files</p>
-          )}
-        </div>
-        {processing && <Progress value={uploadProgress} className="mt-4" />}
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {uploadedImages.map((image, index) => (
-            <div key={index} className="relative">
-              <img src={image.url} alt={`Uploaded ${index}`} className="w-full h-48 object-cover rounded" />
-              <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                {image.predictions.map((pred, predIndex) => (
-                  <rect
-                    key={predIndex}
-                    x={pred.x - pred.width / 2 + '%'}
-                    y={pred.y - pred.height / 2 + '%'}
-                    width={pred.width + '%'}
-                    height={pred.height + '%'}
-                    fill="none"
-                    stroke="red"
-                    strokeWidth="0.5"
-                  />
-                ))}
-              </svg>
-              {image.predictions.map((pred, predIndex) => (
-                <div
-                  key={predIndex}
-                  className="absolute text-xs bg-red-500 text-white px-1 rounded"
-                  style={{
-                    left: `${pred.x - pred.width / 2}%`,
-                    top: `${pred.y - pred.height / 2}%`,
-                    transform: 'translate(-50%, -100%)'
-                  }}
-                >
-                  {pred.class}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <div>
+      <div {...getRootProps()} className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer">
+        <input {...getInputProps()} />
+        {isDragActive ? (
+          <p>Drop the files here ...</p>
+        ) : (
+          <p>Drag 'n' drop some files here, or click to select files</p>
+        )}
+      </div>
+      {processing && <Progress value={uploadProgress} className="mt-4" />}
+    </div>
   );
 };
 
