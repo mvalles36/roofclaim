@@ -22,7 +22,7 @@ const SupplementTracking = () => {
   });
   const [uploadProgress, setUploadProgress] = useState(0);
   const [supplementResult, setSupplementResult] = useState(null);
-  const [supplementStatus, setSupplementStatus] = useState('pending'); // Add new state for supplement status
+  const [supplementStatus, setSupplementStatus] = useState('pending');
 
   useEffect(() => {
     fetchCustomers();
@@ -63,7 +63,7 @@ const SupplementTracking = () => {
   const handleFileUpload = async (file, type) => {
     const { data, error } = await supabase.storage
       .from('customer-documents')
-      .upload(`<span class="math-inline">\{selectedCustomer\}/</span>{type}/${file.name}`, file);
+      .upload(`${selectedCustomer}/${type}/${file.name}`, file);
 
     if (error) {
       console.error('Error uploading file:', error);
@@ -103,3 +103,63 @@ const SupplementTracking = () => {
       initialEstimate: {
         item: "20 sq. of asphalt shingles",
         cost: 500
+      },
+      supplementalCosts: [
+        { item: "Additional underlayment", cost: 200 },
+        { item: "Flashing replacement", cost: 150 }
+      ],
+      totalSupplementAmount: 350,
+      justification: "Additional damage discovered during inspection requires extra materials and labor.",
+      submittedBy: {
+        name: "Jane Smith",
+        company: "ABC Roofing",
+        contactInfo: "jane.smith@abcroofing.com"
+      }
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold">Supplement Tracking</h1>
+      <Select onValueChange={setSelectedCustomer}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select a customer" />
+        </SelectTrigger>
+        <SelectContent>
+          {customers.map((customer) => (
+            <SelectItem key={customer.id} value={customer.id}>{customer.full_name}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Card>
+        <CardHeader>
+          <CardTitle>Document Upload</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <FileUploader label="Insurance Policy" onUpload={(file) => handleFileUpload(file, 'insurancePolicy')} file={documents.insurancePolicy} />
+            <FileUploader label="Insurance Estimate" onUpload={(file) => handleFileUpload(file, 'insuranceEstimate')} file={documents.insuranceEstimate} />
+            <FileUploader label="Roof Inspection Report" onUpload={(file) => handleFileUpload(file, 'roofInspectionReport')} file={documents.roofInspectionReport} />
+          </div>
+          <Progress value={uploadProgress} className="mt-4" />
+        </CardContent>
+      </Card>
+      <Button onClick={handleAnalyze} disabled={uploadProgress < 100}>Analyze Documents</Button>
+      {supplementResult && <SupplementAnalyzer result={supplementResult} />}
+      <Tabs defaultValue="list">
+        <TabsList>
+          <TabsTrigger value="list">Supplement List</TabsTrigger>
+          <TabsTrigger value="inbox">Supplement Inbox</TabsTrigger>
+        </TabsList>
+        <TabsContent value="list">
+          <SupplementList />
+        </TabsContent>
+        <TabsContent value="inbox">
+          <SupplementInbox />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default SupplementTracking;
