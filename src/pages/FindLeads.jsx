@@ -5,7 +5,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { supabase } from '../integrations/supabase/supabase';
 import axios from 'axios';
 import { useLoadScript, GoogleMap, DrawingManager, Marker } from '@react-google-maps/api';
-import { visuallyHidden } from '@mui/material';
 
 const libraries = ['places', 'drawing'];
 

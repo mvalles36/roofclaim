@@ -9,15 +9,13 @@ import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { FileUploader } from '../components/FileUploader';
 import axios from 'axios';
-import { DocumentEditor } from 'react-document-editor'; // Replace with your chosen document editing library
-import { SignaturePad } from 'react-signature-pad'; // Replace with your chosen signature library
-import { FileText, Settings } from 'lucide-react'; // Changed from DocumentIcon to FileText
+import { FileText, Settings } from 'lucide-react';
 
 const DocumentHub = () => {
   const [templates, setTemplates] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const templatesPerPage = 5; // Adjust as needed
+  const templatesPerPage = 5;
 
   useEffect(() => {
     fetchTemplates();
@@ -49,12 +47,10 @@ const DocumentHub = () => {
   };
 
   const handleDocumentSelection = (documentId) => {
-    // Implement document selection logic
     console.log('Selected document:', documentId);
   };
 
   const handleTemplateSelection = (templateId) => {
-    // Implement template selection logic
     console.log('Selected template:', templateId);
   };
 
@@ -81,7 +77,6 @@ const DocumentHub = () => {
             <CardTitle>Document Editor</CardTitle>
           </CardHeader>
           <CardContent>
-            {/* Add your document editor component here */}
             <p>Document editor placeholder</p>
           </CardContent>
         </Card>
