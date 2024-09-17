@@ -25,7 +25,7 @@ import ClaimManagement from './pages/ClaimManagement';
 import DamageDetection from './pages/DamageDetection';
 import DocumentHub from './pages/DocumentHub';
 import Inspections from './pages/Inspections';
-import InspectionReports from './pages/InspectionReports';
+import InspectionReport from './pages/InspectionReport';
 
 const queryClient = new QueryClient();
 
@@ -72,7 +72,7 @@ const App = () => {
                 <Route path="/damage-detection" element={<ProtectedRoute><DamageDetection /></ProtectedRoute>} />
                 <Route path="/document-hub" element={<ProtectedRoute><DocumentHub /></ProtectedRoute>} />
                 <Route path="/inspections" element={<ProtectedRoute><Inspections /></ProtectedRoute>} />
-                <Route path="/inspection-reports" element={<ProtectedRoute><InspectionReports /></ProtectedRoute>} />
+                <Route path="/inspection-report" element={<ProtectedRoute><InspectionReport /></ProtectedRoute>} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>

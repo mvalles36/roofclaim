@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { useRoleBasedAccess } from '../hooks/useRoleBasedAccess';
@@ -13,7 +13,7 @@ import ContactView from '../components/ContactView';
 const Contacts = () => {
   const [contacts, setContacts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const { userRole, session } = useSupabaseAuth();
+  const { session } = useSupabaseAuth();
   const { hasPermission } = useRoleBasedAccess();
   const [newContact, setNewContact] = useState({
     full_name: '',
@@ -21,7 +21,6 @@ const Contacts = () => {
     phone_number: '',
     lead_status: 'New',
   });
-  const [selectedContact, setSelectedContact] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -34,62 +33,45 @@ const Contacts = () => {
       const { data, error } = await supabase
         .from('contacts')
         .select('*')
-        .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching contacts:', error);
-        toast.error('Failed to fetch contacts');
-      } else {
-        setContacts(data);
+        throw error;
       }
+      setContacts(data);
+    } catch (error) {
+      console.error('Error fetching contacts:', error);
+      toast.error('Failed to fetch contacts');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleAddContact = async () => {
-    const { data, error } = await supabase.from('contacts').insert([{
-      ...newContact,
-      user_id: session.user.id
-    }]);
-
-    if (error) {
-      console.error('Error adding contact:', error);
-      toast.error('Failed to add contact');
-    } else {
+    try {
+      const { data, error } = await supabase.from('contacts').insert([newContact]);
+      if (error) throw error;
       fetchContacts();
       setNewContact({ full_name: '', email: '', phone_number: '', lead_status: 'New' });
       toast.success('Contact added successfully');
+    } catch (error) {
+      console.error('Error adding contact:', error);
+      toast.error('Failed to add contact');
     }
   };
 
   const handleUpdateLeadStatus = async (contactId, newStatus) => {
-    const { error } = await supabase
-      .from('contacts')
-      .update({ lead_status: newStatus })
-      .eq('id', contactId);
-
-    if (error) {
-      console.error('Error updating lead status:', error);
-      toast.error('Failed to update lead status');
-    } else {
+    try {
+      const { error } = await supabase
+        .from('contacts')
+        .update({ lead_status: newStatus })
+        .eq('id', contactId);
+      if (error) throw error;
       fetchContacts();
       toast.success('Lead status updated successfully');
-      if (newStatus === 'Converted') {
-        await convertLeadToCustomer(contactId);
-      }
-    }
-  };
-
-  const convertLeadToCustomer = async (contactId) => {
-    const { data, error } = await supabase.rpc('convert_lead_to_customer', { contact_id: contactId });
-
-    if (error) {
-      console.error('Error converting lead to customer:', error);
-      toast.error('Failed to convert lead to customer');
-    } else {
-      toast.success('Lead converted to customer successfully');
+    } catch (error) {
+      console.error('Error updating lead status:', error);
+      toast.error('Failed to update lead status');
     }
   };
 
@@ -118,27 +100,40 @@ const Contacts = () => {
             <CardTitle>Contact List</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2">
-              {filteredContacts.map((contact) => (
-                <li key={contact.id} className="flex justify-between items-center">
-                  <div>
-                    <p className="font-semibold">{contact.full_name}</p>
-                    <p>{contact.email}</p>
-                  </div>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button onClick={() => setSelectedContact(contact)}>View Details</Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-3xl">
-                      <DialogHeader>
-                        <DialogTitle>{contact.full_name}</DialogTitle>
-                      </DialogHeader>
-                      <ContactView contactId={contact.id} />
-                    </DialogContent>
-                  </Dialog>
-                </li>
-              ))}
-            </ul>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredContacts.map((contact) => (
+                  <TableRow key={contact.id}>
+                    <TableCell>{contact.full_name}</TableCell>
+                    <TableCell>{contact.email}</TableCell>
+                    <TableCell>{contact.phone_number}</TableCell>
+                    <TableCell>{contact.lead_status}</TableCell>
+                    <TableCell>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline">View Details</Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-3xl">
+                          <DialogHeader>
+                            <DialogTitle>{contact.full_name}</DialogTitle>
+                          </DialogHeader>
+                          <ContactView contactId={contact.id} />
+                        </DialogContent>
+                      </Dialog>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       )}
