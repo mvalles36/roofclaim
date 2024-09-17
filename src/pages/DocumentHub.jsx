@@ -13,7 +13,7 @@ import { DocumentEditor } from 'react-document-editor'; // Replace with your cho
 import { SignaturePad } from 'react-signature-pad'; // Replace with your chosen signature library
 import { FileText, Settings } from 'lucide-react'; // Changed from DocumentIcon to FileText
 
-const DocumentEditorPage = () => {
+const DocumentHub = () => {
   const [templates, setTemplates] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -60,7 +60,7 @@ const DocumentEditorPage = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Document Editor</h1>
+      <h1 className="text-3xl font-bold">Document Hub</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
@@ -110,4 +110,4 @@ const DocumentEditorPage = () => {
   );
 };
 
-export default DocumentEditorPage;
+export default DocumentHub;
