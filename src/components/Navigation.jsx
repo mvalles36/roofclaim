@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { supabase } from '../integrations/supabase/supabase';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { HomeIcon, UsersIcon, ClipboardIcon, FileTextIcon, MapPinIcon, BarChartIcon, UserIcon, SettingsIcon, LogOutIcon, CheckSquareIcon, BriefcaseIcon, CreditCardIcon, ListTodoIcon, ListCheckIcon, CameraIcon } from "lucide-react";
+import { HomeIcon, UsersIcon, ClipboardIcon, FileTextIcon, MapPinIcon, BarChartIcon, UserIcon, SettingsIcon, LogOutIcon, CheckSquareIcon, BriefcaseIcon, CreditCardIcon, ListTodoIcon, ListCheckIcon, CameraIcon, FileIcon, ShieldIcon, ClipboardCheckIcon, FileSearchIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -43,13 +43,20 @@ const Navigation = () => {
   };
 
   const navItems = [
-    { role: ['admin', 'sales', 'manager', 'support', 'supplement_specialist', 'roofing_crew_lead'], icon: <HomeIcon className="h-5 w-5" />, label: 'Dashboard', to: '/' },
-    { role: ['admin', 'sales', 'manager'], icon: <UsersIcon className="h-5 w-5" />, label: 'Contacts', to: '/contacts' },
-    { role: ['admin', 'sales', 'manager', 'support', 'supplement_specialist'], icon: <UserIcon className="h-5 w-5" />, label: 'Customers', to: '/customers' },
-    { role: ['admin', 'sales', 'manager', 'roofing_crew_lead'], icon: <BriefcaseIcon className="h-5 w-5" />, label: 'Jobs', to: '/jobs' },
-    { role: ['admin','sales', 'manager'], icon: <CreditCardIcon className="h-5 w-5" />, label: 'Invoices', to: '/invoices' },
-    { role: ['admin', 'manager'], icon: <MapPinIcon className="h-5 w-5" />, label: 'Find Leads', to: '/find-leads' },
-    { role: ['admin', 'sales', 'manager', 'supplement_specialist'], icon: <FilesTextIcon className="h-5 w-5" />, label: 'Supplements', to: '/supplement-tracking' },
+    { icon: <HomeIcon className="h-5 w-5" />, label: 'Dashboard', to: '/' },
+    { icon: <UsersIcon className="h-5 w-5" />, label: 'Contacts', to: '/contacts' },
+    { icon: <UserIcon className="h-5 w-5" />, label: 'Customers', to: '/customers' },
+    { icon: <BriefcaseIcon className="h-5 w-5" />, label: 'Jobs', to: '/jobs' },
+    { icon: <CreditCardIcon className="h-5 w-5" />, label: 'Invoices', to: '/invoices' },
+    { icon: <MapPinIcon className="h-5 w-5" />, label: 'Find Leads', to: '/find-leads' },
+    { icon: <FileIcon className="h-5 w-5" />, label: 'Document Hub', to: '/document-hub' },
+    { icon: <CameraIcon className="h-5 w-5" />, label: 'Damage Detection', to: '/damage-detection' },
+    { icon: <ShieldIcon className="h-5 w-5" />, label: 'Insurance & Mortgage', to: '/insurance-mortgage-tracker' },
+    { icon: <ClipboardCheckIcon className="h-5 w-5" />, label: 'Supplement Tracking', to: '/supplement-tracking' },
+    { icon: <ListTodoIcon className="h-5 w-5" />, label: 'Tasks', to: '/tasks' },
+    { icon: <FileSearchIcon className="h-5 w-5" />, label: 'Policy Comparison', to: '/policy-comparison' },
+    { icon: <ClipboardIcon className="h-5 w-5" />, label: 'Inspections', to: '/inspections' },
+    { icon: <FileTextIcon className="h-5 w-5" />, label: 'Inspection Report', to: '/inspection-report' },
   ];
 
   return (
@@ -63,19 +70,17 @@ const Navigation = () => {
       </div>
       <ul className="space-y-2">
         {navItems.map((item, index) => (
-          item.role.includes(userRole) && (
-            <li key={index}>
-              <Link
-                to={item.to}
-                className={`flex items-center p-2 rounded hover:bg-gray-700 ${
-                  location.pathname === item.to ? 'bg-gray-700' : ''
-                }`}
-              >
-                {item.icon}
-                <span className="ml-3">{item.label}</span>
-              </Link>
-            </li>
-          )
+          <li key={index}>
+            <Link
+              to={item.to}
+              className={`flex items-center p-2 rounded hover:bg-gray-700 ${
+                location.pathname === item.to ? 'bg-gray-700' : ''
+              }`}
+            >
+              {item.icon}
+              <span className="ml-3">{item.label}</span>
+            </Link>
+          </li>
         ))}
       </ul>
       <div className="mt-auto">
