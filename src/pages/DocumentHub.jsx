@@ -2,105 +2,152 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
-import { FileUploader } from '../components/FileUploader';
-import axios from 'axios';
 import { FileText, Settings } from 'lucide-react';
+import { Editor } from '@syncfusion/ej2-react-documenteditor';
 
 const DocumentHub = () => {
   const [templates, setTemplates] = useState([]);
-  const [documents, setDocuments] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const templatesPerPage = 5;
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [contacts, setContacts] = useState([]);
+  const [selectedContact, setSelectedContact] = useState(null);
+  const [editorContent, setEditorContent] = useState('');
 
   useEffect(() => {
     fetchTemplates();
-    fetchDocuments();
+    fetchContacts();
   }, []);
 
   const fetchTemplates = async () => {
-    const { data, error } = await supabase
-      .from('templates')
-      .select('*');
+    // In a real application, fetch templates from your backend
+    const dummyTemplates = [
+      { id: 1, name: 'Inspection Report', icon: 'clipboard-list' },
+      { id: 2, name: 'Estimate', icon: 'calculator' },
+      { id: 3, name: 'Contract', icon: 'file-text' },
+      { id: 4, name: 'Invoice', icon: 'credit-card' },
+      { id: 5, name: 'Thank You Letter', icon: 'mail' },
+    ];
+    setTemplates(dummyTemplates);
+  };
 
+  const fetchContacts = async () => {
+    const { data, error } = await supabase.from('contacts').select('id, full_name');
     if (error) {
-      console.error('Error fetching templates:', error);
+      console.error('Error fetching contacts:', error);
     } else {
-      setTemplates(data);
+      setContacts(data);
     }
   };
 
-  const fetchDocuments = async () => {
+  const handleTemplateSelection = (template) => {
+    setSelectedTemplate(template);
+    // In a real application, fetch the template content from your backend
+    setEditorContent(`This is a sample content for the ${template.name} template.`);
+  };
+
+  const handleContactSelection = (contactId) => {
+    setSelectedContact(contactId);
+    // In a real application, fetch contact details and update the document content
+    updateDocumentWithContactInfo(contactId);
+  };
+
+  const updateDocumentWithContactInfo = async (contactId) => {
     const { data, error } = await supabase
-      .from('documents')
-      .select('*');
+      .from('contacts')
+      .select('*')
+      .eq('id', contactId)
+      .single();
 
     if (error) {
-      console.error('Error fetching documents:', error);
+      console.error('Error fetching contact details:', error);
     } else {
-      setDocuments(data);
+      const updatedContent = editorContent
+        .replace('{{full_name}}', data.full_name)
+        .replace('{{email}}', data.email)
+        .replace('{{phone_number}}', data.phone_number)
+        .replace('{{address}}', data.address);
+      setEditorContent(updatedContent);
     }
-  };
-
-  const handleDocumentSelection = (documentId) => {
-    console.log('Selected document:', documentId);
-  };
-
-  const handleTemplateSelection = (templateId) => {
-    console.log('Selected template:', templateId);
   };
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">DocumentHub</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <h1 className="text-3xl font-bold">Document Hub</h1>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Document List</CardTitle>
+            <CardTitle>Template Library</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2">
-              {documents.map((document) => (
-                <li key={document.id} onClick={() => handleDocumentSelection(document.id)}>
-                  {document.name}
-                </li>
+            <div className="grid grid-cols-2 gap-4">
+              {templates.map((template) => (
+                <div
+                  key={template.id}
+                  className="flex flex-col items-center justify-center p-4 border rounded cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleTemplateSelection(template)}
+                >
+                  <FileText className="h-12 w-12 text-gray-500 mb-2" />
+                  <p className="text-center text-sm">{template.name}</p>
+                </div>
               ))}
-            </ul>
+            </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="col-span-2">
           <CardHeader>
             <CardTitle>Document Editor</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Document editor placeholder</p>
+            {selectedTemplate ? (
+              <>
+                <div className="mb-4">
+                  <Select onValueChange={handleContactSelection}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a contact" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {contacts.map((contact) => (
+                        <SelectItem key={contact.id} value={contact.id}>
+                          {contact.full_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Editor
+                  height="500px"
+                  isReadOnly={false}
+                  enableEditor={true}
+                  enableSelection={true}
+                  enableContextMenu={true}
+                  enableImageResizer={true}
+                  enableEditorHistory={true}
+                  enableHyperlinkDialog={true}
+                  enableTableDialog={true}
+                  enableTrackChanges={true}
+                  enableSearch={true}
+                  enableFootnoteAndEndnote={true}
+                  enableEditor={true}
+                  enableRtl={true}
+                  enableWordExport={true}
+                  enablePdfExport={true}
+                  value={editorContent}
+                  change={(args) => setEditorContent(args.value)}
+                />
+                <div className="mt-4 flex justify-end space-x-2">
+                  <Button>Save Draft</Button>
+                  <Button>Generate Document</Button>
+                </div>
+              </>
+            ) : (
+              <p>Select a template to start editing</p>
+            )}
           </CardContent>
         </Card>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Template Library</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {templates.slice((currentPage - 1) * templatesPerPage, currentPage * templatesPerPage).map((template) => (
-              <div key={template.id} className="flex flex-col items-center justify-center">
-                <FileText className="h-16 w-16 text-gray-500" />
-                <p className="text-center">{template.name}</p>
-                <Button onClick={() => handleTemplateSelection(template.id)}>Select</Button>
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-center mt-4">
-            <Button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>Previous</Button>
-            <Button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage * templatesPerPage >= templates.length}>Next</Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
