@@ -4,53 +4,46 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { useRoleBasedAccess } from '../hooks/useRoleBasedAccess';
 import { toast } from 'sonner';
-import ContactView from '../components/ContactView';
+import { Phone, Mail, MapPin, Star, Calendar, Clock } from 'lucide-react';
 
 const Contacts = () => {
   const [contacts, setContacts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedContact, setSelectedContact] = useState(null);
   const { session } = useSupabaseAuth();
   const { hasPermission } = useRoleBasedAccess();
   const [newContact, setNewContact] = useState({
     full_name: '',
     email: '',
     phone_number: '',
+    address: '',
     lead_status: 'New',
+    tags: [],
   });
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetchContacts();
   }, [session]);
 
   const fetchContacts = async () => {
-    setIsLoading(true);
     try {
-      const { data: contactsData, error: contactsError } = await supabase
+      const { data, error } = await supabase
         .from('contacts')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (contactsError) throw contactsError;
-
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', session?.user?.id)
-        .single();
-
-      if (userError) throw userError;
-
-      setContacts([...contactsData, userData]);
+      if (error) throw error;
+      setContacts(data);
     } catch (error) {
       console.error('Error fetching contacts:', error);
       toast.error('Failed to fetch contacts');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -59,7 +52,7 @@ const Contacts = () => {
       const { data, error } = await supabase.from('contacts').insert([newContact]);
       if (error) throw error;
       fetchContacts();
-      setNewContact({ full_name: '', email: '', phone_number: '', lead_status: 'New' });
+      setNewContact({ full_name: '', email: '', phone_number: '', address: '', lead_status: 'New', tags: [] });
       toast.success('Contact added successfully');
     } catch (error) {
       console.error('Error adding contact:', error);
@@ -88,61 +81,134 @@ const Contacts = () => {
   );
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Contacts</h1>
+    <div className="space-y-6 p-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Contacts</h1>
+        {hasPermission('write:contacts') && (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>Add New Contact</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Contact</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <Input
+                  placeholder="Full Name"
+                  value={newContact.full_name}
+                  onChange={(e) => setNewContact({ ...newContact, full_name: e.target.value })}
+                />
+                <Input
+                  placeholder="Email"
+                  value={newContact.email}
+                  onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
+                />
+                <Input
+                  placeholder="Phone Number"
+                  value={newContact.phone_number}
+                  onChange={(e) => setNewContact({ ...newContact, phone_number: e.target.value })}
+                />
+                <Input
+                  placeholder="Address"
+                  value={newContact.address}
+                  onChange={(e) => setNewContact({ ...newContact, address: e.target.value })}
+                />
+                <Button onClick={handleAddContact}>Add Contact</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
       <Input
         placeholder="Search contacts..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="mb-4"
       />
-      {hasPermission('write:contacts') && (
-        <Button onClick={handleAddContact}>Add New Contact</Button>
-      )}
-      {isLoading ? (
-        <p>Loading contacts...</p>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Contact List</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+      <Card>
+        <CardHeader>
+          <CardTitle>Contact List</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredContacts.map((contact) => (
+                <TableRow key={contact.id}>
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      <Avatar>
+                        <AvatarFallback>{contact.full_name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <span>{contact.full_name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>{contact.email}</TableCell>
+                  <TableCell>{contact.phone_number}</TableCell>
+                  <TableCell>
+                    <Badge variant={contact.lead_status === 'New' ? 'default' : 'secondary'}>
+                      {contact.lead_status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="outline" onClick={() => setSelectedContact(contact)}>View Details</Button>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredContacts.map((contact) => (
-                  <TableRow key={contact.id}>
-                    <TableCell>{contact.full_name}</TableCell>
-                    <TableCell>{contact.email}</TableCell>
-                    <TableCell>{contact.phone_number}</TableCell>
-                    <TableCell>{contact.lead_status || 'N/A'}</TableCell>
-                    <TableCell>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline">View Details</Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-3xl">
-                          <DialogHeader>
-                            <DialogTitle>{contact.full_name}</DialogTitle>
-                          </DialogHeader>
-                          <ContactView contactId={contact.id} />
-                        </DialogContent>
-                      </Dialog>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+      {selectedContact && (
+        <Dialog open={!!selectedContact} onOpenChange={() => setSelectedContact(null)}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>{selectedContact.full_name}</DialogTitle>
+            </DialogHeader>
+            <Tabs defaultValue="details">
+              <TabsList>
+                <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="tasks">Tasks</TabsTrigger>
+                <TabsTrigger value="documents">Documents</TabsTrigger>
+                <TabsTrigger value="insurance">Insurance</TabsTrigger>
+              </TabsList>
+              <TabsContent value="details">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="font-semibold mb-2">Contact Information</h3>
+                    <p className="flex items-center"><Mail className="mr-2" /> {selectedContact.email}</p>
+                    <p className="flex items-center"><Phone className="mr-2" /> {selectedContact.phone_number}</p>
+                    <p className="flex items-center"><MapPin className="mr-2" /> {selectedContact.address}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Lead Information</h3>
+                    <p className="flex items-center"><Star className="mr-2" /> Status: {selectedContact.lead_status}</p>
+                    <p className="flex items-center"><Calendar className="mr-2" /> Created: {new Date(selectedContact.created_at).toLocaleDateString()}</p>
+                    <p className="flex items-center"><Clock className="mr-2" /> Last Updated: {new Date(selectedContact.updated_at).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              </TabsContent>
+              <TabsContent value="tasks">
+                <p>Tasks related to this contact will be displayed here.</p>
+              </TabsContent>
+              <TabsContent value="documents">
+                <p>Documents related to this contact will be displayed here.</p>
+              </TabsContent>
+              <TabsContent value="insurance">
+                <p>Insurance information for this contact will be displayed here.</p>
+              </TabsContent>
+            </Tabs>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
