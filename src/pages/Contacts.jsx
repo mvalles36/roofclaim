@@ -22,14 +22,14 @@ const Contacts = () => {
     lead_status: 'New',
   });
   const [selectedContact, setSelectedContact] = useState(null);
-  const [isLoading, setIsLoading] = useState(false); // Added for loading state
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetchContacts();
   }, [session]);
 
   const fetchContacts = async () => {
-    setIsLoading(true); // Set loading state to true
+    setIsLoading(true);
     try {
       const { data, error } = await supabase
         .from('contacts')
@@ -44,7 +44,7 @@ const Contacts = () => {
         setContacts(data);
       }
     } finally {
-      setIsLoading(false); // Set loading state to false regardless of success or failure
+      setIsLoading(false);
     }
   };
 
@@ -106,3 +106,44 @@ const Contacts = () => {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="mb-4"
+      />
+      {hasPermission('write:contacts') && (
+        <Button onClick={handleAddContact}>Add New Contact</Button>
+      )}
+      {isLoading ? (
+        <p>Loading contacts...</p>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Contact List</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {filteredContacts.map((contact) => (
+                <li key={contact.id} className="flex justify-between items-center">
+                  <div>
+                    <p className="font-semibold">{contact.full_name}</p>
+                    <p>{contact.email}</p>
+                  </div>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button onClick={() => setSelectedContact(contact)}>View Details</Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-3xl">
+                      <DialogHeader>
+                        <DialogTitle>{contact.full_name}</DialogTitle>
+                      </DialogHeader>
+                      <ContactView contactId={contact.id} />
+                    </DialogContent>
+                  </Dialog>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+export default Contacts;
