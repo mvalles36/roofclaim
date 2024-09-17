@@ -12,6 +12,7 @@ const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,9 +25,10 @@ const ResetPassword = () => {
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     if (password !== confirmPassword) {
-      toast.error("Passwords don't match");
+      setError("Passwords don't match");
       setLoading(false);
       return;
     }
@@ -38,7 +40,7 @@ const ResetPassword = () => {
       setTimeout(() => navigate('/login'), 2000);
     } catch (error) {
       console.error('Error resetting password:', error);
-      toast.error(error.message || 'An error occurred while resetting your password');
+      setError(error.message || 'An error occurred while resetting your password');
     } finally {
       setLoading(false);
     }
@@ -50,6 +52,12 @@ const ResetPassword = () => {
         <CardTitle className="text-2xl font-bold text-center">Set New Password</CardTitle>
       </CardHeader>
       <CardContent>
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <form onSubmit={handleResetPassword} className="space-y-4">
           <div>
             <Label htmlFor="password">New Password</Label>
