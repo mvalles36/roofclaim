@@ -8,14 +8,6 @@ import { useNavigate } from 'react-router-dom';
 const SupabaseAuthContext = createContext();
 
 export const SupabaseAuthProvider = ({ children }) => {
-  return (
-    <SupabaseAuthProviderInner>
-      {children}
-    </SupabaseAuthProviderInner>
-  );
-}
-
-export const SupabaseAuthProviderInner = ({ children }) => {
   const [session, setSession] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -47,7 +39,6 @@ export const SupabaseAuthProviderInner = ({ children }) => {
 
     return () => {
       authListener.subscription.unsubscribe();
-      setLoading(false);
     };
   }, [queryClient]);
 
