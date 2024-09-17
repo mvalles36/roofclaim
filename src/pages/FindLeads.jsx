@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from '../integrations/supabase/supabase';
 import axios from 'axios';
@@ -16,6 +17,7 @@ const FindLeads = () => {
   const [mapZoom, setMapZoom] = useState(12);
   const mapRef = useRef(null);
   const drawingManagerRef = useRef(null);
+  const searchBoxRef = useRef(null);
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -24,7 +26,29 @@ const FindLeads = () => {
 
   const onMapLoad = useCallback((map) => {
     mapRef.current = map;
+    initSearchBox();
   }, []);
+
+  const initSearchBox = () => {
+    if (!searchBoxRef.current) return;
+    const searchBox = new window.google.maps.places.SearchBox(searchBoxRef.current);
+    mapRef.current.controls[window.google.maps.ControlPosition.TOP_LEFT].push(searchBoxRef.current);
+
+    searchBox.addListener('places_changed', () => {
+      const places = searchBox.getPlaces();
+      if (places.length === 0) return;
+
+      const bounds = new window.google.maps.LatLngBounds();
+      places.forEach((place) => {
+        if (place.geometry.viewport) {
+          bounds.union(place.geometry.viewport);
+        } else {
+          bounds.extend(place.geometry.location);
+        }
+      });
+      mapRef.current.fitBounds(bounds);
+    });
+  };
 
   const onDrawingManagerLoad = useCallback((drawingManager) => {
     drawingManagerRef.current = drawingManager;
@@ -125,6 +149,12 @@ const FindLeads = () => {
           <CardTitle>Draw Area on Map</CardTitle>
         </CardHeader>
         <CardContent>
+          <Input
+            ref={searchBoxRef}
+            type="text"
+            placeholder="Search for an address"
+            className="mb-4"
+          />
           <GoogleMap
             mapContainerStyle={{ width: '100%', height: '400px' }}
             center={mapCenter}
