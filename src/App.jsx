@@ -43,7 +43,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   return children;
 };
 
-const App = () => {
+const AppRoutes = () => {
   const { session, logout } = useSupabaseAuth();
 
   const handleLogout = async () => {
@@ -51,56 +51,58 @@ const App = () => {
   };
 
   return (
-    <TooltipProvider>
-      <Toaster />
-      <BrowserRouter>
-        {session ? (
-          <div className="flex h-screen bg-gray-100">
-            <Navigation onLogout={handleLogout} />
-            <main className="flex-1 overflow-y-auto p-8">
-              <Routes>
-                <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route path="/contacts" element={<ProtectedRoute><Contacts /></ProtectedRoute>} />
-                <Route path="/customers" element={<ProtectedRoute><Customers /></ProtectedRoute>} />
-                <Route path="/jobs" element={<ProtectedRoute><Jobs /></ProtectedRoute>} />
-                <Route path="/invoices" element={<ProtectedRoute><Invoices /></ProtectedRoute>} />
-                <Route path="/find-leads" element={<ProtectedRoute><FindLeads /></ProtectedRoute>} />
-                <Route path="/supplement-tracking" element={<ProtectedRoute><SupplementTracking /></ProtectedRoute>} />
-                <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
-                <Route path="/insurance-mortgage-tracker" element={<ProtectedRoute><InsuranceMortgageTracker /></ProtectedRoute>} />
-                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-                <Route path="/policy-comparison" element={<ProtectedRoute><PolicyComparison /></ProtectedRoute>} />
-                <Route path="/claims" element={<ProtectedRoute><Claims /></ProtectedRoute>} />
-                <Route path="/claim-management" element={<ProtectedRoute><ClaimManagement /></ProtectedRoute>} />
-                <Route path="/damage-detection" element={<ProtectedRoute><DamageDetection /></ProtectedRoute>} />
-                <Route path="/document-hub" element={<ProtectedRoute><DocumentHub /></ProtectedRoute>} />
-                <Route path="/inspections" element={<ProtectedRoute><Inspections /></ProtectedRoute>} />
-                <Route path="/inspection-report" element={<ProtectedRoute><InspectionReport /></ProtectedRoute>} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </main>
-          </div>
-        ) : (
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </Routes>
-        )}
-      </BrowserRouter>
-    </TooltipProvider>
+    <>
+      {session ? (
+        <div className="flex h-screen bg-gray-100">
+          <Navigation onLogout={handleLogout} />
+          <main className="flex-1 overflow-y-auto p-8">
+            <Routes>
+              <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/contacts" element={<ProtectedRoute><Contacts /></ProtectedRoute>} />
+              <Route path="/customers" element={<ProtectedRoute><Customers /></ProtectedRoute>} />
+              <Route path="/jobs" element={<ProtectedRoute><Jobs /></ProtectedRoute>} />
+              <Route path="/invoices" element={<ProtectedRoute><Invoices /></ProtectedRoute>} />
+              <Route path="/find-leads" element={<ProtectedRoute><FindLeads /></ProtectedRoute>} />
+              <Route path="/supplement-tracking" element={<ProtectedRoute><SupplementTracking /></ProtectedRoute>} />
+              <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
+              <Route path="/insurance-mortgage-tracker" element={<ProtectedRoute><InsuranceMortgageTracker /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+              <Route path="/policy-comparison" element={<ProtectedRoute><PolicyComparison /></ProtectedRoute>} />
+              <Route path="/claims" element={<ProtectedRoute><Claims /></ProtectedRoute>} />
+              <Route path="/claim-management" element={<ProtectedRoute><ClaimManagement /></ProtectedRoute>} />
+              <Route path="/damage-detection" element={<ProtectedRoute><DamageDetection /></ProtectedRoute>} />
+              <Route path="/document-hub" element={<ProtectedRoute><DocumentHub /></ProtectedRoute>} />
+              <Route path="/inspections" element={<ProtectedRoute><Inspections /></ProtectedRoute>} />
+              <Route path="/inspection-report" element={<ProtectedRoute><InspectionReport /></ProtectedRoute>} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </main>
+        </div>
+      ) : (
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      )}
+    </>
   );
 };
 
-const AppWrapper = () => (
+const App = () => (
   <QueryClientProvider client={queryClient}>
-    <SupabaseAuthProvider>
-      <App />
-    </SupabaseAuthProvider>
+    <BrowserRouter>
+      <SupabaseAuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <AppRoutes />
+        </TooltipProvider>
+      </SupabaseAuthProvider>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 
-export default AppWrapper;
+export default App;
