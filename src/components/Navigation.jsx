@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { supabase } from '../integrations/supabase/supabase';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { HomeIcon, UsersIcon, ClipboardIcon, FileTextIcon, MapPinIcon, CalendarIcon, BarChartIcon, UserIcon, SettingsIcon, LogOutIcon, CheckSquareIcon, BriefcaseIcon, CreditCardIcon, ListTodoIcon, ListCheckIcon, CameraIcon, DocumentIcon } from "lucide-react";
+import { HomeIcon, UsersIcon, ClipboardIcon, FileTextIcon, MapPinIcon, BarChartIcon, UserIcon, SettingsIcon, LogOutIcon, CheckSquareIcon, BriefcaseIcon, CreditCardIcon, ListTodoIcon, ListCheckIcon, CameraIcon, FilesIcon, DocumentIcon, HammerIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -49,12 +49,8 @@ const Navigation = () => {
     { role: ['admin', 'sales', 'manager', 'support', 'supplement_specialist', 'roofing_crew_lead'], icon: <HomeIcon className="h-5 w-5" />, label: 'Dashboard', to: '/' },
     { role: ['admin', 'sales', 'manager'], icon: <UsersIcon className="h-5 w-5" />, label: 'Contacts', to: '/contacts' },
     { role: ['admin', 'sales', 'manager', 'support', 'supplement_specialist'], icon: <UserIcon className="h-5 w-5" />, label: 'Customers', to: '/customers' },
-    { role: ['admin', 'sales', 'manager', 'roofing_crew_lead'], icon: <BriefcaseIcon className="h-5 w-5" />, label: 'Jobs', to: '/jobs' },
+    { role: ['admin', 'sales', 'manager', 'roofing_crew_lead'], icon: <HammerIcon className="h-5 w-5" />, label: 'Jobs', to: '/jobs' },
     { role: ['admin','sales', 'manager'], icon: <CreditCardIcon className="h-5 w-5" />, label: 'Invoices', to: '/invoices' },
-    { role: ['admin', 'sales', 'manager'], icon: <ClipboardIcon className="h-5 w-5" />, label: 'Inspections', to: '/inspection-scheduling' },
-    { role: ['admin', 'sales', 'manager', 'supplement_specialist'], icon: <ListCheckIcon className="h-5 w-5" />, label: 'Inspection Reports', to: '/inspection-reports' },
-    { role: ['admin', 'sales', 'manager'], icon: <FileTextIcon className="h-5 w-5" />, label: 'Claims', to: '/claim-management' },
-    { role: ['admin', 'sales', 'manager'], icon: <CalendarIcon className="h-5 w-5" />, label: 'Calendar', to: '/calendar' },
     { role: ['admin', 'manager'], icon: <MapPinIcon className="h-5 w-5" />, label: 'Find Leads', to: '/find-leads' },
-    { role: ['admin', 'sales', 'manager', 'supplement_specialist'], icon: <BarChartIcon className="h-5 w-5" />, label: 'Supplements', to: '/supplement-tracking' },
-    { role: ['admin', 'sales', 'manager', 'roofing_crew_lead
+    { role: ['admin', 'sales', 'manager', 'supplement_specialist'], icon: <FilesIcon className="h-5 w-5" />, label: 'Supplements', to: '/supplement-tracking' },
+   
