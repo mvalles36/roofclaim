@@ -30,15 +30,22 @@ const Contacts = () => {
   const fetchContacts = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data: contactsData, error: contactsError } = await supabase
         .from('contacts')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        throw error;
-      }
-      setContacts(data);
+      if (contactsError) throw contactsError;
+
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', session?.user?.id)
+        .single();
+
+      if (userError) throw userError;
+
+      setContacts([...contactsData, userData]);
     } catch (error) {
       console.error('Error fetching contacts:', error);
       toast.error('Failed to fetch contacts');
@@ -76,8 +83,8 @@ const Contacts = () => {
   };
 
   const filteredContacts = contacts.filter(contact =>
-    contact.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    contact.email.toLowerCase().includes(searchTerm.toLowerCase())
+    contact.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    contact.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -116,7 +123,7 @@ const Contacts = () => {
                     <TableCell>{contact.full_name}</TableCell>
                     <TableCell>{contact.email}</TableCell>
                     <TableCell>{contact.phone_number}</TableCell>
-                    <TableCell>{contact.lead_status}</TableCell>
+                    <TableCell>{contact.lead_status || 'N/A'}</TableCell>
                     <TableCell>
                       <Dialog>
                         <DialogTrigger asChild>

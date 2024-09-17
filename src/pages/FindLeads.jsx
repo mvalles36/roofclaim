@@ -149,12 +149,14 @@ const FindLeads = () => {
           <CardTitle>Draw Area on Map</CardTitle>
         </CardHeader>
         <CardContent>
-          <Input
-            ref={searchBoxRef}
-            type="text"
-            placeholder="Search for an address"
-            className="mb-4"
-          />
+          <div className="mb-4">
+            <Input
+              ref={searchBoxRef}
+              type="text"
+              placeholder="Search for an address"
+              className="w-full"
+            />
+          </div>
           <GoogleMap
             mapContainerStyle={{ width: '100%', height: '400px' }}
             center={mapCenter}
