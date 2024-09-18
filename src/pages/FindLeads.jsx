@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { supabase } from "../integrations/supabase/supabase";
 import { useLoadScript, GoogleMap, DrawingManager } from "@react-google-maps/api";
 
-const libraries = ["places", "drawing"];
+const libraries = ["places", "drawing", "geometry"];
 
 const FindLeads = () => {
   const [selectedArea, setSelectedArea] = useState(null);
@@ -35,9 +35,9 @@ const FindLeads = () => {
       if (places.length === 0) return;
       const bounds = new window.google.maps.LatLngBounds();
       places.forEach((place) => {
-        if (place.geometry.viewport) {
+        if (place.geometry && place.geometry.viewport) {
           bounds.union(place.geometry.viewport);
-        } else {
+        } else if (place.geometry) {
           bounds.extend(place.geometry.location);
         }
       });
@@ -58,10 +58,17 @@ const FindLeads = () => {
   }, [selectedArea]);
 
   const handleFindLeads = useCallback(async () => {
+    const user = supabase.auth.user();
+    if (!user) {
+      alert("User is not authenticated");
+      return;
+    }
+
     if (!selectedArea) {
       alert("Please draw a rectangle on the map first.");
       return;
     }
+
     const bounds = selectedArea.getBounds();
     const ne = bounds.getNorthEast();
     const sw = bounds.getSouthWest();
@@ -71,10 +78,14 @@ const FindLeads = () => {
       new window.google.maps.LatLng(sw.lat(), sw.lng())
     ) / 1609.34;
 
+    const apiUrl = `https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup?id=${import.meta.env.VITE_MELISSA_DATA_API_KEY}&format=json&recs=20&opt=IncludeApartments:off;IncludeUndeliverable:off;IncludeEmptyLots:off&lat=${center.lat}&lon=${center.lng}&MaxDistance=${radius}`;
+    console.log(`Fetching leads from: ${apiUrl}`);
+
     try {
-      const response = await fetch(
-        `https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup?id=${import.meta.env.VITE_MELISSA_DATA_API_KEY}&format=json&recs=20&opt=IncludeApartments:off;IncludeUndeliverable:off;IncludeEmptyLots:off&lat=${center.lat}&lon=${center.lng}&MaxDistance=${radius}`
-      );
+      const response = await fetch(apiUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       const processedLeads = data.Records.filter((record) => {
         const latLng = new window.google.maps.LatLng(record.Latitude, record.Longitude);
@@ -87,10 +98,14 @@ const FindLeads = () => {
         income: record.Income,
         coordinates: JSON.stringify({ lat: record.Latitude, lng: record.Longitude }),
         mak: record.MAK,
-        user_id: supabase.auth.user().id
+        user_id: user.id
       }));
       setLeads(processedLeads);
-      setIsDialogOpen(true);
+      if (processedLeads.length > 0) {
+        setIsDialogOpen(true);
+      } else {
+        alert("No leads found in the selected area.");
+      }
     } catch (error) {
       console.error("Error fetching leads:", error);
       alert("An error occurred while fetching leads. Please try again.");
@@ -99,8 +114,12 @@ const FindLeads = () => {
 
   const handleSaveLeads = async () => {
     try {
-      const { error } = await supabase.from("leads").insert(leads);
-      if (error) throw error;
+      const { data, error } = await supabase.from("leads").insert(leads);
+      if (error) {
+        console.error("Error saving leads:", error.message);
+        alert("An error occurred while saving leads. Please try again.");
+        return;
+      }
       alert("Leads saved successfully!");
       setIsDialogOpen(false);
     } catch (error) {
@@ -109,7 +128,10 @@ const FindLeads = () => {
     }
   };
 
-  if (loadError) return "Error loading maps";
+  if (loadError) {
+    console.error("Google Maps loading error:", loadError);
+    return <div>Error loading maps: {loadError.message}</div>;
+  }
   if (!isLoaded) return "Loading maps";
 
   return (
@@ -138,11 +160,11 @@ const FindLeads = () => {
               onLoad={onDrawingManagerLoad}
               onRectangleComplete={onRectangleComplete}
               options={{
-                drawingMode: window.google.maps.drawing.OverlayType.RECTANGLE,
+                drawingMode: window.google?.maps?.drawing?.OverlayType?.RECTANGLE,
                 drawingControl: true,
                 drawingControlOptions: {
-                  position: window.google.maps.ControlPosition.TOP_CENTER,
-                  drawingModes: [window.google.maps.drawing.OverlayType.RECTANGLE]
+                  position: window.google?.maps?.ControlPosition?.TOP_CENTER,
+                  drawingModes: [window.google?.maps?.drawing?.OverlayType?.RECTANGLE]
                 }
               }}
             />
