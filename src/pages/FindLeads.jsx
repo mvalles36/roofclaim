@@ -57,15 +57,6 @@ const FindLeads = () => {
     drawingManagerRef.current.setDrawingMode(null);
   }, [selectedArea]);
 
-  const calculateCenterAndRadius = (sw, ne) => {
-    const centerLat = (sw.lat() + ne.lat()) / 2;
-    const centerLng = (sw.lng() + ne.lng()) / 2;
-    const swLatLng = new window.google.maps.LatLng(sw.lat(), sw.lng());
-    const centerLatLng = new window.google.maps.LatLng(centerLat, centerLng);
-    const radius = window.google.maps.geometry.spherical.computeDistanceBetween(centerLatLng, swLatLng) / 1609.34;
-    return { center: { lat: centerLat, lng: centerLng }, radius };
-  };
-
   const handleFindLeads = useCallback(async () => {
     if (!selectedArea) {
       alert("Please draw a rectangle on the map first.");
@@ -74,7 +65,12 @@ const FindLeads = () => {
     const bounds = selectedArea.getBounds();
     const ne = bounds.getNorthEast();
     const sw = bounds.getSouthWest();
-    const { center, radius } = calculateCenterAndRadius(sw, ne);
+    const center = { lat: (ne.lat() + sw.lat()) / 2, lng: (ne.lng() + sw.lng()) / 2 };
+    const radius = window.google.maps.geometry.spherical.computeDistanceBetween(
+      new window.google.maps.LatLng(center.lat, center.lng),
+      new window.google.maps.LatLng(sw.lat(), sw.lng())
+    ) / 1609.34;
+
     try {
       const response = await fetch(
         `https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup?id=${import.meta.env.VITE_MELISSA_DATA_API_KEY}&format=json&recs=20&opt=IncludeApartments:off;IncludeUndeliverable:off;IncludeEmptyLots:off&lat=${center.lat}&lon=${center.lng}&MaxDistance=${radius}`
