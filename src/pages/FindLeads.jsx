@@ -1,10 +1,11 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "../integrations/supabase/supabase";
 import { useLoadScript, GoogleMap, DrawingManager } from "@react-google-maps/api";
+import { useDropzone } from 'react-dropzone';
 
 const libraries = ["places", "drawing", "geometry"];
 
@@ -12,9 +13,9 @@ const FindLeads = () => {
   const [selectedArea, setSelectedArea] = useState(null);
   const [leads, setLeads] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const mapRef = useRef(null);
-  const drawingManagerRef = useRef(null);
-  const searchBoxRef = useRef(null);
+  const mapRef = React.useRef(null);
+  const drawingManagerRef = React.useRef(null);
+  const searchBoxRef = React.useRef(null);
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -79,7 +80,6 @@ const FindLeads = () => {
     ) / 1609.34;
 
     const apiUrl = `https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup?id=${import.meta.env.VITE_MELISSA_DATA_API_KEY}&format=json&recs=20&opt=IncludeApartments:off;IncludeUndeliverable:off;IncludeEmptyLots:off&lat=${center.lat}&lon=${center.lng}&MaxDistance=${radius}`;
-    console.log(`Fetching leads from: ${apiUrl}`);
 
     try {
       const response = await fetch(apiUrl);
@@ -128,10 +128,14 @@ const FindLeads = () => {
     }
   };
 
-  if (loadError) {
-    console.error("Google Maps loading error:", loadError);
-    return <div>Error loading maps: {loadError.message}</div>;
-  }
+  const onDrop = useCallback((acceptedFiles) => {
+    // Handle file upload logic here
+    console.log(acceptedFiles);
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+
+  if (loadError) return <div>Error loading maps: {loadError.message}</div>;
   if (!isLoaded) return "Loading maps";
 
   return (
@@ -142,14 +146,12 @@ const FindLeads = () => {
           <CardTitle>Draw Area on Map</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="mb-4">
-            <Input
-              ref={searchBoxRef}
-              type="text"
-              placeholder="Search for an address"
-              className="w-full"
-            />
-          </div>
+          <Input
+            ref={searchBoxRef}
+            type="text"
+            placeholder="Search for an address"
+            className="w-full mb-4"
+          />
           <GoogleMap
             mapContainerStyle={{ width: "100%", height: "400px" }}
             center={{ lat: 32.7555, lng: -97.3308 }}
@@ -190,6 +192,14 @@ const FindLeads = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <div {...getRootProps()} className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer">
+        <input {...getInputProps()} />
+        {isDragActive ? (
+          <p>Drop the files here ...</p>
+        ) : (
+          <p>Drag 'n' drop some files here, or click to select files</p>
+        )}
+      </div>
     </div>
   );
 };
