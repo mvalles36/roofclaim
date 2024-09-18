@@ -5,9 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { supabase } from '../integrations/supabase/supabase';
+import { supabase } from "../integrations/supabase/supabase";
 import axios from 'axios';
-import { DocumentAI } from '@google-cloud/documentai';
+import { DocumentAI } from "@google-cloud/documentai";
 
 const PolicyComparison = () => {
   const [policyDetails, setPolicyDetails] = useState('');
@@ -29,13 +29,12 @@ const PolicyComparison = () => {
 
     const [response] = await documentAI.processDocument({
       rawDocument: {
-        content: file.arrayBuffer,
-      },
+        content: file.arrayBuffer
+      }
     });
 
     const extractedText = response.document.text;
     const extractedEntities = [];
-
     return { extractedText, extractedEntities };
   };
 
@@ -65,8 +64,9 @@ const PolicyComparison = () => {
         policyData,
         damageData,
         identifiedCoverageGaps,
-        supplementRecommendations,
+        supplementRecommendations
       });
+
       setComparisonResult(response.data);
     } catch (error) {
       console.error('Error comparing policy:', error);

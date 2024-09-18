@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Stage, Layer, Image, Rect, Text } from 'react-konva';
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -6,12 +6,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const ImageAnnotator = ({ image, onSave, labels, onLabelAssign }) => {
   const [annotations, setAnnotations] = useState([]);
   const [selectedLabel, setSelectedLabel] = useState(null);
+  const imageRef = useRef(null);
 
   useEffect(() => {
     if (image.annotations) {
       setAnnotations(image.annotations);
     }
   }, [image]);
+
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = image.url;
+    img.onload = () => {
+      imageRef.current = img;
+    };
+  }, [image.url]);
 
   const handleSave = () => {
     onSave(annotations);
@@ -26,12 +35,13 @@ const ImageAnnotator = ({ image, onSave, labels, onLabelAssign }) => {
     <div>
       <Stage width={800} height={600}>
         <Layer>
-          <Image
-            image={new window.Image()}
-            src={image.url}
-            width={800}
-            height={600}
-          />
+          {imageRef.current && (
+            <Image
+              image={imageRef.current}
+              width={800}
+              height={600}
+            />
+          )}
           {annotations.map((ann, i) => (
             <React.Fragment key={i}>
               <Rect
@@ -58,9 +68,7 @@ const ImageAnnotator = ({ image, onSave, labels, onLabelAssign }) => {
           </SelectTrigger>
           <SelectContent>
             {labels.map((label) => (
-              <SelectItem key={label.id} value={label.id}>
-                {label.name}
-              </SelectItem>
+              <SelectItem key={label.id} value={label.id}>{label.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>

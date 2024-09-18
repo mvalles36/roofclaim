@@ -3,11 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { supabase } from '../integrations/supabase/supabase';
+import { supabase } from "../integrations/supabase/supabase";
 import axios from 'axios';
-import { useLoadScript, GoogleMap, DrawingManager, Marker } from '@react-google-maps/api';
+import { useLoadScript, GoogleMap, DrawingManager, Marker } from "@react-google-maps/api";
 
-const libraries = ['places', 'drawing'];
+const libraries = ["places", "drawing"];
 
 const FindLeads = () => {
   const [selectedArea, setSelectedArea] = useState(null);
@@ -21,7 +21,7 @@ const FindLeads = () => {
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries,
+    libraries
   });
 
   const onMapLoad = useCallback((map) => {
@@ -34,7 +34,7 @@ const FindLeads = () => {
     const searchBox = new window.google.maps.places.SearchBox(searchBoxRef.current);
     mapRef.current.controls[window.google.maps.ControlPosition.TOP_LEFT].push(searchBoxRef.current);
 
-    searchBox.addListener('places_changed', () => {
+    searchBox.addListener("places_changed", () => {
       const places = searchBox.getPlaces();
       if (places.length === 0) return;
 
@@ -65,76 +65,70 @@ const FindLeads = () => {
   const calculateCenterAndRadius = (sw, ne) => {
     const centerLat = (sw.lat() + ne.lat()) / 2;
     const centerLng = (sw.lng() + ne.lng()) / 2;
-
     const swLatLng = new window.google.maps.LatLng(sw.lat(), sw.lng());
     const centerLatLng = new window.google.maps.LatLng(centerLat, centerLng);
-
-    const radius = window.google.maps.geometry.spherical.computeDistanceBetween(centerLatLng, swLatLng) / 1609.34;
-
-    return {
-      center: { lat: centerLat, lng: centerLng },
-      radius,
-    };
+    const radius = window.google.maps.geometry.spherical.computeDistanceBetween(centerLatLng, swLatLng) / 1609.34; // Convert to miles
+    return { center: { lat: centerLat, lng: centerLng }, radius };
   };
 
   const handleFindLeads = useCallback(async () => {
     if (!selectedArea) {
-      alert('Please draw a rectangle on the map first.');
+      alert("Please draw a rectangle on the map first.");
       return;
     }
 
     const bounds = selectedArea.getBounds();
     const ne = bounds.getNorthEast();
     const sw = bounds.getSouthWest();
-
     const { center, radius } = calculateCenterAndRadius(sw, ne);
 
     try {
-      const response = await axios.get('https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup', {
-        params: {
-          id: import.meta.env.VITE_MELISSA_DATA_API_KEY,
-          format: "json",
-          recs: "20",
-          opt: "IncludeApartments:off;IncludeUndeliverable:off;IncludeEmptyLots:off",
-          lat: center.lat,
-          lon: center.lng,
-          MaxDistance: radius,
-        },
-      });
+      const response = await axios.get(
+        "https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup",
+        {
+          params: {
+            id: import.meta.env.VITE_MELISSA_DATA_API_KEY,
+            format: "json",
+            recs: "20",
+            opt: "IncludeApartments:off;IncludeUndeliverable:off;IncludeEmptyLots:off",
+            lat: center.lat,
+            lon: center.lng,
+            MaxDistance: radius
+          }
+        }
+      );
 
-      const processedLeads = response.data.Records
-        .filter((record) => {
-          const latLng = new window.google.maps.LatLng(record.Latitude, record.Longitude);
-          return bounds.contains(latLng);
-        })
-        .map((record) => ({
-          name: record.AddressLine1,
-          address: `${record.AddressLine1}, ${record.City}, ${record.State} ${record.PostalCode}`,
-          telephone: record.TelephoneNumber,
-          email: record.EmailAddress,
-          income: record.Income,
-          coordinates: JSON.stringify({ lat: record.Latitude, lng: record.Longitude }),
-          mak: record.MAK,
-          user_id: supabase.auth.user().id,
-        }));
+      const processedLeads = response.data.Records.filter(record => {
+        const latLng = new window.google.maps.LatLng(record.Latitude, record.Longitude);
+        return bounds.contains(latLng);
+      }).map(record => ({
+        name: record.AddressLine1,
+        address: `${record.AddressLine1}, ${record.City}, ${record.State} ${record.PostalCode}`,
+        telephone: record.TelephoneNumber,
+        email: record.EmailAddress,
+        income: record.Income,
+        coordinates: JSON.stringify({ lat: record.Latitude, lng: record.Longitude }),
+        mak: record.MAK,
+        user_id: supabase.auth.user().id
+      }));
 
       setLeads(processedLeads);
       setIsDialogOpen(true);
     } catch (error) {
-      console.error('Error fetching leads:', error);
-      alert('An error occurred while fetching leads. Please try again.');
+      console.error("Error fetching leads:", error);
+      alert("An error occurred while fetching leads. Please try again.");
     }
   }, [selectedArea]);
 
   const handleSaveLeads = async () => {
     try {
-      const { data, error } = await supabase.from('leads').insert(leads);
+      const { data, error } = await supabase.from("leads").insert(leads);
       if (error) throw error;
-      alert('Leads saved successfully!');
+      alert("Leads saved successfully!");
       setIsDialogOpen(false);
     } catch (error) {
-      console.error('Error saving leads:', error);
-      alert('An error occurred while saving leads. Please try again.');
+      console.error("Error saving leads:", error);
+      alert("An error occurred while saving leads. Please try again.");
     }
   };
 
@@ -146,6 +140,7 @@ const FindLeads = () => {
       <h1 className="text-3xl font-bold">Find Leads</h1>
       <Card>
         <CardHeader>
+          
           <CardTitle>Draw Area on Map</CardTitle>
         </CardHeader>
         <CardContent>
@@ -158,7 +153,7 @@ const FindLeads = () => {
             />
           </div>
           <GoogleMap
-            mapContainerStyle={{ width: '100%', height: '400px' }}
+            mapContainerStyle={{ width: "100%", height: "400px" }}
             center={mapCenter}
             zoom={mapZoom}
             onLoad={onMapLoad}
@@ -171,8 +166,8 @@ const FindLeads = () => {
                 drawingControl: true,
                 drawingControlOptions: {
                   position: window.google.maps.ControlPosition.TOP_CENTER,
-                  drawingModes: [window.google.maps.drawing.OverlayType.RECTANGLE],
-                },
+                  drawingModes: [window.google.maps.drawing.OverlayType.RECTANGLE]
+                }
               }}
             />
           </GoogleMap>

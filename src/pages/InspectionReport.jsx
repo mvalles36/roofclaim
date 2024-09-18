@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { supabase } from '../integrations/supabase/supabase';
+import { supabase } from "../integrations/supabase/supabase";
 import { jsPDF } from "jspdf";
-import { Camera, Upload, FileText, Download } from 'lucide-react';
+import { Camera, Upload, FileText, Download } from "lucide-react";
 
 const InspectionReport = () => {
   const [uploadedImages, setUploadedImages] = useState([]);
@@ -16,7 +16,7 @@ const InspectionReport = () => {
     name: '',
     address: '',
     phone: '',
-    email: '',
+    email: ''
   });
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState(null);
@@ -25,7 +25,6 @@ const InspectionReport = () => {
     const files = Array.from(event.target.files);
     const totalFiles = files.length;
     let processedFiles = 0;
-
     setUploadError(null);
 
     for (const file of files) {
@@ -62,8 +61,8 @@ const InspectionReport = () => {
         {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Bearer ${import.meta.env.VITE_ROBOFLOW_API_KEY}`,
-          },
+            'Authorization': `Bearer ${import.meta.env.VITE_ROBOFLOW_API_KEY}`
+          }
         }
       );
       setAnnotatedImages(prev => [...prev, { url: imageUrl, annotations: response.data }]);
@@ -79,6 +78,7 @@ const InspectionReport = () => {
     doc.setFontSize(16);
     doc.text('Inspection Report', 105, yOffset, { align: 'center' });
     yOffset += 20;
+
     doc.setFontSize(12);
     doc.text(`Customer: ${customerInfo.name}`, 20, yOffset);
     yOffset += 10;
@@ -92,7 +92,7 @@ const InspectionReport = () => {
           doc.addPage();
           yOffset = 20;
         }
-        // Add image and annotations logic here
+        // Add image and annotations to PDF
       });
     }
 
@@ -102,7 +102,7 @@ const InspectionReport = () => {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Inspection Report</h1>
-      {/* Add your UI components here */}
+      {/* Add components for image upload, customer info input, and report generation */}
     </div>
   );
 };
