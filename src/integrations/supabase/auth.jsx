@@ -1,8 +1,8 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { supabase } from './supabase.js';
 import { useQueryClient } from '@tanstack/react-query';
-import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { Auth } from '@supabase/auth-ui-react'; // Ensure this package is installed
+import { ThemeSupa } from '@supabase/auth-ui-shared'; // Ensure this package is installed
 import { useNavigate } from 'react-router-dom';
 
 const SupabaseAuthContext = createContext();
@@ -89,6 +89,9 @@ export const SupabaseAuthProvider = ({ children }) => {
 
   const updateProfile = async (updates) => {
     try {
+      if (!session?.user?.id) {
+        throw new Error('No user is currently logged in');
+      }
       const { data, error } = await supabase
         .from('users')
         .update(updates)
