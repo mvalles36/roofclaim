@@ -12,15 +12,12 @@ const ImageAnnotator = ({ image, onSave, labels, onLabelAssign }) => {
     if (image.annotations) {
       setAnnotations(image.annotations);
     }
-  }, [image]);
-
-  useEffect(() => {
     const img = new window.Image();
     img.src = image.url;
     img.onload = () => {
       imageRef.current = img;
     };
-  }, [image.url]);
+  }, [image]);
 
   const handleSave = () => {
     onSave(annotations);
