@@ -1,77 +1,78 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Stage, Layer, Image, Rect, Text } from 'react-konva';
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import React, { useRef, useState } from 'react';
+import { Stage, Layer, Image, Rect } from 'react-konva';
 
-const ImageAnnotator = ({ image, onSave, labels, onLabelAssign }) => {
+const ImageAnnotator = ({ imageUrl, onAnnotationComplete }) => {
   const [annotations, setAnnotations] = useState([]);
-  const [selectedLabel, setSelectedLabel] = useState(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
   const imageRef = useRef(null);
+  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
 
-  useEffect(() => {
-    if (image.annotations) {
-      setAnnotations(image.annotations);
-    }
-    const img = new window.Image();
-    img.src = image.url;
-    img.onload = () => {
-      imageRef.current = img;
-    };
-  }, [image]);
-
-  const handleSave = () => {
-    onSave(annotations);
+  const handleMouseDown = (e) => {
+    setIsDrawing(true);
+    const pos = e.target.getStage().getPointerPosition();
+    setStartPoint(pos);
   };
 
-  const handleLabelAssign = (labelId) => {
-    setSelectedLabel(labelId);
-    onLabelAssign(image.id, labelId);
+  const handleMouseMove = (e) => {
+    if (!isDrawing) return;
+
+    const pos = e.target.getStage().getPointerPosition();
+    setAnnotations([
+      ...annotations,
+      {
+        x: startPoint.x,
+        y: startPoint.y,
+        width: pos.x - startPoint.x,
+        height: pos.y - startPoint.y,
+      },
+    ]);
+  };
+
+  const handleMouseUp = () => {
+    setIsDrawing(false);
+    if (annotations.length > 0) {
+      const lastAnnotation = annotations[annotations.length - 1];
+      onAnnotationComplete(lastAnnotation);
+    }
+  };
+
+  const handleImageLoad = () => {
+    if (imageRef.current) {
+      setImageDimensions({
+        width: imageRef.current.width(),
+        height: imageRef.current.height(),
+      });
+    }
   };
 
   return (
-    <div>
-      <Stage width={800} height={600}>
-        <Layer>
-          {imageRef.current && (
-            <Image
-              image={imageRef.current}
-              width={800}
-              height={600}
-            />
-          )}
-          {annotations.map((ann, i) => (
-            <React.Fragment key={i}>
-              <Rect
-                x={ann.x * 800}
-                y={ann.y * 600}
-                width={ann.width * 800}
-                height={ann.height * 600}
-                stroke="red"
-              />
-              <Text
-                x={ann.x * 800}
-                y={(ann.y * 600) - 20}
-                text={ann.class}
-                fill="red"
-              />
-            </React.Fragment>
-          ))}
-        </Layer>
-      </Stage>
-      <div className="mt-4">
-        <Select onValueChange={handleLabelAssign} value={selectedLabel}>
-          <SelectTrigger>
-            <SelectValue placeholder="Assign a label" />
-          </SelectTrigger>
-          <SelectContent>
-            {labels.map((label) => (
-              <SelectItem key={label.id} value={label.id}>{label.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <Button onClick={handleSave} className="mt-4">Save Annotations</Button>
-    </div>
+    <Stage
+      width={imageDimensions.width}
+      height={imageDimensions.height}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+    >
+      <Layer>
+        <Image
+          ref={imageRef}
+          src={imageUrl}
+          onLoad={handleImageLoad}
+        />
+        {annotations.map((annotation, i) => (
+          <Rect
+            key={i}
+            x={annotation.x}
+            y={annotation.y}
+            width={annotation.width}
+            height={annotation.height}
+            stroke="red"
+            strokeWidth={2}
+          />
+        ))}
+      </Layer>
+    </Stage>
   );
 };
 

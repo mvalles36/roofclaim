@@ -2,37 +2,29 @@ import React from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Card, CardContent } from "@/components/ui/card";
 
-export const TaskKanban = ({ tasks, onTaskUpdated }) => {
+const TaskKanban = ({ tasks, onTaskUpdated }) => {
   const columns = {
-    "To-Do": tasks.filter(task => task.status === "To-Do"),
-    "In Progress": tasks.filter(task => task.status === "In Progress"),
-    "Completed": tasks.filter(task => task.status === "Completed"),
-    "Canceled": tasks.filter(task => task.status === "Canceled")
+    'To-Do': tasks.filter(task => task.status === 'To-Do'),
+    'In Progress': tasks.filter(task => task.status === 'In Progress'),
+    'Completed': tasks.filter(task => task.status === 'Completed'),
   };
 
   const onDragEnd = (result) => {
-    const { destination, source, draggableId } = result;
+    if (!result.destination) return;
 
-    if (!destination) {
-      return;
+    const { source, destination } = result;
+    const task = tasks.find(t => t.id.toString() === result.draggableId);
+
+    if (source.droppableId !== destination.droppableId) {
+      onTaskUpdated(task.id, { status: destination.droppableId });
     }
-
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
-      return;
-    }
-
-    const newStatus = destination.droppableId;
-    onTaskUpdated(draggableId, { status: newStatus });
   };
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="flex space-x-4">
         {Object.entries(columns).map(([columnId, columnTasks]) => (
-          <div key={columnId} className="w-1/4">
+          <div key={columnId} className="flex-1">
             <h3 className="font-semibold mb-2">{columnId}</h3>
             <Droppable droppableId={columnId}>
               {(provided) => (
@@ -53,7 +45,6 @@ export const TaskKanban = ({ tasks, onTaskUpdated }) => {
                           <CardContent className="p-2">
                             <h4 className="font-semibold">{task.title}</h4>
                             <p className="text-sm text-gray-500">Due: {new Date(task.due_date).toLocaleDateString()}</p>
-                            <p className="text-sm">Priority: {task.priority}</p>
                           </CardContent>
                         </Card>
                       )}
@@ -69,3 +60,5 @@ export const TaskKanban = ({ tasks, onTaskUpdated }) => {
     </DragDropContext>
   );
 };
+
+export default TaskKanban;
