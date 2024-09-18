@@ -8,7 +8,7 @@ const fromSupabase = async (query) => {
 };
 
 /*
-### Customer
+### Contacts
 
 | name       | type                     | format | required |
 |------------|--------------------------|--------|----------|
@@ -21,42 +21,42 @@ Note:
 
 */
 
-export const useCustomers = () => useQuery({
-    queryKey: ['customers'],
-    queryFn: () => fromSupabase(supabase.from('Customer').select('*')),
+export const useContacts = () => useQuery({
+    queryKey: ['contacts'],
+    queryFn: () => fromSupabase(supabase.from('Contacts').select('*')),
 });
 
-export const useCustomer = (id) => useQuery({
-    queryKey: ['customers', id],
-    queryFn: () => fromSupabase(supabase.from('Customer').select('*').eq('id', id).single()),
+export const useContacts = (id) => useQuery({
+    queryKey: ['contacts', id],
+    queryFn: () => fromSupabase(supabase.from('Contacts').select('*').eq('id', id).single()),
 });
 
-export const useAddCustomer = () => {
+export const useAddContacts = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (newCustomer) => fromSupabase(supabase.from('Customer').insert([newCustomer])),
+        mutationFn: (newContacts) => fromSupabase(supabase.from('Contacts').insert([newContacts])),
         onSuccess: () => {
-            queryClient.invalidateQueries('customers');
+            queryClient.invalidateQueries('contacts');
         },
     });
 };
 
-export const useUpdateCustomer = () => {
+export const useUpdateContacts = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ id, ...updateData }) => fromSupabase(supabase.from('Customer').update(updateData).eq('id', id)),
+        mutationFn: ({ id, ...updateData }) => fromSupabase(supabase.from('Contacts').update(updateData).eq('id', id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('customers');
+            queryClient.invalidateQueries('contacts');
         },
     });
 };
 
-export const useDeleteCustomer = () => {
+export const useDeleteContacts = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (id) => fromSupabase(supabase.from('Customer').delete().eq('id', id)),
+        mutationFn: (id) => fromSupabase(supabase.from('Contacts').delete().eq('id', id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('customers');
+            queryClient.invalidateQueries('contacts');
         },
     });
 };
