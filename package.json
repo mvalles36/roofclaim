@@ -99,6 +99,8 @@
 
     "react-signature-pad": "^0.0.6",
 
+    "react-konva": '^2.4.0",
+
     "axios": "^1.7.7",
 
     "class-variance-authority": "^0.7.0",
