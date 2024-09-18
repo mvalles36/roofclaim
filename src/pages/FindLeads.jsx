@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "../integrations/supabase/supabase";
-import axios from "axios";
-import { useLoadScript, GoogleMap, DrawingManager, Marker } from "@react-google-maps/api";
+import { useLoadScript, GoogleMap, DrawingManager } from "@react-google-maps/api";
 
 const libraries = ["places", "drawing"];
 
@@ -13,8 +12,8 @@ const FindLeads = () => {
   const [selectedArea, setSelectedArea] = useState(null);
   const [leads, setLeads] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [mapCenter, setMapCenter] = useState({ lat: 32.7555, lng: -97.3308 });
-  const [mapZoom, setMapZoom] = useState(12);
+  const [mapCenter] = useState({ lat: 32.7555, lng: -97.3308 });
+  const [mapZoom] = useState(12);
   const mapRef = useRef(null);
   const drawingManagerRef = useRef(null);
   const searchBoxRef = useRef(null);
@@ -30,14 +29,12 @@ const FindLeads = () => {
   }, []);
 
   const initSearchBox = () => {
-    if (!searchBoxRef.current) return;
+    if (!searchBoxRef.current || !window.google) return;
     const searchBox = new window.google.maps.places.SearchBox(searchBoxRef.current);
     mapRef.current.controls[window.google.maps.ControlPosition.TOP_LEFT].push(searchBoxRef.current);
-
     searchBox.addListener("places_changed", () => {
       const places = searchBox.getPlaces();
       if (places.length === 0) return;
-
       const bounds = new window.google.maps.LatLngBounds();
       places.forEach((place) => {
         if (place.geometry.viewport) {
@@ -67,7 +64,7 @@ const FindLeads = () => {
     const centerLng = (sw.lng() + ne.lng()) / 2;
     const swLatLng = new window.google.maps.LatLng(sw.lat(), sw.lng());
     const centerLatLng = new window.google.maps.LatLng(centerLat, centerLng);
-    const radius = window.google.maps.geometry.spherical.computeDistanceBetween(centerLatLng, swLatLng) / 1609.34; // Convert to miles
+    const radius = window.google.maps.geometry.spherical.computeDistanceBetween(centerLatLng, swLatLng) / 1609.34;
     return { center: { lat: centerLat, lng: centerLng }, radius };
   };
 
@@ -76,32 +73,19 @@ const FindLeads = () => {
       alert("Please draw a rectangle on the map first.");
       return;
     }
-
     const bounds = selectedArea.getBounds();
     const ne = bounds.getNorthEast();
     const sw = bounds.getSouthWest();
     const { center, radius } = calculateCenterAndRadius(sw, ne);
-
     try {
-      const response = await axios.get(
-        "https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup",
-        {
-          params: {
-            id: import.meta.env.VITE_MELISSA_DATA_API_KEY,
-            format: "json",
-            recs: "20",
-            opt: "IncludeApartments:off;IncludeUndeliverable:off;IncludeEmptyLots:off",
-            lat: center.lat,
-            lon: center.lng,
-            MaxDistance: radius
-          }
-        }
+      const response = await fetch(
+        `https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup?id=${import.meta.env.VITE_MELISSA_DATA_API_KEY}&format=json&recs=20&opt=IncludeApartments:off;IncludeUndeliverable:off;IncludeEmptyLots:off&lat=${center.lat}&lon=${center.lng}&MaxDistance=${radius}`
       );
-
-      const processedLeads = response.data.Records.filter(record => {
+      const data = await response.json();
+      const processedLeads = data.Records.filter((record) => {
         const latLng = new window.google.maps.LatLng(record.Latitude, record.Longitude);
         return bounds.contains(latLng);
-      }).map(record => ({
+      }).map((record) => ({
         name: record.AddressLine1,
         address: `${record.AddressLine1}, ${record.City}, ${record.State} ${record.PostalCode}`,
         telephone: record.TelephoneNumber,
@@ -111,7 +95,6 @@ const FindLeads = () => {
         mak: record.MAK,
         user_id: supabase.auth.user().id
       }));
-
       setLeads(processedLeads);
       setIsDialogOpen(true);
     } catch (error) {
@@ -122,7 +105,7 @@ const FindLeads = () => {
 
   const handleSaveLeads = async () => {
     try {
-      const { data, error } = await supabase.from("leads").insert(leads);
+      const { error } = await supabase.from("leads").insert(leads);
       if (error) throw error;
       alert("Leads saved successfully!");
       setIsDialogOpen(false);
