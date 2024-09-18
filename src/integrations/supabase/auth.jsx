@@ -16,13 +16,18 @@ export const SupabaseAuthProvider = ({ children }) => {
 
   useEffect(() => {
     const getSession = async () => {
-      setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      if (session) {
-        await fetchUserRole(session.user.id);
+      try {
+        setLoading(true);
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+        if (session) {
+          await fetchUserRole(session.user.id);
+        }
+      } catch (error) {
+        console.error('Error fetching session:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -43,45 +48,58 @@ export const SupabaseAuthProvider = ({ children }) => {
   }, [queryClient]);
 
   const fetchUserRole = async (userId) => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', userId)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', userId)
+        .single();
 
-    if (error) {
-      console.error('Error fetching user role:', error);
-    } else if (data) {
+      if (error) throw error;
       setUserRole(data.role);
+    } catch (error) {
+      console.error('Error fetching user role:', error);
     }
   };
 
   const login = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    return data;
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
   };
 
   const logout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-    setSession(null);
-    setUserRole(null);
-    queryClient.invalidateQueries('user');
-    navigate('/login');
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setSession(null);
+      setUserRole(null);
+      queryClient.invalidateQueries('user');
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      throw error;
+    }
   };
 
   const updateProfile = async (updates) => {
-    const { data, error } = await supabase
-      .from('users')
-      .update(updates)
-      .eq('id', session.user.id);
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .update(updates)
+        .eq('id', session.user.id);
 
-    if (error) {
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Update profile error:', error);
       throw error;
     }
-
-    return data;
   };
 
   return (
@@ -98,8 +116,14 @@ export const useSupabaseAuth = () => {
 export const SupabaseAuthUI = () => (
   <Auth
     supabaseClient={supabase}
-    appearance={{ theme: ThemeSupa }}
+    appearance={{
+      theme: ThemeSupa,
+      style: {
+        button: { backgroundColor: '#4A5568' },
+        input: { borderColor: '#E2E8F0' },
+      },
+    }}
     theme="default"
-    providers={[]}
+    providers={['google', 'github']}
   />
 );
