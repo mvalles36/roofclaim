@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "../integrations/supabase/supabase";
-import axios from 'axios';
+import axios from "axios";
 import { useLoadScript, GoogleMap, DrawingManager, Marker } from "@react-google-maps/api";
 
 const libraries = ["places", "drawing"];
@@ -140,7 +140,6 @@ const FindLeads = () => {
       <h1 className="text-3xl font-bold">Find Leads</h1>
       <Card>
         <CardHeader>
-          
           <CardTitle>Draw Area on Map</CardTitle>
         </CardHeader>
         <CardContent>
