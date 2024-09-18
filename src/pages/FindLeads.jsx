@@ -12,8 +12,6 @@ const FindLeads = () => {
   const [selectedArea, setSelectedArea] = useState(null);
   const [leads, setLeads] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [mapCenter] = useState({ lat: 32.7555, lng: -97.3308 });
-  const [mapZoom] = useState(12);
   const mapRef = useRef(null);
   const drawingManagerRef = useRef(null);
   const searchBoxRef = useRef(null);
@@ -136,8 +134,8 @@ const FindLeads = () => {
           </div>
           <GoogleMap
             mapContainerStyle={{ width: "100%", height: "400px" }}
-            center={mapCenter}
-            zoom={mapZoom}
+            center={{ lat: 32.7555, lng: -97.3308 }}
+            zoom={12}
             onLoad={onMapLoad}
           >
             <DrawingManager
