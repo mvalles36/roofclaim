@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';  // Make sure Link is imported from react-router-dom
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,9 +28,10 @@ const Login = () => {
     try {
       const { error } = await login(email, password);
       if (error) throw error;
+      // If login is successful, the session will be updated, triggering the useEffect above
     } catch (error) {
       console.error('Login error:', error);
-      setError(error.message);
+      setError(error.message || 'An error occurred during login. Please try again.');
     } finally {
       setLoading(false);
     }
