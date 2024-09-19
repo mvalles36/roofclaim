@@ -10,16 +10,16 @@ import { supabase } from '../integrations/supabase/supabase';
 const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');  // Name field for user
+  const [name, setName] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false); // To handle form loading
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSignUp = async (e) => {
     e.preventDefault();
     setError(null);
-    setLoading(true); // Set loading to true when signing up
+    setLoading(true);
 
     if (!email || !password || !name) {
       setError('Please complete all fields.');
@@ -28,39 +28,25 @@ const SignUp = () => {
     }
 
     try {
-      // Create user in Supabase auth
-      const { user, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+      const { user, error: authError } = await supabase.auth.signUp({ email, password });
 
       if (authError) throw authError;
 
       if (user) {
-        // Insert the new user into the 'users' table
         const { error: dbError } = await supabase
           .from('users')
-          .insert([
-            {
-              id: user.id,         // The UUID from Supabase auth
-              email,               // Email entered by the user
-              name,                // Name entered by the user
-              role: 'sales',       // Default role for new users
-              created_at: new Date(),
-              updated_at: new Date(),
-            }
-          ]);
+          .insert([{ id: user.id, email, name, role: 'sales', created_at: new Date(), updated_at: new Date() }]);
 
         if (dbError) throw dbError;
 
-        setSuccess(true); // Show success alert
-        setTimeout(() => navigate('/dashboard'), 2000); // Redirect to dashboard after 2 seconds
+        setSuccess(true);
+        setTimeout(() => navigate('/dashboard'), 2000);
       }
     } catch (error) {
       console.error('Sign-up error:', error);
       setError(error.message || 'Sign up failed. Please try again.');
     } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false);
     }
   };
 
