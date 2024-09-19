@@ -10,6 +10,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import UserManagement from './pages/UserManagement';
+import ClientPortal from './pages/ClientPortal';
 import { lazy, Suspense } from 'react';
 
 const queryClient = new QueryClient();
@@ -86,6 +87,7 @@ const AppContent = () => {
             <Route path="/inspection-report" element={<ProtectedRoute><InspectionReport /></ProtectedRoute>} />
             <Route path="/document-editor" element={<ProtectedRoute><DocumentEditor /></ProtectedRoute>} />
             <Route path="/user-management" element={<ProtectedRoute allowedRoles={['admin']}><UserManagement /></ProtectedRoute>} />
+            <Route path="/client-portal/:contactId" element={<ClientPortal />} />
             <Route path="*" element={<Navigate to={session ? "/" : "/login"} replace />} />
           </Routes>
         </Suspense>

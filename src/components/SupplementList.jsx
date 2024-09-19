@@ -3,17 +3,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from '../integrations/supabase/supabase';
 
-export const SupplementList = () => {
+export const SupplementList = ({ contactId }) => {
   const [supplements, setSupplements] = useState([]);
 
   useEffect(() => {
     fetchSupplements();
-  }, []);
+  }, [contactId]);
 
   const fetchSupplements = async () => {
     const { data, error } = await supabase
       .from('supplements')
       .select('*')
+      .eq('contact_id', contactId)
       .order('created_at', { ascending: false });
 
     if (error) {

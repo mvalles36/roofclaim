@@ -2,141 +2,96 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from '../integrations/supabase/supabase';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const Jobs = () => {
   const [jobs, setJobs] = useState([]);
-  const [customers, setCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [newJob, setNewJob] = useState({
-    customer_id: '',
-    job_type: '',
-    roof_type: '',
-    job_status: 'Pending',
-    job_cost_estimate: '',
-    start_date: '',
-    assigned_crew: '',
-    job_notes: ''
-  });
-  const { userRole } = useSupabaseAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchJobs();
-    fetchCustomers();
   }, []);
 
   const fetchJobs = async () => {
-    const { data, error } = await supabase
-      .from('jobs')
-      .select('*, customers(full_name)')
-      .order('start_date', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('*, contacts(id, full_name, email)')
+        .order('created_at', { ascending: false });
 
-    if (error) {
+      if (error) throw error;
+      setJobs(data);
+    } catch (error) {
       console.error('Error fetching jobs:', error);
       toast.error('Failed to fetch jobs');
-    } else {
-      setJobs(data);
     }
   };
 
-  const fetchCustomers = async () => {
-    const { data, error } = await supabase
-      .from('customers')
-      .select('id, full_name');
+  const createClientPortal = async (job) => {
+    try {
+      // Check if client portal already exists
+      const { data: existingPortal, error: portalError } = await supabase
+        .from('client_portals')
+        .select('id')
+        .eq('contact_id', job.contacts.id)
+        .single();
 
-    if (error) {
-      console.error('Error fetching customers:', error);
-      toast.error('Failed to fetch customers');
-    } else {
-      setCustomers(data);
-    }
-  };
+      if (portalError && portalError.code !== 'PGRST116') throw portalError;
 
-  const handleCreateJob = async () => {
-    const { data, error } = await supabase
-      .from('jobs')
-      .insert([newJob]);
+      if (!existingPortal) {
+        // Create new client portal
+        const { data: newPortal, error: createError } = await supabase
+          .from('client_portals')
+          .insert({ contact_id: job.contacts.id, job_id: job.id })
+          .single();
 
-    if (error) {
-      console.error('Error creating job:', error);
-      toast.error('Failed to create job');
-    } else {
-      toast.success('Job created successfully');
-      fetchJobs();
-      setNewJob({
-        customer_id: '',
-        job_type: '',
-        roof_type: '',
-        job_status: 'Pending',
-        job_cost_estimate: '',
-        start_date: '',
-        assigned_crew: '',
-        job_notes: ''
-      });
-    }
-  };
+        if (createError) throw createError;
 
-  const handleUpdateJobStatus = async (jobId, newStatus) => {
-    const { error } = await supabase
-      .from('jobs')
-      .update({ job_status: newStatus })
-      .eq('id', jobId);
+        // Generate temporary password
+        const tempPassword = Math.random().toString(36).slice(-8);
 
-    if (error) {
-      console.error('Error updating job status:', error);
-      toast.error('Failed to update job status');
-    } else {
-      fetchJobs();
-      toast.success('Job status updated successfully');
-      if (newStatus === 'Completed') {
-        await createInvoice(jobId);
+        // Create Supabase auth user
+        const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+          email: job.contacts.email,
+          password: tempPassword,
+          email_confirm: true,
+        });
+
+        if (authError) throw authError;
+
+        // Send email with login information
+        await sendClientPortalEmail(job.contacts.email, tempPassword);
+
+        toast.success('Client portal created and email sent');
+      } else {
+        toast.info('Client portal already exists for this contact');
       }
+
+      // Navigate to the client portal
+      navigate(`/client-portal/${job.contacts.id}`);
+    } catch (error) {
+      console.error('Error creating client portal:', error);
+      toast.error('Failed to create client portal');
     }
   };
 
-  const createInvoice = async (jobId) => {
-    const { data: job, error: jobError } = await supabase
-      .from('jobs')
-      .select('*')
-      .eq('id', jobId)
-      .single();
-
-    if (jobError) {
-      console.error('Error fetching job details:', jobError);
-      toast.error('Failed to create invoice');
-      return;
-    }
-
-    const { error: invoiceError } = await supabase
-      .from('invoices')
-      .insert([{
-        customer_id: job.customer_id,
-        job_id: job.id,
-        amount_due: job.job_cost_estimate,
-        payment_status: 'Unpaid',
-        invoice_date: new Date().toISOString(),
-        payment_due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // Due in 30 days
-      }]);
-
-    if (invoiceError) {
-      console.error('Error creating invoice:', invoiceError);
-      toast.error('Failed to create invoice');
-    } else {
-      toast.success('Invoice created successfully');
-    }
+  const sendClientPortalEmail = async (email, password) => {
+    // Implement email sending logic here
+    console.log(`Sending email to ${email} with password: ${password}`);
+    // In a real implementation, you would use a service like SendGrid or AWS SES
   };
 
   const filteredJobs = jobs.filter(job =>
-    job.customers.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    job.contacts.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     job.job_type.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <h1 className="text-3xl font-bold">Jobs</h1>
       <Input
         placeholder="Search jobs..."
@@ -144,112 +99,37 @@ const Jobs = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
         className="mb-4"
       />
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button>Create New Job</Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Job</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Select onValueChange={(value) => setNewJob({ ...newJob, customer_id: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a customer" />
-              </SelectTrigger>
-              <SelectContent>
-                {customers.map((customer) => (
-                  <SelectItem key={customer.id} value={customer.id}>{customer.full_name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Input
-              placeholder="Job Type"
-              value={newJob.job_type}
-              onChange={(e) => setNewJob({ ...newJob, job_type: e.target.value })}
-            />
-            <Input
-              placeholder="Roof Type"
-              value={newJob.roof_type}
-              onChange={(e) => setNewJob({ ...newJob, roof_type: e.target.value })}
-            />
-            <Input
-              placeholder="Job Cost Estimate"
-              type="number"
-              value={newJob.job_cost_estimate}
-              onChange={(e) => setNewJob({ ...newJob, job_cost_estimate: e.target.value })}
-            />
-            <Input
-              placeholder="Start Date"
-              type="date"
-              value={newJob.start_date}
-              onChange={(e) => setNewJob({ ...newJob, start_date: e.target.value })}
-            />
-            <Input
-              placeholder="Assigned Crew"
-              value={newJob.assigned_crew}
-              onChange={(e) => setNewJob({ ...newJob, assigned_crew: e.target.value })}
-            />
-            <Input
-              placeholder="Job Notes"
-              value={newJob.job_notes}
-              onChange={(e) => setNewJob({ ...newJob, job_notes: e.target.value })}
-            />
-            <Button onClick={handleCreateJob}>Create Job</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
       <Card>
         <CardHeader>
           <CardTitle>Job List</CardTitle>
         </CardHeader>
         <CardContent>
-          <ul className="space-y-2">
-            {filteredJobs.map((job) => (
-              <li key={job.id} className="flex justify-between items-center">
-                <div>
-                  <p className="font-semibold">{job.customers.full_name}</p>
-                  <p>Job Type: {job.job_type}</p>
-                  <p>Status: {job.job_status}</p>
-                </div>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button>View Details</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Job Details</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-2">
-                      <p><strong>Customer:</strong> {job.customers.full_name}</p>
-                      <p><strong>Job Type:</strong> {job.job_type}</p>
-                      <p><strong>Roof Type:</strong> {job.roof_type}</p>
-                      <p><strong>Status:</strong> {job.job_status}</p>
-                      <p><strong>Estimate:</strong> ${job.job_cost_estimate}</p>
-                      <p><strong>Actual Cost:</strong> ${job.actual_job_cost}</p>
-                      <p><strong>Start Date:</strong> {new Date(job.start_date).toLocaleDateString()}</p>
-                      <p><strong>End Date:</strong> {job.end_date ? new Date(job.end_date).toLocaleDateString() : 'Not completed'}</p>
-                      <p><strong>Assigned Crew:</strong> {job.assigned_crew}</p>
-                      <p><strong>Notes:</strong> {job.job_notes}</p>
-                      <Select
-                        value={job.job_status}
-                        onValueChange={(value) => handleUpdateJobStatus(job.id, value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Update status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Pending">Pending</SelectItem>
-                          <SelectItem value="In Progress">In Progress</SelectItem>
-                          <SelectItem value="Completed">Completed</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </li>
-            ))}
-          </ul>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Client Name</TableHead>
+                <TableHead>Job Type</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Start Date</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredJobs.map((job) => (
+                <TableRow key={job.id}>
+                  <TableCell>{job.contacts.full_name}</TableCell>
+                  <TableCell>{job.job_type}</TableCell>
+                  <TableCell>{job.status}</TableCell>
+                  <TableCell>{new Date(job.start_date).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    <Button onClick={() => createClientPortal(job)}>
+                      Create/View Client Portal
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>
