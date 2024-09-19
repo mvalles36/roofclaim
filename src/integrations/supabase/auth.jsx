@@ -5,8 +5,10 @@ import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { useNavigate } from 'react-router-dom';
 
+// Create a context for Supabase authentication
 const SupabaseAuthContext = createContext();
 
+// Provider component that wraps your app and provides authentication state
 export const SupabaseAuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [userRole, setUserRole] = useState(null);
@@ -15,6 +17,7 @@ export const SupabaseAuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Function to get the current session
     const getSession = async () => {
       try {
         setLoading(true);
@@ -30,6 +33,7 @@ export const SupabaseAuthProvider = ({ children }) => {
       }
     };
 
+    // Listener for authentication state changes
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       if (session) {
@@ -42,11 +46,13 @@ export const SupabaseAuthProvider = ({ children }) => {
 
     getSession();
 
+    // Cleanup listener on component unmount
     return () => {
       authListener.subscription.unsubscribe();
     };
   }, [queryClient]);
 
+  // Function to fetch the user's role from the database
   const fetchUserRole = async (userId) => {
     try {
       const { data, error } = await supabase
@@ -62,6 +68,7 @@ export const SupabaseAuthProvider = ({ children }) => {
     }
   };
 
+  // Function to handle user login
   const login = async (email, password) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -73,6 +80,7 @@ export const SupabaseAuthProvider = ({ children }) => {
     }
   };
 
+  // Function to handle user logout
   const logout = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -87,6 +95,7 @@ export const SupabaseAuthProvider = ({ children }) => {
     }
   };
 
+  // Function to update user profile
   const updateProfile = async (updates) => {
     try {
       const { data, error } = await supabase
@@ -109,10 +118,12 @@ export const SupabaseAuthProvider = ({ children }) => {
   );
 };
 
+// Custom hook to use Supabase authentication context
 export const useSupabaseAuth = () => {
   return useContext(SupabaseAuthContext);
 };
 
+// Component to render Supabase Auth UI
 export const SupabaseAuthUI = () => (
   <Auth
     supabaseClient={supabase}
