@@ -28,7 +28,7 @@ const SmartSupplement = lazy(() => import('./pages/SmartSupplement'));
 const DamageDetection = lazy(() => import('./pages/DamageDetection'));
 const DocumentHub = lazy(() => import('./pages/DocumentHub'));
 const InspectionReport = lazy(() => import('./pages/InspectionReport'));
-const DocumentEditor = lazy(() => import('./pages/DocumentEditor'));
+const DocumentEditor = lazy(() => import('./pages/components/DocumentEditor'));
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { session, userRole } = useSupabaseAuth();
