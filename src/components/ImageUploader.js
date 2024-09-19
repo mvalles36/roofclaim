@@ -1,33 +1,61 @@
+import React from 'react';
+import { useDropzone } from 'react-dropzone';
 import { supabase } from '../integrations/supabase/supabase';
+import axios from 'axios';
 
-const ImageUploader = {
-  upload: async (file) => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random()}.${fileExt}`;
-    const filePath = `drone-images/${fileName}`;
+const ImageUploader = ({ onUpload }) => {
+  const onDrop = async (acceptedFiles) => {
+    try {
+      for (const file of acceptedFiles) {
+        const { data, error } = await supabase.storage
+          .from('inspection-images')
+          .upload(`${Date.now()}-${file.name}`, file);
 
-    const { error: uploadError } = await supabase.storage
-      .from('images')
-      .upload(filePath, file);
+        if (error) throw error;
 
-    if (uploadError) {
-      return { error: uploadError };
+        const { data: { publicUrl } } = supabase.storage
+          .from('inspection-images')
+          .getPublicUrl(data.path);
+
+        await processImageWithRoboflow(publicUrl);
+      }
+      onUpload();
+    } catch (error) {
+      console.error('Error uploading image:', error);
     }
+  };
 
-    const { data: { publicUrl } } = supabase.storage
-      .from('images')
-      .getPublicUrl(filePath);
-
-    const { error: dbError } = await supabase
-      .from('drone_images')
-      .insert({ url: publicUrl });
-
-    if (dbError) {
-      return { error: dbError };
+  const processImageWithRoboflow = async (imageUrl) => {
+    try {
+      const response = await axios.post(
+        'https://detect.roboflow.com/roof-damage-b3lgl/3',
+        imageUrl,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Bearer ${import.meta.env.VITE_ROBOFLOW_API_KEY}`
+          }
+        }
+      );
+      // You should handle the response and update your state accordingly
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error processing image with Roboflow:', error);
     }
+  };
 
-    return { data: publicUrl };
-  }
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+
+  return (
+    <div {...getRootProps()} className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer">
+      <input {...getInputProps()} />
+      {isDragActive ? (
+        <p>Drop the files here ...</p>
+      ) : (
+        <p>Drag 'n' drop some files here, or click to select files</p>
+      )}
+    </div>
+  );
 };
 
 export default ImageUploader;
