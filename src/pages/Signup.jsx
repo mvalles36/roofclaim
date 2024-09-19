@@ -34,7 +34,7 @@ const SignUp = () => {
         options: {
           data: {
             name,
-            role: 'customer' // Default role for new signups
+            role: 'sales' // Default role for new signups
           }
         }
       });
@@ -48,7 +48,7 @@ const SignUp = () => {
             id: user.id, 
             email, 
             name, 
-            role: 'customer', // Explicitly set the default role in the database
+            role: 'sales', // Explicitly set the default role in the database
             created_at: new Date(), 
             updated_at: new Date() 
           }]);
