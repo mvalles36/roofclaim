@@ -16,7 +16,9 @@ const DocumentHub = () => {
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [contacts, setContacts] = useState([]);
+  const [jobs, setJobs] = useState([]);
   const [selectedContact, setSelectedContact] = useState(null);
+  const [selectedJob, setSelectedJob] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [editorContent, setEditorContent] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -26,6 +28,7 @@ const DocumentHub = () => {
   useEffect(() => {
     fetchTemplates();
     fetchContacts();
+    fetchJobs();
     fetchLabeledImages();
   }, []);
 
@@ -39,11 +42,20 @@ const DocumentHub = () => {
   };
 
   const fetchContacts = async () => {
-    const { data, error } = await supabase.from("contacts").select("id, full_name");
+    const { data, error } = await supabase.from("contacts").select("*");
     if (error) {
       console.error("Error fetching contacts:", error);
     } else {
       setContacts(data);
+    }
+  };
+
+  const fetchJobs = async () => {
+    const { data, error } = await supabase.from("jobs").select("*");
+    if (error) {
+      console.error("Error fetching jobs:", error);
+    } else {
+      setJobs(data);
     }
   };
 
@@ -71,9 +83,29 @@ const DocumentHub = () => {
     if (selectedTemplate && contactId) {
       const contact = contacts.find((c) => c.id === contactId);
       let updatedContent = editorContent;
-      Object.keys(contact).forEach((key) => {
-        updatedContent = updatedContent.replace(new RegExp(`{{${key}}}`, "g"), contact[key]);
-      });
+      if (contact) {
+        Object.keys(contact).forEach((key) => {
+          if (contact[key]) {
+            updatedContent = updatedContent.replace(new RegExp(`{{contact_${key}}}`, "g"), contact[key]);
+          }
+        });
+      }
+      setEditorContent(updatedContent);
+    }
+  };
+
+  const handleJobSelection = (jobId) => {
+    setSelectedJob(jobId);
+    if (selectedTemplate && jobId) {
+      const job = jobs.find((j) => j.id === jobId);
+      let updatedContent = editorContent;
+      if (job) {
+        Object.keys(job).forEach((key) => {
+          if (job[key]) {
+            updatedContent = updatedContent.replace(new RegExp(`{{job_${key}}}`, "g"), job[key]);
+          }
+        });
+      }
       setEditorContent(updatedContent);
     }
   };
@@ -140,8 +172,11 @@ const DocumentHub = () => {
           <DocumentEditor
             selectedTemplate={selectedTemplate}
             contacts={contacts}
+            jobs={jobs}
             selectedContact={selectedContact}
+            selectedJob={selectedJob}
             handleContactSelection={handleContactSelection}
+            handleJobSelection={handleJobSelection}
             handleGenerateDocument={handleGenerateDocument}
             editorContent={editorContent}
             setEditorContent={setEditorContent}
