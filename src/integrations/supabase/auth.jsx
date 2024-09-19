@@ -1,7 +1,7 @@
-import { useState, useEffect, createContext, useContext } from 'react';
-import { supabase } from './supabase.js';
+import React, { useState, useEffect, createContext, useContext } from 'react';
+import { supabase } from './supabase'; // Adjust path if needed
 import { useQueryClient } from '@tanstack/react-query';
-import { Auth } from "@supabase/auth-ui-react";
+import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { useNavigate } from 'react-router-dom';
 
@@ -37,7 +37,7 @@ export const SupabaseAuthProvider = ({ children }) => {
       } else {
         setUserRole(null);
       }
-      queryClient.invalidateQueries('user');
+      queryClient.invalidateQueries(['user']);
     });
 
     getSession();
@@ -79,7 +79,7 @@ export const SupabaseAuthProvider = ({ children }) => {
       if (error) throw error;
       setSession(null);
       setUserRole(null);
-      queryClient.invalidateQueries('user');
+      queryClient.invalidateQueries(['user']);
       navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);
@@ -92,7 +92,7 @@ export const SupabaseAuthProvider = ({ children }) => {
       const { data, error } = await supabase
         .from('users')
         .update(updates)
-        .eq('id', session.user.id);
+        .eq('id', session?.user?.id); // Handle possible null session
 
       if (error) throw error;
       return data;
