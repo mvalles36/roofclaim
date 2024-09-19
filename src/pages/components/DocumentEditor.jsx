@@ -19,7 +19,7 @@ const DocumentEditor = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Document Editor</CardTitle>
+        <CardTitle>DocuEditor</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex space-x-4 mb-4">
