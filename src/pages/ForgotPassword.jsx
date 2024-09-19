@@ -10,9 +10,14 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // Basic email validation function
+  const isValidEmail = (email) => /\S+@\S+\.\S+/.test(email);
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setMessage(null);
     setError(null);
     try {
@@ -23,6 +28,8 @@ const ForgotPassword = () => {
       setMessage('Password reset email sent. Check your inbox.');
     } catch (error) {
       setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,13 +40,13 @@ const ForgotPassword = () => {
       </CardHeader>
       <CardContent>
         {message && (
-          <Alert className="mb-4">
+          <Alert className="mb-4" aria-live="polite">
             <AlertTitle>Success</AlertTitle>
             <AlertDescription>{message}</AlertDescription>
           </Alert>
         )}
         {error && (
-          <Alert variant="destructive" className="mb-4">
+          <Alert variant="destructive" className="mb-4" aria-live="polite">
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
@@ -56,7 +63,9 @@ const ForgotPassword = () => {
               className="w-full"
             />
           </div>
-          <Button type="submit" className="w-full">Reset Password</Button>
+          <Button type="submit" className="w-full" disabled={loading || !isValidEmail(email)}>
+            {loading ? 'Sending...' : 'Reset Password'}
+          </Button>
         </form>
       </CardContent>
     </Card>
