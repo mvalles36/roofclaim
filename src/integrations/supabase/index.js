@@ -1,8 +1,8 @@
 import { supabase } from './supabase.js';
-import { SupabaseAuthProvider, useSupabaseAuth, SupabaseAuthUI } from './auth.jsx';
+import { SupabaseAuthProvider, useSupabaseAuth, SupabaseAuthUI } from './auth.js'; // Ensure the extension matches
 import {
-  useContacts,
-  useContacts,
+  useContacts as useAllContacts, // Renamed to avoid conflicts
+  useContactsById,
   useAddContacts,
   useUpdateContacts,
   useDeleteContacts
@@ -13,8 +13,8 @@ export {
   SupabaseAuthProvider,
   useSupabaseAuth,
   SupabaseAuthUI,
-  useContacts,
-  useContacts,
+  useAllContacts, // Renamed to avoid conflicts
+  useContactsById,
   useAddContacts,
   useUpdateContacts,
   useDeleteContacts
