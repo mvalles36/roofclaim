@@ -2,13 +2,15 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'url';
 
-// Define Vite configuration
 export default defineConfig({
   server: {
     host: 'localhost',
     port: 8080,
-    // Optionally enable HMR (Hot Module Replacement) for better development experience
-    hmr: true,
+    hmr: {
+      // Enable HMR
+      clientPort: 3000, // Specify the port for HMR client (if different from server port)
+      overlay: true,    // Show error overlay in the browser
+    },
   },
   plugins: [react()],
   resolve: {
@@ -19,7 +21,6 @@ export default defineConfig({
       },
     ],
   },
-  // Enable source maps for better debugging
   build: {
     sourcemap: true,
   },
