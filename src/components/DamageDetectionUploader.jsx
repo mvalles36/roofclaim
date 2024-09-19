@@ -1,35 +1,69 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 
 const DamageDetectionUploader = ({ onUpload, uploadProgress, uploadError }) => {
+  const [progresses, setProgresses] = useState({});
+
+  // Handle file drop
   const onDrop = useCallback((acceptedFiles) => {
-    // Handle the uploaded files
-    onUpload(acceptedFiles);
+    if (typeof onUpload === 'function') {
+      onUpload(acceptedFiles, handleFileProgress);
+    }
   }, [onUpload]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, noClick: true });
+  // Update progress for a file
+  const handleFileProgress = (fileName, progress) => {
+    setProgresses((prev) => ({
+      ...prev,
+      [fileName]: progress,
+    }));
+  };
+
+  // Configure the dropzone options
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    noClick: true,
+    accept: 'image/*',
+    multiple: true,
+  });
 
   return (
     <Card>
       <CardContent>
-        <div {...getRootProps()} className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer">
+        <div
+          {...getRootProps()}
+          className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer"
+          aria-label="Drag and drop files here, or click to select files"
+          role="button"
+        >
           <input {...getInputProps()} />
           {isDragActive ? (
-            <p>Drop the folder here ...</p>
+            <p>Drop the files here...</p>
           ) : (
-            <p>Drag 'n' drop a folder here, or click to select files</p>
+            <p>Drag 'n' drop files here, or click to select files</p>
           )}
         </div>
-        {uploadProgress > 0 && (
-          <Progress value={uploadProgress} className="mt-4" />
-        )}
+        <div className="mt-4">
+          {Object.keys(progresses).length > 0 && (
+            Object.entries(progresses).map(([fileName, progress]) => (
+              <div key={fileName} className="mb-2">
+                <p className="text-sm font-medium">{fileName}</p>
+                <Progress value={progress} className="mt-1" />
+              </div>
+            ))
+          )}
+        </div>
         {uploadError && (
           <p className="text-red-500 mt-2">{uploadError}</p>
         )}
-        <Button className="mt-4" onClick={() => document.querySelector('input').click()}>
+        <Button
+          className="mt-4"
+          onClick={() => document.querySelector('input[type="file"]').click()}
+          aria-label="Select files"
+        >
           Select Files
         </Button>
       </CardContent>
