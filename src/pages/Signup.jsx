@@ -5,12 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from '../integrations/supabase/supabase';
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [role, setRole] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -21,21 +23,36 @@ const SignUp = () => {
     setError(null);
     setLoading(true);
 
-    if (!email || !password || !name) {
+    if (!email || !password || !name || !role) {
       setError('Please complete all fields.');
       setLoading(false);
       return;
     }
 
+    if (!['customer', 'employee', 'admin'].includes(role)) {
+      setError('Invalid role selected.');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const { user, error: authError } = await supabase.auth.signUp({ email, password });
+      const { data: { user }, error: authError } = await supabase.auth.signUp({ 
+        email, 
+        password,
+        options: {
+          data: {
+            name,
+            role
+          }
+        }
+      });
 
       if (authError) throw authError;
 
       if (user) {
         const { error: dbError } = await supabase
           .from('users')
-          .insert([{ id: user.id, email, name, role: 'sales', created_at: new Date(), updated_at: new Date() }]);
+          .insert([{ id: user.id, email, name, role, created_at: new Date(), updated_at: new Date() }]);
 
         if (dbError) throw dbError;
 
@@ -110,6 +127,19 @@ const SignUp = () => {
               disabled={loading}
               className="w-full"
             />
+          </div>
+          <div>
+            <Label htmlFor="role">Role</Label>
+            <Select onValueChange={setRole} disabled={loading}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="customer">Customer</SelectItem>
+                <SelectItem value="employee">Employee</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Signing up...' : 'Sign Up'}
