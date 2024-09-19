@@ -10,9 +10,11 @@
 
   "scripts": {
 
-    "dev": "vite",
+    "start": "vite",
 
-    "build": "vite build",
+    "build:dev": "vite build --mode development",
+
+    "test": "vtest",
 
     "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
 
