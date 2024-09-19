@@ -1,8 +1,10 @@
-import React from 'react';
+// DocumentEditor.jsx
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import axios from 'axios';
 
 const DocumentEditor = ({
   selectedTemplate,
@@ -16,6 +18,47 @@ const DocumentEditor = ({
   setIsEditing,
   handleSaveTemplate
 }) => {
+
+  // Handler for document generation
+  const handleGenerateDocument = async () => {
+    try {
+      const response = await axios.post('/api/generate-document', {
+        templateId: selectedTemplate.id,
+        contactId: selectedContact
+      });
+      setEditorContent(response.data.content);
+    } catch (error) {
+      console.error('Error generating document:', error);
+    }
+  };
+
+  // Handler for saving the document
+  const handleSaveTemplate = async () => {
+    try {
+      await axios.post('/api/save-document', {
+        content: editorContent,
+        contactId: selectedContact,
+        templateId: selectedTemplate.id
+      });
+      alert('Document saved successfully');
+    } catch (error) {
+      console.error('Error saving document:', error);
+    }
+  };
+
+  // Handler for emailing the document
+  const handleEmailDocument = async () => {
+    try {
+      await axios.post('/api/email-document', {
+        content: editorContent,
+        contactId: selectedContact
+      });
+      alert('Document sent via email');
+    } catch (error) {
+      console.error('Error emailing document:', error);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -61,6 +104,9 @@ const DocumentEditor = ({
             )}
           </div>
         )}
+        <Button onClick={handleEmailDocument} disabled={!editorContent}>
+          Email Document
+        </Button>
       </CardContent>
     </Card>
   );
