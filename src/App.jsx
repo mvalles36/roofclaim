@@ -34,11 +34,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   const { session, userRole } = useSupabaseAuth();
 
   if (!session) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(userRole)) {
-    return <Navigate to="/" />;
+    return <Navigate to="/" replace />;
   }
 
   return children;
