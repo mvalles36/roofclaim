@@ -44,7 +44,14 @@ const SignUp = () => {
       if (user) {
         const { error: dbError } = await supabase
           .from('users')
-          .insert([{ id: user.id, email, name, role: 'customer', created_at: new Date(), updated_at: new Date() }]);
+          .insert([{ 
+            id: user.id, 
+            email, 
+            name, 
+            role: 'customer', // Explicitly set the default role in the database
+            created_at: new Date(), 
+            updated_at: new Date() 
+          }]);
 
         if (dbError) throw dbError;
 
