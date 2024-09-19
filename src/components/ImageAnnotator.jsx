@@ -1,78 +1,45 @@
-import React, { useRef, useState } from 'react';
-import { Stage, Layer, Image, Rect } from 'react-konva';
+import React from 'react';
 
-const ImageAnnotator = ({ imageUrl, onAnnotationComplete }) => {
-  const [annotations, setAnnotations] = useState([]);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
-  const imageRef = useRef(null);
-  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
-
-  const handleMouseDown = (e) => {
-    setIsDrawing(true);
-    const pos = e.target.getStage().getPointerPosition();
-    setStartPoint(pos);
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDrawing) return;
-
-    const pos = e.target.getStage().getPointerPosition();
-    setAnnotations([
-      ...annotations,
-      {
-        x: startPoint.x,
-        y: startPoint.y,
-        width: pos.x - startPoint.x,
-        height: pos.y - startPoint.y,
-      },
-    ]);
-  };
-
-  const handleMouseUp = () => {
-    setIsDrawing(false);
-    if (annotations.length > 0) {
-      const lastAnnotation = annotations[annotations.length - 1];
-      onAnnotationComplete(lastAnnotation);
-    }
-  };
-
-  const handleImageLoad = () => {
-    if (imageRef.current) {
-      setImageDimensions({
-        width: imageRef.current.width(),
-        height: imageRef.current.height(),
-      });
-    }
+const ImageAnnotator = ({ image, annotations, onSave, labels, onLabelAssign }) => {
+  const handleLabelAssign = (labelId) => {
+    onLabelAssign(image.id, labelId);
   };
 
   return (
-    <Stage
-      width={imageDimensions.width}
-      height={imageDimensions.height}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-    >
-      <Layer>
-        <Image
-          ref={imageRef}
-          src={imageUrl}
-          onLoad={handleImageLoad}
-        />
-        {annotations.map((annotation, i) => (
-          <Rect
-            key={i}
-            x={annotation.x}
-            y={annotation.y}
-            width={annotation.width}
-            height={annotation.height}
-            stroke="red"
-            strokeWidth={2}
-          />
+    <div className="relative">
+      <img src={image.url} alt="Annotated Damage" className="w-full h-auto" />
+      {annotations.map((annotation, index) => (
+        <div
+          key={index}
+          style={{
+            position: 'absolute',
+            top: annotation.y,
+            left: annotation.x,
+            width: annotation.width,
+            height: annotation.height,
+            border: '2px solid red',
+            borderRadius: '2px',
+          }}
+          className="bg-red-500 opacity-50"
+        >
+          <span className="absolute text-white text-xs">{annotation.class}</span>
+        </div>
+      ))}
+      <div className="absolute bottom-0 left-0 flex space-x-2 p-2">
+        {labels.map((label) => (
+          <button
+            key={label.id}
+            onClick={() => handleLabelAssign(label.id)}
+            className="p-2 bg-blue-500 text-white rounded"
+          >
+            {label.name}
+          </button>
         ))}
-      </Layer>
-    </Stage>
+      </div>
+      <button onClick={() => onSave(annotations)} className="absolute top-0 right-0 m-2 p-2 bg-green-500 text-white rounded">
+        Save Annotations
+      </button>
+    </div>
   );
 };
 
