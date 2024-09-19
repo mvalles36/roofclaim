@@ -1,21 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { supabase } from "../integrations/supabase/supabase";
 import axios from 'axios';
-import { DocumentAI } from "@google-cloud/documentai";
 
-const PolicyComparison = () => {
+// Make sure to have proper initialization and API setup for DocumentAI
+// import { DocumentAI } from "@google-cloud/documentai";
+
+const SmartSupplement = () => {
   const [policyDetails, setPolicyDetails] = useState('');
   const [damageReport, setDamageReport] = useState('');
   const [comparisonResult, setComparisonResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [policyFile, setPolicyFile] = useState(null);
   const [damageReportFile, setDamageReportFile] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleFileUpload = (event, setFileFunction) => {
     const file = event.target.files[0];
@@ -23,23 +25,31 @@ const PolicyComparison = () => {
   };
 
   const extractTextFromDocument = async (file) => {
-    const projectId = 'your-project-id';
-    const location = 'your-location';
-    const documentAI = new DocumentAI({ projectId, location });
+    // DocumentAI setup (for Google Cloud Document AI)
+    // const projectId = 'your-project-id';
+    // const location = 'your-location';
+    // const documentAI = new DocumentAI({ projectId, location });
 
-    const [response] = await documentAI.processDocument({
-      rawDocument: {
-        content: file.arrayBuffer
-      }
-    });
-
-    const extractedText = response.document.text;
-    const extractedEntities = [];
-    return { extractedText, extractedEntities };
+    try {
+      // Convert file to ArrayBuffer
+      const fileContent = await file.arrayBuffer();
+      // Uncomment the following lines once DocumentAI setup is complete
+      // const [response] = await documentAI.processDocument({
+      //   rawDocument: { content: fileContent }
+      // });
+      // return { extractedText: response.document.text, extractedEntities: [] };
+      
+      // For now, mock implementation
+      return { extractedText: 'Mocked extracted text from document', extractedEntities: [] };
+    } catch (error) {
+      console.error('Error extracting text:', error);
+      throw new Error('Failed to extract text from document.');
+    }
   };
 
   const handleComparison = async () => {
     setIsLoading(true);
+    setErrorMessage('');
     try {
       let policyData, damageData;
 
@@ -57,10 +67,10 @@ const PolicyComparison = () => {
         damageData = { text: damageReport };
       }
 
-      const identifiedCoverageGaps = [];
-      const supplementRecommendations = [];
+      const identifiedCoverageGaps = []; // Define how to extract these if needed
+      const supplementRecommendations = []; // Define how to extract these if needed
 
-      const response = await axios.post('/api/compare-policy', {
+      const response = await axios.post('/api/smart-supplement', {
         policyData,
         damageData,
         identifiedCoverageGaps,
@@ -70,14 +80,14 @@ const PolicyComparison = () => {
       setComparisonResult(response.data);
     } catch (error) {
       console.error('Error comparing policy:', error);
-      alert('An error occurred while comparing the policy.');
+      setErrorMessage('An error occurred while comparing the policy.');
     }
     setIsLoading(false);
   };
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Policy Comparison</h1>
+      <h1 className="text-3xl font-bold">SmartSupplement</h1>
       <Card>
         <CardHeader>
           <CardTitle>Input Details</CardTitle>
@@ -102,7 +112,7 @@ const PolicyComparison = () => {
             />
           </div>
           <div>
-            <Label htmlFor="damageReportFile">Upload Damage Report</Label>
+            <Label htmlFor="damageReportFile">Upload Roof Damage Assessment Report</Label>
             <Input
               id="damageReportFile"
               type="file"
@@ -111,7 +121,7 @@ const PolicyComparison = () => {
             />
           </div>
           <div>
-            <Label htmlFor="damageReport">Roof Damage Report</Label>
+            <Label htmlFor="damageReport">Roof Damage Assessment Report</Label>
             <Textarea
               id="damageReport"
               value={damageReport}
@@ -120,16 +130,22 @@ const PolicyComparison = () => {
             />
           </div>
           <Button onClick={handleComparison} disabled={isLoading}>
-            {isLoading ? 'Comparing...' : 'Compare Policy'}
+            {isLoading ? 'Analyzing...' : 'Analyze Documents'}
           </Button>
           {comparisonResult && (
             <Alert>
-              <AlertTitle>Comparison Results</AlertTitle>
+              <AlertTitle>Analysis Results</AlertTitle>
               <AlertDescription>
-                <p>Identified Gaps: {comparisonResult.gaps.join(', ')}</p>
-                <p>Recommendations: {comparisonResult.recommendations.join(', ')}</p>
-                <p>Suggested Supplement Items: {comparisonResult.supplementItems.join(', ')}</p>
+                <p>Identified Gaps: {comparisonResult.gaps?.join(', ') || 'N/A'}</p>
+                <p>Recommendations: {comparisonResult.recommendations?.join(', ') || 'N/A'}</p>
+                <p>Suggested Supplement Items: {comparisonResult.supplementItems?.join(', ') || 'N/A'}</p>
               </AlertDescription>
+            </Alert>
+          )}
+          {errorMessage && (
+            <Alert variant="destructive">
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{errorMessage}</AlertDescription>
             </Alert>
           )}
         </CardContent>
@@ -138,4 +154,4 @@ const PolicyComparison = () => {
   );
 };
 
-export default PolicyComparison;
+export default SmartSupplement;
