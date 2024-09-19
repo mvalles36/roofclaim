@@ -5,14 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from '../integrations/supabase/supabase';
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [role, setRole] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -23,14 +21,8 @@ const SignUp = () => {
     setError(null);
     setLoading(true);
 
-    if (!email || !password || !name || !role) {
+    if (!email || !password || !name) {
       setError('Please complete all fields.');
-      setLoading(false);
-      return;
-    }
-
-    if (!['customer', 'employee', 'admin'].includes(role)) {
-      setError('Invalid role selected.');
       setLoading(false);
       return;
     }
@@ -42,7 +34,7 @@ const SignUp = () => {
         options: {
           data: {
             name,
-            role
+            role: 'customer' // Default role for new signups
           }
         }
       });
@@ -52,12 +44,12 @@ const SignUp = () => {
       if (user) {
         const { error: dbError } = await supabase
           .from('users')
-          .insert([{ id: user.id, email, name, role, created_at: new Date(), updated_at: new Date() }]);
+          .insert([{ id: user.id, email, name, role: 'customer', created_at: new Date(), updated_at: new Date() }]);
 
         if (dbError) throw dbError;
 
         setSuccess(true);
-        setTimeout(() => navigate('/dashboard'), 2000);
+        setTimeout(() => navigate('/login'), 2000);
       }
     } catch (error) {
       console.error('Sign-up error:', error);
@@ -86,7 +78,7 @@ const SignUp = () => {
           <Alert className="mb-4">
             <AlertTitle>Success!</AlertTitle>
             <AlertDescription>
-              Account created! Redirecting to your dashboard...
+              Account created! Redirecting to login...
             </AlertDescription>
           </Alert>
         )}
@@ -127,19 +119,6 @@ const SignUp = () => {
               disabled={loading}
               className="w-full"
             />
-          </div>
-          <div>
-            <Label htmlFor="role">Role</Label>
-            <Select onValueChange={setRole} disabled={loading}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="customer">Customer</SelectItem>
-                <SelectItem value="employee">Employee</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Signing up...' : 'Sign Up'}
