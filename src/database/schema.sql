@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   email TEXT UNIQUE NOT NULL,
   name TEXT,
-  role TEXT CHECK (role IN ('admin', 'sales', 'manager', 'support', 'supplement_specialist', 'roofing_crew_lead')),
+  role TEXT CHECK (role IN ('admin', 'sales', 'manager', 'supplement_specialist', 'crew_team_leader')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
