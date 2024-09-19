@@ -2,8 +2,15 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import TemplateLibrary from '../components/TemplateLibrary';
-import DocumentEditor from '../components/DocumentEditor';
+import DocumentEditor from './components/DocumentEditor';
+
+// Placeholder TemplateLibrary component
+const TemplateLibrary = ({ selectedTemplate, setSelectedTemplate, handleGenerateDocument }) => (
+  <div>
+    <h3>Template Library</h3>
+    <Button onClick={handleGenerateDocument}>Generate Document</Button>
+  </div>
+);
 
 const DocumentHub = ({ contacts, jobs }) => {
   const [selectedContact, setSelectedContact] = useState(null);
