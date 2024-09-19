@@ -18,12 +18,12 @@ import Tasks from './pages/Tasks';
 import InsuranceMortgageTracker from './pages/InsuranceMortgageTracker';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
-import PolicyComparison from './pages/PolicyComparison';
-import ClaimManagement from './pages/ClaimManagement';
+import SmartSupplement from './pages/SmartSupplement';
 import DamageDetection from './pages/DamageDetection';
 import DocumentHub from './pages/DocumentHub';
 import Inspections from './pages/Inspections';
 import InspectionReport from './pages/InspectionReport';
+import DocumentEditor from './pages/DocumentEditor'; 
 
 const queryClient = new QueryClient();
 
@@ -156,22 +156,14 @@ const AppContent = () => {
             }
           />
           <Route
-            path="/policy-comparison"
+            path="/smart-supplement"
             element={
               <ProtectedRoute>
-                <PolicyComparison />
+                <SmartSupplement />
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/claim-management"
-            element={
-              <ProtectedRoute>
-                <ClaimManagement />
-              </ProtectedRoute>
-            }
-          />
-          <Route
+         <Route
             path="/damage-detection"
             element={
               <ProtectedRoute>
@@ -203,7 +195,14 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
-
+          <Route
+            path="/document-editor"
+            element={
+             <ProtectedRoute>
+               <DocumentEditor />
+             </ProtectedRoute>
+          }
+         />
           {/* Catch-all Route */}
           <Route
             path="*"
