@@ -62,9 +62,9 @@ const AppContent = () => {
   const { session, logout } = useSupabaseAuth();
 
   return (
-    <div className={session ? "flex h-screen bg-gray-100" : ""}>
+    <div className="flex h-screen bg-gray-100">
       {session && <Navigation onLogout={logout} />}
-      <main className={session ? "flex-1 overflow-y-auto p-8" : ""}>
+      <main className={session ? "flex-1 overflow-y-auto p-8" : "w-full"}>
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
             <Route path="/login" element={<Login />} />
