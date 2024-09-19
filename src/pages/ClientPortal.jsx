@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { supabase } from '../integrations/supabase/supabase';
 import { SupplementList } from '../components/SupplementList';
-import { ContactView } from '../components/ContactView';
+import ContactView from '../components/ContactView';
 
 const ClientPortal = () => {
   const { contactId } = useParams();
