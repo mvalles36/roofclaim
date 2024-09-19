@@ -13,23 +13,34 @@ import UserManagement from './pages/UserManagement';
 import ClientPortal from './pages/ClientPortal';
 import { lazy, Suspense } from 'react';
 
+// Initialize React Query Client
 const queryClient = new QueryClient();
 
-// Lazy load components
-const Contacts = lazy(() => import('./pages/Contacts'));
-const Jobs = lazy(() => import('./pages/Jobs'));
-const Invoices = lazy(() => import('./pages/Invoices'));
-const FindLeads = lazy(() => import('./pages/FindLeads'));
-const SupplementTracking = lazy(() => import('./pages/SupplementTracking'));
-const Tasks = lazy(() => import('./pages/Tasks'));
-const InsuranceMortgageTracker = lazy(() => import('./pages/InsuranceMortgageTracker'));
-const Profile = lazy(() => import('./pages/Profile'));
-const Settings = lazy(() => import('./pages/Settings'));
-const SmartSupplement = lazy(() => import('./pages/SmartSupplement'));
-const DamageDetection = lazy(() => import('./pages/DamageDetection'));
-const DocumentHub = lazy(() => import('./pages/DocumentHub'));
-const InspectionReport = lazy(() => import('./pages/InspectionReport'));
-const DocumentEditor = lazy(() => import('./pages/components/DocumentEditor'));
+// Lazy load components with error boundary
+const loadable = (importFunc) => {
+  return lazy(() =>
+    importFunc().catch((error) => {
+      console.error('Failed to load component', error);
+      return { default: () => <div>Error loading component.</div> };
+    })
+  );
+};
+
+// Lazy loaded components
+const Contacts = loadable(() => import('./pages/Contacts'));
+const Jobs = loadable(() => import('./pages/Jobs'));
+const Invoices = loadable(() => import('./pages/Invoices'));
+const FindLeads = loadable(() => import('./pages/FindLeads'));
+const SupplementTracking = loadable(() => import('./pages/SupplementTracking'));
+const Tasks = loadable(() => import('./pages/Tasks'));
+const InsuranceMortgageTracker = loadable(() => import('./pages/InsuranceMortgageTracker'));
+const Profile = loadable(() => import('./pages/Profile'));
+const Settings = loadable(() => import('./pages/Settings'));
+const SmartSupplement = loadable(() => import('./pages/SmartSupplement'));
+const DamageDetection = loadable(() => import('./pages/DamageDetection'));
+const DocumentHub = loadable(() => import('./pages/DocumentHub'));
+const InspectionReport = loadable(() => import('./pages/InspectionReport'));
+const DocumentEditor = loadable(() => import('./pages/components/DocumentEditor'));
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { session, userRole } = useSupabaseAuth();
@@ -65,7 +76,7 @@ const AppContent = () => {
     <div className="flex h-screen bg-gray-100">
       {session && <Navigation onLogout={logout} />}
       <main className={session ? "flex-1 overflow-y-auto p-8" : "w-full"}>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div className="text-center mt-10">Loading...</div>}>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
