@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from '../integrations/supabase/supabase';
-import { FileUploader } from '../components/FileUploader';
+import FileUploader from '../components/FileUploader';
 import { SupplementAnalyzer } from '../components/SupplementAnalyzer';
 import { SupplementList } from '../components/SupplementList';
 import { SupplementInbox } from '../components/SupplementInbox';
@@ -137,9 +137,9 @@ const SupplementTracking = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <FileUploader label="Insurance Policy" onUpload={(file) => handleFileUpload(file, 'insurancePolicy')} file={documents.insurancePolicy} />
-            <FileUploader label="Insurance Estimate" onUpload={(file) => handleFileUpload(file, 'insuranceEstimate')} file={documents.insuranceEstimate} />
-            <FileUploader label="Roof Inspection Report" onUpload={(file) => handleFileUpload(file, 'roofInspectionReport')} file={documents.roofInspectionReport} />
+            <FileUploader onUpload={(file) => handleFileUpload(file, 'insurancePolicy')} />
+            <FileUploader onUpload={(file) => handleFileUpload(file, 'insuranceEstimate')} />
+            <FileUploader onUpload={(file) => handleFileUpload(file, 'roofInspectionReport')} />
           </div>
           <Progress value={uploadProgress} className="mt-4" />
         </CardContent>
