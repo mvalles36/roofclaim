@@ -27,7 +27,6 @@ const Settings = lazy(() => import('./pages/Settings'));
 const SmartSupplement = lazy(() => import('./pages/SmartSupplement'));
 const DamageDetection = lazy(() => import('./pages/DamageDetection'));
 const DocumentHub = lazy(() => import('./pages/DocumentHub'));
-const Inspections = lazy(() => import('./pages/Inspections'));
 const InspectionReport = lazy(() => import('./pages/InspectionReport'));
 const DocumentEditor = lazy(() => import('./pages/DocumentEditor'));
 
@@ -84,7 +83,6 @@ const AppContent = () => {
             <Route path="/smart-supplement" element={<ProtectedRoute><SmartSupplement /></ProtectedRoute>} />
             <Route path="/damage-detection" element={<ProtectedRoute><DamageDetection /></ProtectedRoute>} />
             <Route path="/document-hub" element={<ProtectedRoute><DocumentHub /></ProtectedRoute>} />
-            <Route path="/inspections" element={<ProtectedRoute><Inspections /></ProtectedRoute>} />
             <Route path="/inspection-report" element={<ProtectedRoute><InspectionReport /></ProtectedRoute>} />
             <Route path="/document-editor" element={<ProtectedRoute><DocumentEditor /></ProtectedRoute>} />
             <Route path="/user-management" element={<ProtectedRoute allowedRoles={['admin']}><UserManagement /></ProtectedRoute>} />
