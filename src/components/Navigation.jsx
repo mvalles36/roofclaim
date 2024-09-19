@@ -45,7 +45,6 @@ const Navigation = ({ onLogout }) => {
   const navItems = [
     { icon: <HomeIcon className="h-5 w-5" />, label: 'Dashboard', to: '/' },
     { icon: <UsersIcon className="h-5 w-5" />, label: 'Contacts', to: '/contacts' },
-    { icon: <UserIcon className="h-5 w-5" />, label: 'Customers', to: '/customers' },
     { icon: <BriefcaseIcon className="h-5 w-5" />, label: 'Jobs', to: '/jobs' },
     { icon: <CreditCardIcon className="h-5 w-5" />, label: 'Invoices', to: '/invoices' },
     { icon: <MapPinIcon className="h-5 w-5" />, label: 'Find Leads', to: '/find-leads' },
