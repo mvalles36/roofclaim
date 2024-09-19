@@ -1,28 +1,29 @@
 // DocumentEditor.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert } from "@/components/ui/alert";
 import { generateDocument, saveDocument, emailDocument } from '@/api/documentApi';
 
 const DocumentEditor = ({
   selectedTemplate,
   contacts,
   selectedContact,
-  handleContactSelection,
-  editorContent,
-  setEditorContent,
-  isEditing,
-  setIsEditing
+  handleContactSelection
 }) => {
+  const [editorContent, setEditorContent] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleGenerateDocument = async () => {
     try {
       const content = await generateDocument(selectedTemplate.id, selectedContact);
       setEditorContent(content);
+      setError(null);
     } catch (error) {
-      console.error('Error generating document:', error);
+      setError('Error generating document. Please try again.');
     }
   };
 
@@ -30,8 +31,9 @@ const DocumentEditor = ({
     try {
       await saveDocument(editorContent, selectedContact, selectedTemplate.id);
       alert('Document saved successfully');
+      setError(null);
     } catch (error) {
-      console.error('Error saving document:', error);
+      setError('Error saving document. Please try again.');
     }
   };
 
@@ -39,8 +41,9 @@ const DocumentEditor = ({
     try {
       await emailDocument(editorContent, selectedContact);
       alert('Document sent via email');
+      setError(null);
     } catch (error) {
-      console.error('Error emailing document:', error);
+      setError('Error sending document. Please try again.');
     }
   };
 
@@ -50,6 +53,12 @@ const DocumentEditor = ({
         <CardTitle>DocuEditor</CardTitle>
       </CardHeader>
       <CardContent>
+        {error && (
+          <Alert>
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <div className="flex space-x-4 mb-4">
           <div className="w-1/3">
             <Label htmlFor="contact">Select Contact</Label>
