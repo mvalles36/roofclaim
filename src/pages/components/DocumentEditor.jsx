@@ -1,58 +1,43 @@
 // DocumentEditor.jsx
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import axios from 'axios';
+import { generateDocument, saveDocument, emailDocument } from '@/api/documentApi';
 
 const DocumentEditor = ({
   selectedTemplate,
   contacts,
   selectedContact,
   handleContactSelection,
-  handleGenerateDocument,
   editorContent,
   setEditorContent,
   isEditing,
-  setIsEditing,
-  handleSaveTemplate
+  setIsEditing
 }) => {
 
-  // Handler for document generation
   const handleGenerateDocument = async () => {
     try {
-      const response = await axios.post('/api/generate-document', {
-        templateId: selectedTemplate.id,
-        contactId: selectedContact
-      });
-      setEditorContent(response.data.content);
+      const content = await generateDocument(selectedTemplate.id, selectedContact);
+      setEditorContent(content);
     } catch (error) {
       console.error('Error generating document:', error);
     }
   };
 
-  // Handler for saving the document
   const handleSaveTemplate = async () => {
     try {
-      await axios.post('/api/save-document', {
-        content: editorContent,
-        contactId: selectedContact,
-        templateId: selectedTemplate.id
-      });
+      await saveDocument(editorContent, selectedContact, selectedTemplate.id);
       alert('Document saved successfully');
     } catch (error) {
       console.error('Error saving document:', error);
     }
   };
 
-  // Handler for emailing the document
   const handleEmailDocument = async () => {
     try {
-      await axios.post('/api/email-document', {
-        content: editorContent,
-        contactId: selectedContact
-      });
+      await emailDocument(editorContent, selectedContact);
       alert('Document sent via email');
     } catch (error) {
       console.error('Error emailing document:', error);
