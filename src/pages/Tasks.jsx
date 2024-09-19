@@ -9,7 +9,7 @@ import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { TaskList } from '../components/TaskList';
 import { TaskForm } from '../components/TaskForm';
-import { TaskKanban } from '../components/TaskKanban';
+import TaskKanban from '../components/TaskKanban';
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
