@@ -14,22 +14,27 @@ const PolicyComparison = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [policyFile, setPolicyFile] = useState(null);
   const [damageReportFile, setDamageReportFile] = useState(null);
+  const [error, setError] = useState('');
 
   const handleFileUpload = (event, setFileFunction) => {
     const file = event.target.files[0];
-    setFileFunction(file);
+    if (file) {
+      setFileFunction(file);
+    }
   };
 
   const extractTextFromFile = async (file) => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = () => reject('Failed to read file');
       reader.readAsText(file);
     });
   };
 
   const handleComparison = async () => {
     setIsLoading(true);
+    setError('');
     try {
       let policyText = policyDetails;
       let damageText = damageReport;
@@ -49,7 +54,7 @@ const PolicyComparison = () => {
       setComparisonResult(response.data);
     } catch (error) {
       console.error('Error comparing policy:', error);
-      alert('An error occurred while comparing the policy.');
+      setError('An error occurred while comparing the policy.');
     }
     setIsLoading(false);
   };
@@ -99,13 +104,19 @@ const PolicyComparison = () => {
         <Button onClick={handleComparison} disabled={isLoading}>
           {isLoading ? 'Comparing...' : 'Compare Policy'}
         </Button>
+        {error && (
+          <Alert>
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         {comparisonResult && (
           <Alert>
             <AlertTitle>Comparison Results</AlertTitle>
             <AlertDescription>
-              <p>Identified Gaps: {comparisonResult.gaps.join(', ')}</p>
-              <p>Recommendations: {comparisonResult.recommendations.join(', ')}</p>
-              <p>Suggested Supplement Items: {comparisonResult.supplementItems.join(', ')}</p>
+              <p><strong>Identified Gaps:</strong> {comparisonResult.gaps.join(', ')}</p>
+              <p><strong>Recommendations:</strong> {comparisonResult.recommendations.join(', ')}</p>
+              <p><strong>Suggested Supplement Items:</strong> {comparisonResult.supplementItems.join(', ')}</p>
             </AlertDescription>
           </Alert>
         )}
