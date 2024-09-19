@@ -11,8 +11,10 @@ const TemplateLibrary = ({
   setSearchTerm,
   handleTemplateSelection,
   handleDeleteTemplate,
-  handleDragEnd
+  handleDragEnd,
+  handleUploadTemplate
 }) => {
+  // Filtering templates based on the search term
   const filteredTemplates = templates.filter(
     (template) => template.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -20,20 +22,24 @@ const TemplateLibrary = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Document Templates</CardTitle>
+        <CardTitle>Document Hub - Templates</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex justify-between mb-4">
+          {/* Search Input */}
           <Input
             placeholder="Search templates..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-1/3"
           />
-          <Button>
+          {/* Upload Template Button */}
+          <Button onClick={handleUploadTemplate}>
             <Upload className="mr-2 h-4 w-4" /> Upload Template
           </Button>
         </div>
+        
+        {/* Drag and Drop Context for Reordering Templates */}
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="templates">
             {(provided) => (
@@ -48,8 +54,11 @@ const TemplateLibrary = ({
                         className="flex flex-col items-center justify-center p-4 border rounded cursor-pointer hover:bg-gray-100"
                         onClick={() => handleTemplateSelection(template)}
                       >
+                        {/* Template Icon and Name */}
                         <FileText className="h-12 w-12 text-gray-500 mb-2" />
                         <p className="text-center text-sm">{template.name}</p>
+                        
+                        {/* Edit and Delete Buttons */}
                         <div className="flex mt-2">
                           <Button variant="ghost" size="sm" onClick={() => handleTemplateSelection(template)}>
                             <Edit className="h-4 w-4" />
