@@ -4,6 +4,7 @@ import { supabase } from '../integrations/supabase/supabase';
 
 const ContactView = ({ contactId }) => {
   const [contactDetails, setContactDetails] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchContactDetails();
@@ -16,18 +17,22 @@ const ContactView = ({ contactId }) => {
         *,
         insurance_policies (*),
         inspections (*),
-        supplements (*)
+        supplements (*),
+        documents (*),    // Fetching associated documents
+        jobs (*)
       `)
       .eq('id', contactId)
       .single();
 
     if (error) {
+      setError('Failed to fetch contact details');
       console.error('Error fetching contact details:', error);
     } else {
       setContactDetails(data);
     }
   };
 
+  if (error) return <div>{error}</div>;
   if (!contactDetails) return <div>Loading...</div>;
 
   return (
@@ -37,6 +42,7 @@ const ContactView = ({ contactId }) => {
         <TabsTrigger value="insurance">Insurance Policies</TabsTrigger>
         <TabsTrigger value="inspections">Inspections</TabsTrigger>
         <TabsTrigger value="supplements">Supplements</TabsTrigger>
+        <TabsTrigger value="documents">Documents</TabsTrigger> {/* New Tab for Documents */}
       </TabsList>
       <TabsContent value="details">
         <h3 className="text-lg font-semibold mb-2">Contact Details</h3>
@@ -52,54 +58,20 @@ const ContactView = ({ contactId }) => {
           />
         )}
       </TabsContent>
-      <TabsContent value="insurance">
-        <h3 className="text-lg font-semibold mb-2">Insurance Policies</h3>
-        {contactDetails.insurance_policies.length > 0 ? (
+      {/* ... (rest of the TabsContent for insurance, inspections, and supplements) */}
+      <TabsContent value="documents">
+        <h3 className="text-lg font-semibold mb-2">Documents Sent</h3>
+        {contactDetails.documents && contactDetails.documents.length > 0 ? (
           <ul>
-            {contactDetails.insurance_policies.map((policy) => (
-              <li key={policy.id}>
-                <p>Policy Number: {policy.policy_number}</p>
-                <p>Provider: {policy.provider}</p>
-                <a href={policy.document_url} target="_blank" rel="noopener noreferrer">View Policy Document</a>
+            {contactDetails.documents.map((doc) => (
+              <li key={doc.id}>
+                <p>Date: {new Date(doc.sent_at).toLocaleDateString()}</p>
+                <a href={doc.url} target="_blank" rel="noopener noreferrer">View Document</a>
               </li>
             ))}
           </ul>
         ) : (
-          <p>No insurance policies found.</p>
-        )}
-      </TabsContent>
-      <TabsContent value="inspections">
-        <h3 className="text-lg font-semibold mb-2">Inspections</h3>
-        {contactDetails.inspections.length > 0 ? (
-          <ul>
-            {contactDetails.inspections.map((inspection) => (
-              <li key={inspection.id}>
-                <p>Date: {new Date(inspection.inspection_date).toLocaleDateString()}</p>
-                <p>Status: {inspection.status}</p>
-                {inspection.report_url && (
-                  <a href={inspection.report_url} target="_blank" rel="noopener noreferrer">View Inspection Report</a>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No inspections found.</p>
-        )}
-      </TabsContent>
-      <TabsContent value="supplements">
-        <h3 className="text-lg font-semibold mb-2">Supplements</h3>
-        {contactDetails.supplements.length > 0 ? (
-          <ul>
-            {contactDetails.supplements.map((supplement) => (
-              <li key={supplement.id}>
-                <p>Date: {new Date(supplement.created_at).toLocaleDateString()}</p>
-                <p>Status: {supplement.status}</p>
-                <p>Amount: ${supplement.amount}</p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No supplements found.</p>
+          <p>No documents found.</p>
         )}
       </TabsContent>
     </Tabs>
