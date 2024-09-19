@@ -1,3 +1,56 @@
+-- Create users table if not exists
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  role TEXT CHECK (role IN ('admin', 'sales', 'manager', 'support', 'supplement_specialist', 'roofing_crew_lead')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Enable Row Level Security
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+-- Create a policy that allows all authenticated users to insert into the users table
+CREATE POLICY insert_users ON users FOR INSERT TO authenticated WITH CHECK (true);
+
+-- Create a policy that allows users to select their own data
+CREATE POLICY select_own_user ON users FOR SELECT TO authenticated USING (auth.uid() = id);
+
+-- Create a policy that allows users to update their own data
+CREATE POLICY update_own_user ON users FOR UPDATE TO authenticated USING (auth.uid() = id);
+
+-- Create a policy that allows admins to select all users
+CREATE POLICY admin_select_all_users ON users FOR SELECT TO authenticated USING (
+  EXISTS (
+    SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
+  )
+);
+
+-- Create a policy that allows admins to update all users
+CREATE POLICY admin_update_all_users ON users FOR UPDATE TO authenticated USING (
+  EXISTS (
+    SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
+  )
+);
+
+-- Grant necessary permissions
+GRANT SELECT, INSERT, UPDATE ON users TO authenticated;
+
+-- Create function to update users
+CREATE OR REPLACE FUNCTION update_users_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create trigger for users
+CREATE TRIGGER update_users_timestamp_trigger
+BEFORE UPDATE ON users
+FOR EACH ROW EXECUTE FUNCTION update_users_timestamp();
+
 -- Create inspection_reports table
 CREATE TABLE IF NOT EXISTS inspection_reports (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -43,7 +96,7 @@ CREATE POLICY "Users can view inspection reports they have access to"
   ON inspection_reports FOR SELECT
   USING (
     auth.uid() IN (
-      SELECT user_id FROM user_roles WHERE role IN ('admin', 'sales', 'sales_manager', 'supplement_specialist')
+      SELECT id FROM users WHERE role IN ('admin', 'sales', 'manager', 'supplement_specialist')
     ) OR
     contact_id IN (
       SELECT id FROM contacts WHERE assigned_to = auth.uid()
@@ -53,14 +106,14 @@ CREATE POLICY "Users can view inspection reports they have access to"
 CREATE POLICY "Users can insert inspection reports"
   ON inspection_reports FOR INSERT
   WITH CHECK (
-    auth.uid() IN (SELECT user_id FROM user_roles WHERE role IN ('admin', 'sales', 'sales_manager'))
+    auth.uid() IN (SELECT id FROM users WHERE role IN ('admin', 'sales', 'manager'))
   );
 
 CREATE POLICY "Users can update inspection reports they have access to"
   ON inspection_reports FOR UPDATE
   USING (
     auth.uid() IN (
-      SELECT user_id FROM user_roles WHERE role IN ('admin', 'sales', 'sales_manager', 'supplement_specialist')
+      SELECT id FROM users WHERE role IN ('admin', 'sales', 'manager', 'supplement_specialist')
     ) OR
     contact_id IN (
       SELECT id FROM contacts WHERE assigned_to = auth.uid()
@@ -73,7 +126,7 @@ CREATE POLICY "Users can view inspection report images they have access to"
     report_id IN (
       SELECT id FROM inspection_reports WHERE
         auth.uid() IN (
-          SELECT user_id FROM user_roles WHERE role IN ('admin', 'sales', 'sales_manager', 'supplement_specialist')
+          SELECT id FROM users WHERE role IN ('admin', 'sales', 'manager', 'supplement_specialist')
         ) OR
         contact_id IN (
           SELECT id FROM contacts WHERE assigned_to = auth.uid()
@@ -84,7 +137,7 @@ CREATE POLICY "Users can view inspection report images they have access to"
 CREATE POLICY "Users can insert inspection report images"
   ON inspection_report_images FOR INSERT
   WITH CHECK (
-    auth.uid() IN (SELECT user_id FROM user_roles WHERE role IN ('admin', 'sales', 'sales_manager'))
+    auth.uid() IN (SELECT id FROM users WHERE role IN ('admin', 'sales', 'manager'))
   );
 
 -- Function to get inspection report KPIs
