@@ -6,38 +6,38 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import axios from 'axios';
+import DocumentEditor from "@/components/DocumentEditor"; // Import DocumentEditor component
 
-const PolicyComparison = () => {
+const SmartSupplement = () => {
   const [policyDetails, setPolicyDetails] = useState('');
   const [damageReport, setDamageReport] = useState('');
+  const [estimateReport, setEstimateReport] = useState('');
   const [comparisonResult, setComparisonResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [policyFile, setPolicyFile] = useState(null);
   const [damageReportFile, setDamageReportFile] = useState(null);
-  const [error, setError] = useState('');
+  const [estimateFile, setEstimateFile] = useState(null);
+  const [openEditor, setOpenEditor] = useState(false);
 
   const handleFileUpload = (event, setFileFunction) => {
     const file = event.target.files[0];
-    if (file) {
-      setFileFunction(file);
-    }
+    setFileFunction(file);
   };
 
   const extractTextFromFile = async (file) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = (e) => resolve(e.target.result);
-      reader.onerror = () => reject('Failed to read file');
       reader.readAsText(file);
     });
   };
 
   const handleComparison = async () => {
     setIsLoading(true);
-    setError('');
     try {
       let policyText = policyDetails;
       let damageText = damageReport;
+      let estimateText = estimateReport;
 
       if (policyFile) {
         policyText = await extractTextFromFile(policyFile);
@@ -45,24 +45,46 @@ const PolicyComparison = () => {
       if (damageReportFile) {
         damageText = await extractTextFromFile(damageReportFile);
       }
+      if (estimateFile) {
+        estimateText = await extractTextFromFile(estimateFile);
+      }
 
-      // Placeholder for API call
-      const response = await axios.post('/api/compare-policy', {
+      const response = await axios.post('/api/smart-supplement', {
         policyDetails: policyText,
-        damageReport: damageText
+        damageReport: damageText,
+        estimateReport: estimateText
       });
+
       setComparisonResult(response.data);
+      setOpenEditor(true);
+
     } catch (error) {
-      console.error('Error comparing policy:', error);
-      setError('An error occurred while comparing the policy.');
+      console.error('Error generating supplement report:', error);
+      alert('An error occurred while generating the supplement report.');
     }
     setIsLoading(false);
+  };
+
+  const handleItemApproval = (itemId) => {
+    setComparisonResult((prev) => ({
+      ...prev,
+      supplementItems: prev.supplementItems.map(item =>
+        item.id === itemId ? { ...item, approved: true } : item
+      )
+    }));
+  };
+
+  const handleItemRemoval = (itemId) => {
+    setComparisonResult((prev) => ({
+      ...prev,
+      supplementItems: prev.supplementItems.filter(item => item.id !== itemId)
+    }));
   };
 
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle>Policy Comparison</CardTitle>
+        <CardTitle>SmartSupplement</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
@@ -80,11 +102,11 @@ const PolicyComparison = () => {
             id="policyDetails"
             value={policyDetails}
             onChange={(e) => setPolicyDetails(e.target.value)}
-            placeholder="Enter key details from the insurance policy..."
+            placeholder="Enter any details from the insurance policy..."
           />
         </div>
         <div>
-          <Label htmlFor="damageReportFile">Upload Damage Report</Label>
+          <Label htmlFor="damageReportFile">Upload Roof Damage Assessment Report</Label>
           <Input
             id="damageReportFile"
             type="file"
@@ -93,36 +115,74 @@ const PolicyComparison = () => {
           />
         </div>
         <div>
-          <Label htmlFor="damageReport">Roof Damage Report</Label>
+          <Label htmlFor="damageReport">Roof Damage Assessment Report</Label>
           <Textarea
             id="damageReport"
             value={damageReport}
             onChange={(e) => setDamageReport(e.target.value)}
-            placeholder="Enter details from the roof damage report..."
+            placeholder="Enter details from the roof damage assessment report..."
+          />
+        </div>
+        <div>
+          <Label htmlFor="estimateFile">Upload Adjuster Estimate</Label>
+          <Input
+            id="estimateFile"
+            type="file"
+            onChange={(e) => handleFileUpload(e, setEstimateFile)}
+            accept=".pdf,.doc,.docx"
+          />
+        </div>
+        <div>
+          <Label htmlFor="estimateReport">Adjuster Estimate Details</Label>
+          <Textarea
+            id="estimateReport"
+            value={estimateReport}
+            onChange={(e) => setEstimateReport(e.target.value)}
+            placeholder="Enter details from the adjuster estimate..."
           />
         </div>
         <Button onClick={handleComparison} disabled={isLoading}>
-          {isLoading ? 'Comparing...' : 'Compare Policy'}
+          {isLoading ? 'Analyzing...' : 'Generate Supplement Report'}
         </Button>
-        {error && (
-          <Alert>
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
         {comparisonResult && (
           <Alert>
-            <AlertTitle>Comparison Results</AlertTitle>
+            <AlertTitle>Supplement Report</AlertTitle>
             <AlertDescription>
-              <p><strong>Identified Gaps:</strong> {comparisonResult.gaps.join(', ')}</p>
-              <p><strong>Recommendations:</strong> {comparisonResult.recommendations.join(', ')}</p>
-              <p><strong>Suggested Supplement Items:</strong> {comparisonResult.supplementItems.join(', ')}</p>
+              <p>Identified Gaps: {comparisonResult.gaps.join(', ')}</p>
+              <p>Recommendations: {comparisonResult.recommendations.join(', ')}</p>
+              <p>Suggested Supplement Items:</p>
+              <ul>
+                {comparisonResult.supplementItems.map(item => (
+                  <li key={item.id} className="flex justify-between items-center">
+                    <span>{item.name} - ${item.price} (Qty: {item.quantity})</span>
+                    <div>
+                      {!item.approved && <Button onClick={() => handleItemApproval(item.id)}>Approve</Button>}
+                      <Button onClick={() => handleItemRemoval(item.id)} variant="danger">Remove</Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </AlertDescription>
           </Alert>
         )}
       </CardContent>
+      {openEditor && (
+        <DocumentEditor
+          template="SupplementRequestTemplate" // Specify your template name
+          data={comparisonResult.supplementItems}
+          onSave={(document) => {
+            // Logic to associate the document with the contact
+            // Save document and associate it with the contact
+            console.log('Document saved and associated:', document);
+          }}
+          onEmail={(document) => {
+            // Logic to email the document
+            console.log('Document emailed:', document);
+          }}
+        />
+      )}
     </Card>
   );
 };
 
-export default PolicyComparison;
+export default SmartSupplement;
