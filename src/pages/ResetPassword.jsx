@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom'; // To handle query params like access_token
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,16 +13,16 @@ const ResetPassword = () => {
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [searchParams] = useSearchParams(); // To get access_token from URL
-
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   useEffect(() => {
     const accessToken = searchParams.get('access_token');
     if (!accessToken) {
       setError('Invalid or missing reset token.');
+      navigate('/login');
     }
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
@@ -41,17 +41,16 @@ const ResetPassword = () => {
         throw new Error('Invalid or missing reset token.');
       }
 
-      // Update the password using Supabase auth.updateUser method with the token
       const { error } = await supabase.auth.updateUser({
-        password,
-        access_token: accessToken,  // Pass the access_token here
+        password: password,
       });
 
       if (error) throw error;
       setMessage('Your password has been reset successfully.');
-      setTimeout(() => navigate('/login'), 3000); // Redirect to login page after success
+      setTimeout(() => navigate('/login'), 3000);
     } catch (error) {
-      setError(error.message);
+      console.error('Password reset error:', error);
+      setError(error.message || 'Password reset failed. Please try again.');
     } finally {
       setLoading(false);
     }
