@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SupabaseAuthProvider, useSupabaseAuth } from './integrations/supabase/auth';
@@ -44,14 +44,14 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <Router>
         <SupabaseAuthProvider>
           <TooltipProvider>
             <Toaster />
             <AppContent />
           </TooltipProvider>
         </SupabaseAuthProvider>
-      </BrowserRouter>
+      </Router>
     </QueryClientProvider>
   );
 };
