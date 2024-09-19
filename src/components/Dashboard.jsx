@@ -14,24 +14,39 @@ const Dashboard = () => {
   });
   const [recentActivities, setRecentActivities] = useState([]);
   const [monthlyRevenue, setMonthlyRevenue] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
   const fetchDashboardData = async () => {
-    const { data: metricsData, error: metricsError } = await supabase.rpc('get_dashboard_metrics');
-    if (metricsError) console.error('Error fetching metrics:', metricsError);
-    else setMetrics(metricsData);
+    try {
+      setLoading(true);
+      setError(null);
 
-    const { data: activitiesData, error: activitiesError } = await supabase.rpc('get_recent_activities');
-    if (activitiesError) console.error('Error fetching activities:', activitiesError);
-    else setRecentActivities(activitiesData);
+      const { data: metricsData, error: metricsError } = await supabase.rpc('get_dashboard_metrics');
+      if (metricsError) throw new Error('Error fetching metrics:', metricsError.message);
+      setMetrics(metricsData);
 
-    const { data: revenueData, error: revenueError } = await supabase.rpc('get_monthly_revenue');
-    if (revenueError) console.error('Error fetching revenue:', revenueError);
-    else setMonthlyRevenue(revenueData);
+      const { data: activitiesData, error: activitiesError } = await supabase.rpc('get_recent_activities');
+      if (activitiesError) throw new Error('Error fetching activities:', activitiesError.message);
+      setRecentActivities(activitiesData);
+
+      const { data: revenueData, error: revenueError } = await supabase.rpc('get_monthly_revenue');
+      if (revenueError) throw new Error('Error fetching revenue:', revenueError.message);
+      setMonthlyRevenue(revenueData);
+
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (loading) return <div className="text-center text-lg">Loading...</div>;
+  if (error) return <div className="text-center text-red-500">{error}</div>;
 
   return (
     <div className="space-y-6">
