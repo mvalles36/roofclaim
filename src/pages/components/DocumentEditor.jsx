@@ -1,49 +1,70 @@
-// DocumentEditor.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Alert } from "@/components/ui/alert";
-import { generateDocument, saveDocument, emailDocument } from '@/api/documentApi';
+import axios from 'axios';
 
-const DocumentEditor = ({
-  selectedTemplate,
-  contacts,
-  selectedContact,
-  handleContactSelection
-}) => {
+const DocumentEditor = () => {
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [contacts, setContacts] = useState([]);
+  const [selectedContact, setSelectedContact] = useState(null);
   const [editorContent, setEditorContent] = useState('');
   const [isEditing, setIsEditing] = useState(false);
-  const [error, setError] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [documentFile, setDocumentFile] = useState(null);
+
+  useEffect(() => {
+    // Fetch contacts from API or other sources
+    const fetchContacts = async () => {
+      try {
+        const response = await axios.get('/api/contacts');
+        setContacts(response.data);
+      } catch (error) {
+        console.error('Error fetching contacts:', error);
+      }
+    };
+
+    fetchContacts();
+  }, []);
+
+  const handleContactSelection = (value) => {
+    setSelectedContact(value);
+  };
 
   const handleGenerateDocument = async () => {
+    setIsGenerating(true);
     try {
-      const content = await generateDocument(selectedTemplate.id, selectedContact);
-      setEditorContent(content);
-      setError(null);
+      const response = await axios.post('/api/documents/generate-document', {
+        templateId: selectedTemplate,
+        contactDetails: { name: selectedContact }
+      });
+      setDocumentFile(response.data.filePath);
     } catch (error) {
-      setError('Error generating document. Please try again.');
+      console.error('Error generating document:', error);
     }
+    setIsGenerating(false);
   };
 
   const handleSaveTemplate = async () => {
     try {
-      await saveDocument(editorContent, selectedContact, selectedTemplate.id);
-      alert('Document saved successfully');
-      setError(null);
+      await axios.post('/api/documents/save-document', {
+        filePath: documentFile,
+        content: editorContent
+      });
     } catch (error) {
-      setError('Error saving document. Please try again.');
+      console.error('Error saving document:', error);
     }
   };
 
   const handleEmailDocument = async () => {
     try {
-      await emailDocument(editorContent, selectedContact);
-      alert('Document sent via email');
-      setError(null);
+      await axios.post('/api/documents/email-document', {
+        filePath: documentFile,
+        contactEmail: selectedContact.email // Ensure email is included in contact details
+      });
     } catch (error) {
-      setError('Error sending document. Please try again.');
+      console.error('Error emailing document:', error);
     }
   };
 
@@ -53,12 +74,6 @@ const DocumentEditor = ({
         <CardTitle>DocuEditor</CardTitle>
       </CardHeader>
       <CardContent>
-        {error && (
-          <Alert>
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
         <div className="flex space-x-4 mb-4">
           <div className="w-1/3">
             <Label htmlFor="contact">Select Contact</Label>
@@ -73,8 +88,8 @@ const DocumentEditor = ({
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={handleGenerateDocument} disabled={!selectedTemplate || !selectedContact}>
-            Generate Document
+          <Button onClick={handleGenerateDocument} disabled={!selectedTemplate || !selectedContact || isGenerating}>
+            {isGenerating ? 'Generating Document...' : 'Generate Document'}
           </Button>
         </div>
         {selectedTemplate && (
@@ -96,11 +111,11 @@ const DocumentEditor = ({
                 <pre>{editorContent}</pre>
               </div>
             )}
+            <Button onClick={handleEmailDocument} disabled={!documentFile}>
+              Email Document
+            </Button>
           </div>
         )}
-        <Button onClick={handleEmailDocument} disabled={!editorContent}>
-          Email Document
-        </Button>
       </CardContent>
     </Card>
   );
