@@ -2,47 +2,41 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Button } from "@/components/ui/button";
+import { Home, Users, Briefcase, FileText, Search, Inbox, CheckSquare, DollarSign, User, Settings } from 'lucide-react';
 
 const Navigation = () => {
-  const { userRole } = useSupabaseAuth();
+  const { userRole, signOut } = useSupabaseAuth();
+
+  const navItems = [
+    { to: "/", icon: <Home className="w-4 h-4 mr-2" />, label: "Dashboard" },
+    { to: "/contacts", icon: <Users className="w-4 h-4 mr-2" />, label: "Contacts" },
+    { to: "/jobs", icon: <Briefcase className="w-4 h-4 mr-2" />, label: "Jobs" },
+    { to: "/invoices", icon: <FileText className="w-4 h-4 mr-2" />, label: "Invoices" },
+    { to: "/find-leads", icon: <Search className="w-4 h-4 mr-2" />, label: "Find Leads" },
+    { to: "/supplement-tracking", icon: <Inbox className="w-4 h-4 mr-2" />, label: "Supplement Tracking" },
+    { to: "/tasks", icon: <CheckSquare className="w-4 h-4 mr-2" />, label: "Tasks" },
+    { to: "/insurance-mortgage-tracker", icon: <DollarSign className="w-4 h-4 mr-2" />, label: "Insurance/Mortgage Tracker" },
+    { to: "/profile", icon: <User className="w-4 h-4 mr-2" />, label: "Profile" },
+    { to: "/settings", icon: <Settings className="w-4 h-4 mr-2" />, label: "Settings" },
+  ];
 
   return (
-    <nav className="bg-gray-800 text-white p-4">
-      <div className="container mx-auto flex justify-between items-center">
-        <div className="text-xl font-bold">
-          <Link to="/" className="text-white hover:text-gray-300">YourCompany</Link>
-        </div>
-        <div className="space-x-4">
-          <Link to="/dashboard">
-            <Button variant="outline" className="text-white hover:bg-gray-700">Dashboard</Button>
-          </Link>
-          <Link to="/tasks">
-            <Button variant="outline" className="text-white hover:bg-gray-700">Tasks</Button>
-          </Link>
-          <Link to="/insurance-mortgage-tracker">
-            <Button variant="outline" className="text-white hover:bg-gray-700">Mortgage Check Tracker</Button>
-          </Link>
-          <Link to="/document-hub">
-            <Button variant="outline" className="text-white hover:bg-gray-700">Document Hub</Button>
-          </Link>
-          <Link to="/damage-detection">
-            <Button variant="outline" className="text-white hover:bg-gray-700">Damage Detection</Button>
-          </Link>
-          <Link to="/supplement-tracker">
-            <Button variant="outline" className="text-white hover:bg-gray-700">Supplement Tracker</Button>
-          </Link>
-        </div>
-        <div>
-          {/* Add user-related options if needed */}
-          {userRole && (
-            <div className="flex items-center">
-              <span className="mr-4">{userRole}</span>
-              <Button variant="outline" className="text-white hover:bg-gray-700">
-                Log Out
-              </Button>
-            </div>
-          )}
-        </div>
+    <nav className="bg-gray-800 text-white w-64 min-h-screen p-4">
+      <div className="text-xl font-bold mb-6">YourCompany</div>
+      <ul className="space-y-2">
+        {navItems.map((item) => (
+          <li key={item.to}>
+            <Link to={item.to} className="flex items-center py-2 px-4 hover:bg-gray-700 rounded">
+              {item.icon}
+              <span>{item.label}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-auto pt-6">
+        <Button onClick={signOut} variant="outline" className="w-full text-white hover:bg-gray-700">
+          Log Out
+        </Button>
       </div>
     </nav>
   );
