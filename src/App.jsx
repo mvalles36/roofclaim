@@ -8,15 +8,10 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
-import Dashboard from './pages/Dashboard';
-import UserManagement from './pages/UserManagement';
-import ClientPortal from './pages/ClientPortal';
 import { lazy, Suspense } from 'react';
 
-// Initialize React Query Client
 const queryClient = new QueryClient();
 
-// Lazy load components with error boundary
 const loadable = (importFunc) => {
   return lazy(() =>
     importFunc().catch((error) => {
@@ -26,7 +21,7 @@ const loadable = (importFunc) => {
   );
 };
 
-// Lazy loaded components
+const Dashboard = loadable(() => import('./pages/Dashboard'));
 const Contacts = loadable(() => import('./pages/Contacts'));
 const Jobs = loadable(() => import('./pages/Jobs'));
 const Invoices = loadable(() => import('./pages/Invoices'));
@@ -41,6 +36,8 @@ const DamageDetection = loadable(() => import('./pages/DamageDetection'));
 const DocumentHub = loadable(() => import('./pages/DocumentHub'));
 const InspectionReport = loadable(() => import('./pages/InspectionReport'));
 const DocumentEditor = loadable(() => import('./pages/components/DocumentEditor'));
+const UserManagement = loadable(() => import('./pages/UserManagement'));
+const ClientPortal = loadable(() => import('./pages/ClientPortal'));
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { session, userRole } = useSupabaseAuth();
@@ -70,12 +67,12 @@ const App = () => (
 );
 
 const AppContent = () => {
-  const { session, logout } = useSupabaseAuth();
+  const { session } = useSupabaseAuth();
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {session && <Navigation onLogout={logout} />}
-      <main className={session ? "flex-1 overflow-y-auto p-8" : "w-full"}>
+      {session && <Navigation />}
+      <main className={`flex-1 overflow-y-auto p-8 ${!session ? 'w-full' : ''}`}>
         <Suspense fallback={<div className="text-center mt-10">Loading...</div>}>
           <Routes>
             <Route path="/login" element={<Login />} />
