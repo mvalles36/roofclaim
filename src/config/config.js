@@ -1,5 +1,4 @@
 export const config = {
-  llamaModelPath: '/path/to/your/llama/model.bin', // Update this with the actual path to your Llama model
   companyInfo: {
     name: 'RoofCare Assist',
     // Add more company details as needed
