@@ -10,24 +10,21 @@ import { supabase } from '../integrations/supabase/supabase';
 import { TaskList } from '../components/TaskList';
 import { TaskForm } from '../components/TaskForm';
 import TaskKanban from '../components/TaskKanban';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
   const [viewMode, setViewMode] = useState('list');
   const { userRole } = useSupabaseAuth();
-  const [newTask, setNewTask] = useState({
-    title: '',
-    description: '',
-    status: 'pending',
-    priority: 'low',
-    assignee_role: '',
-    due_date: '',
+  const [taskStats, setTaskStats] = useState({
+    totalTasks: 0,
+    completedTasks: 0,
+    pendingTasks: 0,
   });
-  const [assignees, setAssignees] = useState([]);
 
   useEffect(() => {
     fetchTasks();
-    fetchAssignees();
+    fetchTaskStats();
   }, [userRole]);
 
   const fetchTasks = async () => {
@@ -46,36 +43,18 @@ const Tasks = () => {
     }
   };
 
-  const fetchAssignees = async () => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('id, role');
-
+  const fetchTaskStats = async () => {
+    const { data, error } = await supabase.rpc('get_task_stats');
     if (error) {
-      console.error('Error fetching assignees:', error);
+      console.error('Error fetching task stats:', error);
     } else {
-      setAssignees(data);
+      setTaskStats(data);
     }
   };
 
   const handleTaskCreated = async () => {
-    const { data, error } = await supabase
-      .from('tasks')
-      .insert([newTask]);
-
-    if (error) {
-      console.error('Error creating task:', error);
-    } else {
-      fetchTasks();
-      setNewTask({
-        title: '',
-        description: '',
-        status: 'pending',
-        priority: 'low',
-        assignee_role: '',
-        due_date: '',
-      });
-    }
+    await fetchTasks();
+    await fetchTaskStats();
   };
 
   const handleTaskUpdated = async (taskId, updates) => {
@@ -87,13 +66,62 @@ const Tasks = () => {
     if (error) {
       console.error('Error updating task:', error);
     } else {
-      fetchTasks();
+      await fetchTasks();
+      await fetchTaskStats();
     }
   };
 
+  const taskCompletionData = [
+    { name: 'Completed', value: taskStats.completedTasks },
+    { name: 'Pending', value: taskStats.pendingTasks },
+  ];
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <h1 className="text-3xl font-bold">Task Management</h1>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Total Tasks</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold">{taskStats.totalTasks}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Completed Tasks</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold text-green-500">{taskStats.completedTasks}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Pending Tasks</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold text-yellow-500">{taskStats.pendingTasks}</div>
+          </CardContent>
+        </Card>
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Task Completion Overview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={taskCompletionData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="value" fill="#8884d8" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
       <Tabs value={viewMode} onValueChange={setViewMode}>
         <TabsList>
           <TabsTrigger value="list">List View</TabsTrigger>
@@ -112,12 +140,7 @@ const Tasks = () => {
             <CardTitle>Create New Task</CardTitle>
           </CardHeader>
           <CardContent>
-            <TaskForm
-              onTaskCreated={handleTaskCreated}
-              assignees={assignees}
-              initialTask={newTask}
-              onTaskChanged={setNewTask}
-            />
+            <TaskForm onTaskCreated={handleTaskCreated} />
           </CardContent>
         </Card>
       )}

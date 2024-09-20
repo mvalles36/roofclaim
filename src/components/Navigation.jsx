@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Button } from "@/components/ui/button";
-import { Home, Users, Briefcase, FileText, Search, Inbox, CheckSquare, DollarSign, User, Settings } from 'lucide-react';
+import { Home, Users, Briefcase, FileText, Search, Inbox, CheckSquare, DollarSign, User, Settings, FileSpreadsheet, BarChart2, PieChart, Folder } from 'lucide-react';
 
 const Navigation = () => {
   const { userRole, signOut } = useSupabaseAuth();
@@ -16,6 +16,10 @@ const Navigation = () => {
     { to: "/supplement-tracking", icon: <Inbox className="w-4 h-4 mr-2" />, label: "Supplement Tracking" },
     { to: "/tasks", icon: <CheckSquare className="w-4 h-4 mr-2" />, label: "Tasks" },
     { to: "/insurance-mortgage-tracker", icon: <DollarSign className="w-4 h-4 mr-2" />, label: "Insurance/Mortgage Tracker" },
+    { to: "/document-hub", icon: <Folder className="w-4 h-4 mr-2" />, label: "Document Hub" },
+    { to: "/admin-dashboard", icon: <BarChart2 className="w-4 h-4 mr-2" />, label: "Admin Dashboard" },
+    { to: "/sales-dashboard", icon: <PieChart className="w-4 h-4 mr-2" />, label: "Sales Dashboard" },
+    { to: "/project-manager-dashboard", icon: <FileSpreadsheet className="w-4 h-4 mr-2" />, label: "Project Manager Dashboard" },
     { to: "/profile", icon: <User className="w-4 h-4 mr-2" />, label: "Profile" },
     { to: "/settings", icon: <Settings className="w-4 h-4 mr-2" />, label: "Settings" },
   ];
