@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { supabase } from '../integrations/supabase/supabase';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -17,7 +18,7 @@ const Login = () => {
 
   useEffect(() => {
     if (session) {
-      navigate('/'); // Redirect to dashboard if session is active
+      navigate('/');
     }
   }, [session, navigate]);
 
@@ -26,8 +27,15 @@ const Login = () => {
     setError(null);
     setLoading(true);
     try {
-      const { error } = await login(email, password);
-      if (error) throw error;
+      console.log('Attempting login with email:', email);
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      
+      if (error) {
+        console.error('Supabase login error:', error);
+        throw error;
+      }
+
+      console.log('Login successful, user data:', data);
       // If login is successful, the session will be updated, triggering the useEffect above
     } catch (error) {
       console.error('Login error:', error);
