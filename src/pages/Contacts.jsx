@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { useRoleBasedAccess } from '../hooks/useRoleBasedAccess';
+import { salesGPTService } from '../services/SalesGPTService';
 import { toast } from 'sonner';
 import { Phone, Mail, MapPin, Star, Calendar, Clock } from 'lucide-react';
 
@@ -27,6 +28,7 @@ const Contacts = () => {
     lead_status: 'New',
     tags: [],
   });
+  const [aiResponse, setAiResponse] = useState('');
 
   useEffect(() => {
     fetchContacts();
@@ -72,6 +74,19 @@ const Contacts = () => {
     } catch (error) {
       console.error('Error updating lead status:', error);
       toast.error('Failed to update lead status');
+    }
+  };
+
+  const handleInitiateCall = async (contact) => {
+    try {
+      const response = await salesGPTService.initiateCall(
+        { name: contact.full_name, phone: contact.phone_number },
+        'Roof inspection after recent weather events'
+      );
+      setAiResponse(response);
+    } catch (error) {
+      console.error('Error initiating AI call:', error);
+      toast.error('Failed to initiate AI call');
     }
   };
 
@@ -161,6 +176,7 @@ const Contacts = () => {
                   </TableCell>
                   <TableCell>
                     <Button variant="outline" onClick={() => setSelectedContact(contact)}>View Details</Button>
+                    <Button variant="outline" onClick={() => handleInitiateCall(contact)}>Initiate AI Call</Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -177,9 +193,7 @@ const Contacts = () => {
             <Tabs defaultValue="details">
               <TabsList>
                 <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="tasks">Tasks</TabsTrigger>
-                <TabsTrigger value="documents">Documents</TabsTrigger>
-                <TabsTrigger value="insurance">Insurance</TabsTrigger>
+                <TabsTrigger value="ai-response">AI Response</TabsTrigger>
               </TabsList>
               <TabsContent value="details">
                 <div className="grid grid-cols-2 gap-4">
@@ -197,14 +211,11 @@ const Contacts = () => {
                   </div>
                 </div>
               </TabsContent>
-              <TabsContent value="tasks">
-                <p>Tasks related to this contact will be displayed here.</p>
-              </TabsContent>
-              <TabsContent value="documents">
-                <p>Documents related to this contact will be displayed here.</p>
-              </TabsContent>
-              <TabsContent value="insurance">
-                <p>Insurance information for this contact will be displayed here.</p>
+              <TabsContent value="ai-response">
+                <div>
+                  <h3 className="font-semibold mb-2">AI Call Response</h3>
+                  <p>{aiResponse || "No AI call initiated yet."}</p>
+                </div>
               </TabsContent>
             </Tabs>
           </DialogContent>
