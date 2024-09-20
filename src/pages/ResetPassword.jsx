@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,16 +13,18 @@ const ResetPassword = () => {
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    const accessToken = searchParams.get('access_token');
+    // Extract the access token from the URL
+    const hashParams = new URLSearchParams(location.hash.slice(1));
+    const accessToken = hashParams.get('access_token');
     if (!accessToken) {
       setError('Invalid or missing reset token.');
       navigate('/login');
     }
-  }, [searchParams, navigate]);
+  }, [location, navigate]);
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
@@ -36,14 +38,7 @@ const ResetPassword = () => {
 
     setLoading(true);
     try {
-      const accessToken = searchParams.get('access_token');
-      if (!accessToken) {
-        throw new Error('Invalid or missing reset token.');
-      }
-
-      const { error } = await supabase.auth.updateUser({
-        password: password,
-      });
+      const { error } = await supabase.auth.updateUser({ password: password });
 
       if (error) throw error;
       setMessage('Your password has been reset successfully.');

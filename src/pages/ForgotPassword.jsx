@@ -12,7 +12,6 @@ const ForgotPassword = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Basic email validation function
   const isValidEmail = (email) => /\S+@\S+\.\S+/.test(email);
 
   const handleResetPassword = async (e) => {

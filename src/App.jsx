@@ -55,14 +55,14 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <Router>
-      <SupabaseAuthProvider>
-        <TooltipProvider>
-          <Toaster />
+    <SupabaseAuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Router>
           <AppContent />
-        </TooltipProvider>
-      </SupabaseAuthProvider>
-    </Router>
+        </Router>
+      </TooltipProvider>
+    </SupabaseAuthProvider>
   </QueryClientProvider>
 );
 
