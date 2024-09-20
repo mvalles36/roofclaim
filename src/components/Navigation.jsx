@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Button } from "@/components/ui/button";
-import { Home, Users, Briefcase, FileText, Search, Inbox, CheckSquare, DollarSign, User, Settings, FileSpreadsheet, BarChart2, PieChart, Folder } from 'lucide-react';
+import { Home, Users, Briefcase, FileText, Search, Inbox, CheckSquare, DollarSign, User, Settings, FileSpreadsheet, BarChart2, PieChart, Folder, Phone, Bot, Shield } from 'lucide-react';
 
 const Navigation = () => {
   const { userRole, signOut } = useSupabaseAuth();
@@ -17,20 +17,22 @@ const Navigation = () => {
     { to: "/tasks", icon: <CheckSquare className="w-4 h-4 mr-2" />, label: "Tasks" },
     { to: "/insurance-mortgage-tracker", icon: <DollarSign className="w-4 h-4 mr-2" />, label: "Insurance/Mortgage Tracker" },
     { to: "/document-hub", icon: <Folder className="w-4 h-4 mr-2" />, label: "Document Hub" },
-    { to: "/admin-dashboard", icon: <BarChart2 className="w-4 h-4 mr-2" />, label: "Admin Dashboard" },
-    { to: "/sales-dashboard", icon: <PieChart className="w-4 h-4 mr-2" />, label: "Sales Dashboard" },
+    { to: "/admin-dashboard", icon: <Shield className="w-4 h-4 mr-2" />, label: "Admin Dashboard" },
+    { to: "/sales-dashboard", icon: <BarChart2 className="w-4 h-4 mr-2" />, label: "Sales Dashboard" },
     { to: "/project-manager-dashboard", icon: <FileSpreadsheet className="w-4 h-4 mr-2" />, label: "Project Manager Dashboard" },
+    { to: "/damage-detection", icon: <PieChart className="w-4 h-4 mr-2" />, label: "Damage Detection" },
+    { to: "/sales-gpt", icon: <Bot className="w-4 h-4 mr-2" />, label: "SalesGPT" },
     { to: "/profile", icon: <User className="w-4 h-4 mr-2" />, label: "Profile" },
     { to: "/settings", icon: <Settings className="w-4 h-4 mr-2" />, label: "Settings" },
   ];
 
   return (
     <nav className="bg-gray-800 text-white w-64 min-h-screen p-4">
-      <div className="text-xl font-bold mb-6">YourCompany</div>
+      <div className="text-xl font-bold mb-6">RoofClaim AI</div>
       <ul className="space-y-2">
         {navItems.map((item) => (
           <li key={item.to}>
-            <Link to={item.to} className="flex items-center py-2 px-4 hover:bg-gray-700 rounded">
+            <Link to={item.to} className="flex items-center py-2 px-4 hover:bg-gray-700 rounded transition-colors duration-200">
               {item.icon}
               <span>{item.label}</span>
             </Link>
@@ -38,7 +40,7 @@ const Navigation = () => {
         ))}
       </ul>
       <div className="mt-auto pt-6">
-        <Button onClick={signOut} variant="outline" className="w-full text-white hover:bg-gray-700">
+        <Button onClick={signOut} variant="outline" className="w-full text-white hover:bg-gray-700 transition-colors duration-200">
           Log Out
         </Button>
       </div>
