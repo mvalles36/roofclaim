@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { salesGPTService } from '../services/SalesGPTService';
 import { supabase } from '../integrations/supabase/supabase';
 import { Phone, MessageSquare, User, Mail } from 'lucide-react';
@@ -44,13 +43,13 @@ const SalesGPT = () => {
   };
 
   const fetchMetrics = async () => {
-    // In a real application, you'd fetch these metrics from your backend
-    setMetrics({
-      callsInitiated: 150,
-      conversionsRate: 25,
-      averageCallDuration: 8.5,
-      customerSatisfaction: 4.2,
-    });
+    try {
+      const metricsData = await salesGPTService.getMetrics();
+      setMetrics(metricsData);
+    } catch (error) {
+      console.error('Error fetching metrics:', error);
+      toast.error('Failed to fetch metrics');
+    }
   };
 
   const handleInitiateCall = async () => {
@@ -77,7 +76,7 @@ const SalesGPT = () => {
     setUserInput('');
 
     try {
-      const response = await salesGPTService.generateResponse(userInput);
+      const response = await salesGPTService.generateResponse(userInput, selectedContact.id);
       setConversation(prev => [...prev, { role: 'assistant', content: response }]);
     } catch (error) {
       console.error('Error generating response:', error);

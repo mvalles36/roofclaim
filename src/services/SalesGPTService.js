@@ -32,10 +32,10 @@ class SalesGPTService {
   }
 
   async initiateCall(contactInfo, callReason) {
-    console.log(`Initiating call to ${contactInfo.name} at ${contactInfo.phone}`);
+    console.log(`Initiating call to ${contactInfo.full_name} at ${contactInfo.phone_number}`);
     console.log(`Reason for call: ${callReason}`);
 
-    const initialPrompt = `You're calling ${contactInfo.name} regarding ${callReason}. Start the conversation politely and professionally.`;
+    const initialPrompt = `You're calling ${contactInfo.full_name} regarding ${callReason}. Start the conversation politely and professionally.`;
     const response = await this.generateResponse(initialPrompt, contactInfo.id);
 
     return response;
@@ -43,6 +43,16 @@ class SalesGPTService {
 
   getConversation(conversationId) {
     return this.conversations.get(conversationId) || [];
+  }
+
+  async getMetrics() {
+    // Simulate fetching metrics from a backend
+    return {
+      callsInitiated: Math.floor(Math.random() * 100),
+      conversionsRate: (Math.random() * 30).toFixed(2),
+      averageCallDuration: (Math.random() * 10 + 5).toFixed(1),
+      customerSatisfaction: (Math.random() * 1 + 4).toFixed(1),
+    };
   }
 }
 
