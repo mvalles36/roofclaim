@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Button } from "@/components/ui/button";
-import { Home, Users, Briefcase, FileText, Search, Inbox, CheckSquare, DollarSign, User, Settings, FileSpreadsheet, BarChart2, PieChart, Folder, Phone, Bot, Shield } from 'lucide-react';
+import { Home, Users, Briefcase, FileText, Search, Inbox, CheckSquare, DollarSign, User, Settings, FileSpreadsheet, BarChart2, PieChart, Folder, Phone, Bot, Shield, Mail, UserCog, FileCheck } from 'lucide-react';
 
 const Navigation = () => {
   const { userRole, signOut } = useSupabaseAuth();
@@ -22,6 +22,10 @@ const Navigation = () => {
     { to: "/project-manager-dashboard", icon: <FileSpreadsheet className="w-4 h-4 mr-2" />, label: "Project Manager Dashboard" },
     { to: "/damage-detection", icon: <PieChart className="w-4 h-4 mr-2" />, label: "Damage Detection" },
     { to: "/sales-gpt", icon: <Bot className="w-4 h-4 mr-2" />, label: "SalesGPT" },
+    { to: "/inbox", icon: <Mail className="w-4 h-4 mr-2" />, label: "Inbox" },
+    { to: "/client-portal", icon: <User className="w-4 h-4 mr-2" />, label: "Client Portal" },
+    { to: "/smart-supplement", icon: <FileCheck className="w-4 h-4 mr-2" />, label: "Smart Supplement" },
+    { to: "/user-management", icon: <UserCog className="w-4 h-4 mr-2" />, label: "User Management" },
     { to: "/profile", icon: <User className="w-4 h-4 mr-2" />, label: "Profile" },
     { to: "/settings", icon: <Settings className="w-4 h-4 mr-2" />, label: "Settings" },
   ];
@@ -40,7 +44,7 @@ const Navigation = () => {
         ))}
       </ul>
       <div className="mt-auto pt-6">
-        <Button onClick={signOut} variant="outline" className="w-full text-white hover:bg-gray-700 transition-colors duration-200">
+        <Button onClick={signOut} variant="outline" className="w-full text-white bg-[#4bd1a0] hover:bg-[#3ca880] transition-colors duration-200">
           Log Out
         </Button>
       </div>
