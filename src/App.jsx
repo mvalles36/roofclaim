@@ -36,7 +36,7 @@ const DocumentEditor = loadable(() => import('./pages/components/DocumentEditor'
 const UserManagement = loadable(() => import('./pages/UserManagement'));
 const ClientPortal = loadable(() => import('./pages/ClientPortal'));
 const SalesGPT = loadable(() => import('./pages/SalesGPT'));
-const Inbox = loadable(() => import('./pages/Inbox'));
+const EmailInbox = loadable(() => import('./components/EmailInbox'));
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { session, userRole } = useSupabaseAuth();
@@ -94,7 +94,7 @@ const AppContent = () => {
             <Route path="/user-management" element={<ProtectedRoute allowedRoles={['admin']}><UserManagement /></ProtectedRoute>} />
             <Route path="/client-portal" element={<ProtectedRoute><ClientPortal /></ProtectedRoute>} />
             <Route path="/sales-gpt" element={<ProtectedRoute><SalesGPT /></ProtectedRoute>} />
-            <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
+            <Route path="/inbox" element={<ProtectedRoute><EmailInbox /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to={session ? "/" : "/login"} replace />} />
           </Routes>
         </Suspense>
