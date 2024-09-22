@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
@@ -29,12 +29,15 @@ const Contacts = () => {
     tags: [],
   });
   const [aiResponse, setAiResponse] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchContacts();
   }, [session]);
 
   const fetchContacts = async () => {
+    setLoading(true);
+    console.log("Fetching contacts..."); // Log fetching action
     try {
       const { data, error } = await supabase
         .from('contacts')
@@ -42,10 +45,13 @@ const Contacts = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      console.log("Contacts fetched:", data); // Log fetched data
       setContacts(data);
     } catch (error) {
       console.error('Error fetching contacts:', error);
       toast.error('Failed to fetch contacts');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -141,49 +147,53 @@ const Contacts = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
         className="mb-4"
       />
-      <Card>
-        <CardHeader>
-          <CardTitle>Contact List</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredContacts.map((contact) => (
-                <TableRow key={contact.id}>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Avatar>
-                        <AvatarFallback>{contact.full_name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <span>{contact.full_name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{contact.email}</TableCell>
-                  <TableCell>{contact.phone_number}</TableCell>
-                  <TableCell>
-                    <Badge variant={contact.lead_status === 'New' ? 'default' : 'secondary'}>
-                      {contact.lead_status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="outline" onClick={() => setSelectedContact(contact)}>View Details</Button>
-                    <Button variant="outline" onClick={() => handleInitiateCall(contact)}>Initiate AI Call</Button>
-                  </TableCell>
+      {loading ? (
+        <p>Loading contacts...</p>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Contact List</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              </TableHeader>
+              <TableBody>
+                {filteredContacts.map((contact) => (
+                  <TableRow key={contact.id}>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Avatar>
+                          <AvatarFallback>{contact.full_name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <span>{contact.full_name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{contact.email}</TableCell>
+                    <TableCell>{contact.phone_number}</TableCell>
+                    <TableCell>
+                      <Badge variant={contact.lead_status === 'New' ? 'default' : 'secondary'}>
+                        {contact.lead_status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Button variant="outline" onClick={() => setSelectedContact(contact)}>View Details</Button>
+                      <Button variant="outline" onClick={() => handleInitiateCall(contact)}>Initiate AI Call</Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
       {selectedContact && (
         <Dialog open={!!selectedContact} onOpenChange={() => setSelectedContact(null)}>
           <DialogContent className="max-w-4xl">
