@@ -1,28 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FileText, ChevronLeft, ChevronRight } from "lucide-react";
-import { supabase } from '../../integrations/supabase/supabase';
 
-const TemplateLibrary = ({ setSelectedTemplate, handleGenerateDocument }) => {
-  const [templates, setTemplates] = useState([]);
+const TemplateLibrary = ({ templates, setSelectedTemplate, handleGenerateDocument }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const templatesPerPage = 12;
-
-  useEffect(() => {
-    fetchTemplates();
-  }, []);
-
-  const fetchTemplates = async () => {
-    const { data, error } = await supabase.from('templates').select('*');
-    if (error) {
-      console.error('Error fetching templates:', error);
-    } else {
-      setTemplates(data);
-    }
-  };
 
   const filteredTemplates = templates.filter(template =>
     template.name.toLowerCase().includes(searchTerm.toLowerCase())
