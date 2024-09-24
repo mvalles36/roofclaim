@@ -5,6 +5,8 @@ import { supabase } from '../integrations/supabase/supabase';
 import { Link } from 'react-router-dom';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { DollarSign, Users, Clock, Briefcase } from 'lucide-react';
+import KPICard from '../components/KPICard';
+import SalesProcessVisualization from '../components/SalesProcessVisualization';
 
 const SalesDashboard = () => {
   const [kpis, setKpis] = useState({
@@ -17,6 +19,7 @@ const SalesDashboard = () => {
   const [recentActivities, setRecentActivities] = useState([]);
   const [salesPerformance, setSalesPerformance] = useState([]);
   const [leadSourceDistribution, setLeadSourceDistribution] = useState([]);
+  const [salesProcessData, setSalesProcessData] = useState([]);
 
   useEffect(() => {
     fetchSalesKPIs();
@@ -24,6 +27,7 @@ const SalesDashboard = () => {
     fetchRecentActivities();
     fetchSalesPerformance();
     fetchLeadSourceDistribution();
+    fetchSalesProcessData();
   }, []);
 
   const fetchSalesKPIs = async () => {
@@ -68,6 +72,37 @@ const SalesDashboard = () => {
       console.error('Error fetching lead source distribution:', error);
     } else {
       setLeadSourceDistribution(data);
+    }
+  };
+
+  const fetchSalesProcessData = async () => {
+    const { data, error } = await supabase
+      .from('Stages')
+      .select(`
+        id,
+        name,
+        description,
+        duration,
+        min_probability,
+        max_probability,
+        Steps (
+          id,
+          name,
+          description,
+          probability,
+          wait_time,
+          Activities (id, activity),
+          Tools (id, tool),
+          ExpectedOutcomes (id, outcome),
+          Challenges (id, challenge)
+        )
+      `)
+      .order('id', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching sales process data:', error);
+    } else {
+      setSalesProcessData(data);
     }
   };
 
@@ -147,6 +182,14 @@ const SalesDashboard = () => {
       </Card>
       <Card>
         <CardHeader>
+          <CardTitle>Sales Process Visualization</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <SalesProcessVisualization data={salesProcessData} />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
           <CardTitle>Recent Sales Activities</CardTitle>
         </CardHeader>
         <CardContent>
@@ -170,17 +213,5 @@ const SalesDashboard = () => {
     </div>
   );
 };
-
-const KPICard = ({ title, value, icon }) => (
-  <Card>
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium">{title}</CardTitle>
-      {icon}
-    </CardHeader>
-    <CardContent>
-      <div className="text-2xl font-bold">{value}</div>
-    </CardContent>
-  </Card>
-);
 
 export default SalesDashboard;

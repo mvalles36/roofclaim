@@ -16,3 +16,40 @@ if (import.meta.env.MODE === 'development') {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Helper functions for the new tables
+export const getStages = async () => {
+  const { data, error } = await supabase.from('Stages').select('*');
+  if (error) throw error;
+  return data;
+};
+
+export const getSteps = async (stageId) => {
+  const { data, error } = await supabase.from('Steps').select('*').eq('stage_id', stageId);
+  if (error) throw error;
+  return data;
+};
+
+export const getActivities = async (stepId) => {
+  const { data, error } = await supabase.from('Activities').select('*').eq('step_id', stepId);
+  if (error) throw error;
+  return data;
+};
+
+export const getTools = async (stepId) => {
+  const { data, error } = await supabase.from('Tools').select('*').eq('step_id', stepId);
+  if (error) throw error;
+  return data;
+};
+
+export const getExpectedOutcomes = async (stepId) => {
+  const { data, error } = await supabase.from('ExpectedOutcomes').select('*').eq('step_id', stepId);
+  if (error) throw error;
+  return data;
+};
+
+export const getChallenges = async (stepId) => {
+  const { data, error } = await supabase.from('Challenges').select('*').eq('step_id', stepId);
+  if (error) throw error;
+  return data;
+};
