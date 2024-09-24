@@ -69,6 +69,17 @@ const SalesGPT = () => {
     }
   };
 
+  const handleEndCall = async () => {
+    try {
+      await salesGPTService.endCall(selectedContact.id);
+      setIsCallActive(false);
+      toast.success('Call ended successfully');
+    } catch (error) {
+      console.error('Error ending call:', error);
+      toast.error('Failed to end call');
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!userInput.trim()) return;
 
@@ -141,9 +152,15 @@ const SalesGPT = () => {
               value={callReason}
               onChange={(e) => setCallReason(e.target.value)}
             />
-            <Button onClick={handleInitiateCall} disabled={isCallActive}>
-              <Phone className="mr-2 h-4 w-4" /> Initiate Call
-            </Button>
+            {!isCallActive ? (
+              <Button onClick={handleInitiateCall}>
+                <Phone className="mr-2 h-4 w-4" /> Initiate Call
+              </Button>
+            ) : (
+              <Button onClick={handleEndCall} variant="destructive">
+                <Phone className="mr-2 h-4 w-4" /> End Call
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>
