@@ -115,9 +115,9 @@ const UserManagement = () => {
                   <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="sales_manager">Sales Manager</SelectItem>
                   <SelectItem value="project_manager">Project Manager</SelectItem>
-                  <SelectItem value="sales">Sales Development Rep</SelectItem>
-                  <SelectItem value="customer_success">Customer Success Rep</SelectItem>
-                  <SelectItem value="crew_team_leader">Crew Team Leader</SelectItem>
+                  <SelectItem value="sales_rep">Sales Rep</SelectItem>
+                  <SelectItem value="customer_success_rep">Customer Success Rep</SelectItem>
+                  <SelectItem value="contractor">Contractor</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -157,9 +157,9 @@ const UserManagement = () => {
                         <SelectItem value="admin">Admin</SelectItem>
                         <SelectItem value="sales_manager">Sales Manager</SelectItem>
                         <SelectItem value="project_manager">Project Manager</SelectItem>
-                        <SelectItem value="sales">Sales Development Rep</SelectItem>
-                        <SelectItem value="customer_success">Customer Success Rep</SelectItem>
-                        <SelectItem value="crew_team_leader">Crew Team Leader</SelectItem>
+                        <SelectItem value="sales_rep">Sales Rep</SelectItem>
+                        <SelectItem value="customer_success_rep">Customer Success Rep</SelectItem>
+                        <SelectItem value="contractor">Contractor</SelectItem>
                       </SelectContent>
                     </Select>
                   </TableCell>
