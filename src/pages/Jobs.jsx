@@ -31,11 +31,11 @@ const Jobs = () => {
     }
   };
 
-  const createClientPortal = async (job) => {
+  const createJobPortal = async (job) => {
     try {
-      // Check if client portal already exists
+      // Check if job portal already exists
       const { data: existingPortal, error: portalError } = await supabase
-        .from('client_portals')
+        .from('job_portals')
         .select('id')
         .eq('contact_id', job.contacts.id)
         .single();
@@ -43,9 +43,9 @@ const Jobs = () => {
       if (portalError && portalError.code !== 'PGRST116') throw portalError;
 
       if (!existingPortal) {
-        // Create new client portal
+        // Create new job portal
         const { data: newPortal, error: createError } = await supabase
-          .from('client_portals')
+          .from('job_portals')
           .insert({ contact_id: job.contacts.id, job_id: job.id })
           .single();
 
@@ -54,7 +54,7 @@ const Jobs = () => {
         // Generate temporary password
         const tempPassword = Math.random().toString(36).slice(-8);
 
-        // Create Supabase auth user
+        // Create auth user
         const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
           email: job.contacts.email,
           password: tempPassword,
@@ -64,22 +64,22 @@ const Jobs = () => {
         if (authError) throw authError;
 
         // Send email with login information
-        await sendClientPortalEmail(job.contacts.email, tempPassword);
+        await sendJobPortalEmail(job.contacts.email, tempPassword);
 
-        toast.success('Client portal created and email sent');
+        toast.success('Job portal created and email sent');
       } else {
-        toast.info('Client portal already exists for this contact');
+        toast.info('Job portal already exists for this contact');
       }
 
-      // Navigate to the client portal
-      navigate(`/client-portal/${job.contacts.id}`);
+      // Navigate to the job portal
+      navigate(`/job-portal/${job.contacts.id}`);
     } catch (error) {
-      console.error('Error creating client portal:', error);
-      toast.error('Failed to create client portal');
+      console.error('Error creating job portal:', error);
+      toast.error('Failed to create job portal');
     }
   };
 
-  const sendClientPortalEmail = async (email, password) => {
+  const sendJobPortalEmail = async (email, password) => {
     // Implement email sending logic here
     console.log(`Sending email to ${email} with password: ${password}`);
     // In a real implementation, you would use a service like SendGrid or AWS SES
@@ -107,7 +107,7 @@ const Jobs = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Client Name</TableHead>
+                <TableHead>Contact Name</TableHead>
                 <TableHead>Job Type</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Start Date</TableHead>
@@ -122,8 +122,8 @@ const Jobs = () => {
                   <TableCell>{job.status}</TableCell>
                   <TableCell>{new Date(job.start_date).toLocaleDateString()}</TableCell>
                   <TableCell>
-                    <Button onClick={() => createClientPortal(job)}>
-                      Create/View Client Portal
+                    <Button onClick={() => createJobPortal(job)}>
+                      Create/View Job Portal
                     </Button>
                   </TableCell>
                 </TableRow>
