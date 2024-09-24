@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const fetchLeadsFromMelissaData = async (center, radius) => {
+export const fetchProspectsFromMelissaData = async (center, radius) => {
   const apiUrl = `https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup`;
   const params = {
     id: import.meta.env.VITE_MELISSA_DATA_API_KEY,
