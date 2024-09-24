@@ -13,22 +13,22 @@ const InsuranceMortgageTracker = () => {
     type: 'insurance',
     amount: '',
     status: 'pending',
-    customer_id: '',
+    contact_id: '',
     job_id: '',
   });
-  const [customers, setCustomers] = useState([]);
+  const [contacts, setContacts] = useState([]);
   const [jobs, setJobs] = useState([]);
 
   useEffect(() => {
     fetchChecks();
-    fetchCustomers();
+    fetchContacts();
     fetchJobs();
   }, []);
 
   const fetchChecks = async () => {
     const { data, error } = await supabase
       .from('insurance_mortgage_checks')
-      .select('*, customers(name), jobs(job_number)')
+      .select('*, contacts(name), jobs(job_number)')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -39,16 +39,16 @@ const InsuranceMortgageTracker = () => {
     }
   };
 
-  const fetchCustomers = async () => {
+  const fetchContacts = async () => {
     const { data, error } = await supabase
-      .from('customers')
+      .from('contacts')
       .select('id, name');
 
     if (error) {
-      console.error('Error fetching customers:', error);
+      console.error('Error fetching contacts:', error);
       // Implement user-friendly error display in production
     } else {
-      setCustomers(data);
+      setContacts(data);
     }
   };
 
@@ -80,7 +80,7 @@ const InsuranceMortgageTracker = () => {
         type: 'insurance',
         amount: '',
         status: 'pending',
-        customer_id: '',
+        contact_id: '',
         job_id: '',
       });
     } catch (error) {
@@ -139,18 +139,18 @@ const InsuranceMortgageTracker = () => {
               />
             </div>
             <div>
-              <Label htmlFor="customer">Customer</Label>
+              <Label htmlFor="contact">Contact</Label>
               <Select
-                value={newCheck.customer_id}
-                onValueChange={(value) => setNewCheck({ ...newCheck, customer_id: value })}
+                value={newCheck.contact_id}
+                onValueChange={(value) => setNewCheck({ ...newCheck, contact_id: value })}
                 // Add ARIA attributes for screen reader support
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select customer" />
+                  <SelectValue placeholder="Select contact" />
                 </SelectTrigger>
                 <SelectContent>
-                  {customers.map((customer) => (
-                    <SelectItem key={customer.id} value={customer.id}>{customer.name}</SelectItem>
+                  {contacts.map((contact) => (
+                    <SelectItem key={contact.id} value={contact.id}>{contact.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -186,7 +186,7 @@ const InsuranceMortgageTracker = () => {
               <TableRow>
                 <TableHead>Type</TableHead>
                 <TableHead>Amount</TableHead>
-                <TableHead>Customer</TableHead>
+                <TableHead>Contact</TableHead>
                 <TableHead>Job</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Action</TableHead>
@@ -197,7 +197,7 @@ const InsuranceMortgageTracker = () => {
                 <TableRow key={check.id}>
                   <TableCell>{check.type}</TableCell>
                   <TableCell>${check.amount}</TableCell>
-                  <TableCell>{check.customers.name}</TableCell>
+                  <TableCell>{check.contacts.name}</TableCell>
                   <TableCell>{check.jobs.job_number}</TableCell>
                   <TableCell>{check.status}</TableCell>
                   <TableCell>
