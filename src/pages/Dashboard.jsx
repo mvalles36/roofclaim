@@ -9,7 +9,7 @@ const Dashboard = () => {
   const { userRole } = useSupabaseAuth();
   const [metrics, setMetrics] = useState({
     totalRevenue: 0,
-    totalCustomers: 0,
+    totalContacts: 0,
     totalJobs: 0,
     totalInvoices: 0,
   });
@@ -44,7 +44,7 @@ const Dashboard = () => {
       <h1 className="text-3xl font-bold">Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard title="Total Revenue" value={`$${metrics.totalRevenue.toFixed(2)}`} icon={<DollarSign className="h-8 w-8 text-green-500" />} />
-        <MetricCard title="Total Customers" value={metrics.totalCustomers} icon={<Users className="h-8 w-8 text-blue-500" />} />
+        <MetricCard title="Total Contacts" value={metrics.totalContacts} icon={<Users className="h-8 w-8 text-blue-500" />} />
         <MetricCard title="Total Jobs" value={metrics.totalJobs} icon={<Briefcase className="h-8 w-8 text-yellow-500" />} />
         <MetricCard title="Total Invoices" value={metrics.totalInvoices} icon={<FileText className="h-8 w-8 text-purple-500" />} />
       </div>
