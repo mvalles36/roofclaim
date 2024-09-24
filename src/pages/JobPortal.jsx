@@ -8,18 +8,18 @@ import { supabase } from '../integrations/supabase/supabase';
 import { SupplementList } from '../components/SupplementList';
 import ContactView from '../components/ContactView';
 
-const ClientPortal = () => {
+const JobPortal = () => {
   const { contactId } = useParams();
   const [jobDetails, setJobDetails] = useState(null);
-  const [projectProgress, setProjectProgress] = useState(0);
+  const [jobProgress, setJobProgress] = useState(0);
   const [financialOverview, setFinancialOverview] = useState(null);
   const [mortgageCheckStatus, setMortgageCheckStatus] = useState(null);
 
   useEffect(() => {
-    fetchClientData();
+    fetchJobData();
   }, [contactId]);
 
-  const fetchClientData = async () => {
+  const fetchJobData = async () => {
     try {
       // Fetch job details
       const { data: jobData, error: jobError } = await supabase
@@ -30,11 +30,11 @@ const ClientPortal = () => {
       if (jobError) throw jobError;
       setJobDetails(jobData);
 
-      // Fetch project progress
+      // Fetch job progress
       const { data: progressData, error: progressError } = await supabase
-        .rpc('get_project_progress', { job_id: jobData.id });
-      if (progressError) throw progressError;
-      setProjectProgress(progressData);
+        .rpc('get_job_progress', { job_id: jobData.id });
+      if (jobError) throw jobError;
+      setJobProgress(progressData);
 
       // Fetch financial overview
       const { data: financialData, error: financialError } = await supabase
@@ -57,7 +57,7 @@ const ClientPortal = () => {
 
   return (
     <div className="space-y-6 p-6">
-      <h1 className="text-3xl font-bold">Client Portal</h1>
+      <h1 className="text-3xl font-bold">Job Portal</h1>
       <Tabs defaultValue="overview">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -69,11 +69,11 @@ const ClientPortal = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Project Progress</CardTitle>
+                <CardTitle>Job Progress</CardTitle>
               </CardHeader>
               <CardContent>
-                <Progress value={projectProgress} className="w-full" />
-                <p className="mt-2 text-center">{projectProgress}% Complete</p>
+                <Progress value={jobProgress} className="w-full" />
+                <p className="mt-2 text-center">{jobProgress}% Complete</p>
               </CardContent>
             </Card>
             <Card>
@@ -151,4 +151,4 @@ const ClientPortal = () => {
   );
 };
 
-export default ClientPortal;
+export default JobPortal;
