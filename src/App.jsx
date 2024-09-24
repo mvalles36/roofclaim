@@ -22,7 +22,7 @@ const Dashboard = loadable(() => import('./pages/Dashboard'));
 const Contacts = loadable(() => import('./pages/Contacts'));
 const Jobs = loadable(() => import('./pages/Jobs'));
 const Invoices = loadable(() => import('./pages/Invoices'));
-const FindLeads = loadable(() => import('./pages/FindLeads'));
+const FindProspects = loadable(() => import('./pages/FindProspects'));
 const SupplementTracking = loadable(() => import('./pages/SupplementTracking'));
 const Tasks = loadable(() => import('./pages/Tasks'));
 const InsuranceMortgageTracker = loadable(() => import('./pages/InsuranceMortgageTracker'));
@@ -34,10 +34,14 @@ const DocumentHub = loadable(() => import('./pages/DocumentHub'));
 const InspectionReport = loadable(() => import('./pages/InspectionReport'));
 const DocumentEditor = loadable(() => import('./pages/components/DocumentEditor'));
 const UserManagement = loadable(() => import('./pages/UserManagement'));
-const ClientPortal = loadable(() => import('./pages/ClientPortal'));
+const JobPortal = loadable(() => import('./pages/JobPortal'));
 const SalesGPT = loadable(() => import('./pages/SalesGPT'));
 const EmailInbox = loadable(() => import('./components/EmailInbox'));
 const AdminDashboard = loadable(() => import('./pages/AdminDashboard'));
+const ProjectManagerDashboard = loadable(() => import('./pages/ProjectManagerDashboard'));
+const CustomerSuccessDashboard = loadable(() => import('./pages/CustomerSuccessDashboard'));
+const SalesManagerDashboard = loadable(() => import('./pages/SalesManagerDashboard'));
+const SalesDashboard = loadable(() => import('./pages/SalesDashboard'));
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { session, userRole } = useSupabaseAuth();
@@ -81,7 +85,7 @@ const AppContent = () => {
             <Route path="/contacts" element={<ProtectedRoute><Contacts /></ProtectedRoute>} />
             <Route path="/jobs" element={<ProtectedRoute><Jobs /></ProtectedRoute>} />
             <Route path="/invoices" element={<ProtectedRoute><Invoices /></ProtectedRoute>} />
-            <Route path="/find-leads" element={<ProtectedRoute><FindLeads /></ProtectedRoute>} />
+            <Route path="/find-prospects" element={<ProtectedRoute><FindProspects /></ProtectedRoute>} />
             <Route path="/supplement-tracking" element={<ProtectedRoute><SupplementTracking /></ProtectedRoute>} />
             <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
             <Route path="/insurance-mortgage-tracker" element={<ProtectedRoute><InsuranceMortgageTracker /></ProtectedRoute>} />
@@ -93,10 +97,14 @@ const AppContent = () => {
             <Route path="/inspection-report" element={<ProtectedRoute><InspectionReport /></ProtectedRoute>} />
             <Route path="/document-editor" element={<ProtectedRoute><DocumentEditor /></ProtectedRoute>} />
             <Route path="/user-management" element={<ProtectedRoute allowedRoles={['admin']}><UserManagement /></ProtectedRoute>} />
-            <Route path="/client-portal" element={<ProtectedRoute><ClientPortal /></ProtectedRoute>} />
+            <Route path="/job-portal" element={<ProtectedRoute><JobPortal /></ProtectedRoute>} />
             <Route path="/sales-gpt" element={<ProtectedRoute><SalesGPT /></ProtectedRoute>} />
             <Route path="/inbox" element={<ProtectedRoute><EmailInbox /></ProtectedRoute>} />
             <Route path="/admin-dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/sales-manager-dashboard" element={<ProtectedRoute allowedRoles={['sales_manager']}><SalesManagerDashboard /></ProtectedRoute>} />
+            <Route path="/project-manager-dashboard" element={<ProtectedRoute allowedRoles={['project_manager']}><ProjectManagerDashboard /></ProtectedRoute>} />
+            <Route path="/sales-dashboard" element={<ProtectedRoute allowedRoles={['sales']}><SalesDashboard /></ProtectedRoute>} />
+            <Route path="/customer-success-dashboard" element={<ProtectedRoute allowedRoles={['customer_success']}><CustomerSuccessDashboard /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to={session ? "/" : "/login"} replace />} />
           </Routes>
         </Suspense>
