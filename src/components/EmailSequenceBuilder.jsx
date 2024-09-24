@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Clock } from 'lucide-react';
 import { toast } from 'sonner';
+import { generateAIResponse } from '../utils/openAIClient';
 
 const EmailSequenceBuilder = ({ sequences, contacts, onSaveSequence, onStartSequence }) => {
   const [newSequence, setNewSequence] = useState({ name: '', steps: [] });
@@ -33,14 +34,20 @@ const EmailSequenceBuilder = ({ sequences, contacts, onSaveSequence, onStartSequ
   };
 
   const handleAIWriteEmail = async (index) => {
-    // Placeholder for AI email writing functionality
     toast.info('AI is generating an email...');
-    // Simulating AI response
-    setTimeout(() => {
-      handleUpdateSequenceStep(index, 'email.subject', 'AI Generated Subject');
-      handleUpdateSequenceStep(index, 'email.body', 'This is an AI-generated email body. Customize as needed.');
+    try {
+      const prompt = `Write a professional email for a roofing company's email sequence. The email should be persuasive and encourage the recipient to consider our roofing services. Include a subject line and body.`;
+      const response = await generateAIResponse(prompt);
+      const [subject, ...bodyParts] = response.split('\n');
+      const body = bodyParts.join('\n').trim();
+      
+      handleUpdateSequenceStep(index, 'email.subject', subject.replace('Subject: ', ''));
+      handleUpdateSequenceStep(index, 'email.body', body);
       toast.success('AI has generated an email draft');
-    }, 2000);
+    } catch (error) {
+      console.error('Error generating AI email:', error);
+      toast.error('Failed to generate AI email');
+    }
   };
 
   return (
