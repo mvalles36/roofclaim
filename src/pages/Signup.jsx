@@ -5,12 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from '../integrations/supabase/supabase';
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [role, setRole] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -21,7 +23,7 @@ const SignUp = () => {
     setError(null);
     setLoading(true);
 
-    if (!email || !password || !name) {
+    if (!email || !password || !name || !role) {
       setError('Please complete all fields.');
       setLoading(false);
       return;
@@ -34,7 +36,7 @@ const SignUp = () => {
         options: {
           data: {
             name,
-            role: 'sales' // Default role for new signups
+            role
           }
         }
       });
@@ -48,7 +50,7 @@ const SignUp = () => {
             id: user.id, 
             email, 
             name, 
-            role: 'sales', // Explicitly set the default role in the database
+            role,
             created_at: new Date(), 
             updated_at: new Date() 
           }]);
@@ -126,6 +128,22 @@ const SignUp = () => {
               disabled={loading}
               className="w-full"
             />
+          </div>
+          <div>
+            <Label htmlFor="role">Role</Label>
+            <Select onValueChange={setRole} required>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="sales_manager">Sales Manager</SelectItem>
+                <SelectItem value="project_manager">Project Manager</SelectItem>
+                <SelectItem value="sales_rep">Sales Rep</SelectItem>
+                <SelectItem value="customer_success_rep">Customer Success Rep</SelectItem>
+                <SelectItem value="contractor">Contractor</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Signing up...' : 'Sign Up'}

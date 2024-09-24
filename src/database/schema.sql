@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   auth_id UUID UNIQUE,
   email TEXT UNIQUE NOT NULL,
   name TEXT,
-  role TEXT CHECK (role IN ('admin', 'sales', 'manager', 'supplement_specialist', 'crew_team_leader')),
+  role TEXT CHECK (role IN ('admin', 'sales_manager', 'project_manager', 'sales_rep', 'customer_success_rep', 'contractor')),
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -67,62 +67,4 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Grant execute permission on the function
 GRANT EXECUTE ON FUNCTION get_user_role TO authenticated;
 
--- New tables for the sales process
-
-CREATE TABLE Stages (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    duration INT,
-    min_probability INT,
-    max_probability INT
-);
-
-CREATE TABLE Steps (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    probability INT,
-    wait_time INT,
-    stage_id INT,
-    FOREIGN KEY (stage_id) REFERENCES Stages(id) ON DELETE CASCADE
-);
-
-CREATE TABLE Activities (
-    id SERIAL PRIMARY KEY,
-    step_id INT,
-    activity TEXT,
-    FOREIGN KEY (step_id) REFERENCES Steps(id) ON DELETE CASCADE
-);
-
-CREATE TABLE Tools (
-    id SERIAL PRIMARY KEY,
-    step_id INT,
-    tool TEXT,
-    FOREIGN KEY (step_id) REFERENCES Steps(id) ON DELETE CASCADE
-);
-
-CREATE TABLE ExpectedOutcomes (
-    id SERIAL PRIMARY KEY,
-    step_id INT,
-    outcome TEXT,
-    FOREIGN KEY (step_id) REFERENCES Steps(id) ON DELETE CASCADE
-);
-
-CREATE TABLE Challenges (
-    id SERIAL PRIMARY KEY,
-    step_id INT,
-    challenge TEXT,
-    FOREIGN KEY (step_id) REFERENCES Steps(id) ON DELETE CASCADE
-);
-
--- Create policies for the new tables
-CREATE POLICY select_stages ON Stages FOR SELECT USING (true);
-CREATE POLICY select_steps ON Steps FOR SELECT USING (true);
-CREATE POLICY select_activities ON Activities FOR SELECT USING (true);
-CREATE POLICY select_tools ON Tools FOR SELECT USING (true);
-CREATE POLICY select_expected_outcomes ON ExpectedOutcomes FOR SELECT USING (true);
-CREATE POLICY select_challenges ON Challenges FOR SELECT USING (true);
-
--- Grant necessary permissions for the new tables
-GRANT SELECT ON Stages, Steps, Activities, Tools, ExpectedOutcomes, Challenges TO authenticated;
+-- Existing tables for the sales process remain unchanged

@@ -30,10 +30,8 @@ const UserManagement = () => {
   const handleInviteUser = async (e) => {
     e.preventDefault();
     try {
-      // Generate a unique invite token
       const inviteToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       
-      // Insert the new user into the database with pending status
       const { data, error } = await supabase
         .from('users')
         .insert([{
@@ -46,7 +44,6 @@ const UserManagement = () => {
 
       if (error) throw error;
 
-      // Send invitation email (you'll need to implement this function)
       await sendInvitationEmail(newUser.email, inviteToken);
 
       fetchUsers();
@@ -59,10 +56,8 @@ const UserManagement = () => {
   };
 
   const sendInvitationEmail = async (email, token) => {
-    // Implement your email sending logic here
-    // You can use a service like SendGrid or AWS SES
+    // Implement email sending logic here
     console.log(`Sending invitation to ${email} with token ${token}`);
-    // For now, we'll just log it. In a real app, you'd send an actual email.
   };
 
   const handleUpdateUserRole = async (userId, newRole) => {
@@ -115,10 +110,11 @@ const UserManagement = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="sales">Sales</SelectItem>
-                <SelectItem value="manager">Manager</SelectItem>
-                <SelectItem value="supplement_specialist">Supplement Specialist</SelectItem>
-                <SelectItem value="crew_team_leader">Crew Team Leader</SelectItem>
+                <SelectItem value="sales_manager">Sales Manager</SelectItem>
+                <SelectItem value="project_manager">Project Manager</SelectItem>
+                <SelectItem value="sales_rep">Sales Rep</SelectItem>
+                <SelectItem value="customer_success_rep">Customer Success Rep</SelectItem>
+                <SelectItem value="contractor">Contractor</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -150,10 +146,11 @@ const UserManagement = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="sales">Sales</SelectItem>
-                        <SelectItem value="manager">Manager</SelectItem>
-                        <SelectItem value="supplement_specialist">Supplement Specialist</SelectItem>
-                        <SelectItem value="crew_team_leader">Crew Team Leader</SelectItem>
+                        <SelectItem value="sales_manager">Sales Manager</SelectItem>
+                        <SelectItem value="project_manager">Project Manager</SelectItem>
+                        <SelectItem value="sales_rep">Sales Rep</SelectItem>
+                        <SelectItem value="customer_success_rep">Customer Success Rep</SelectItem>
+                        <SelectItem value="contractor">Contractor</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
