@@ -113,9 +113,10 @@ const UserManagement = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="sales">Sales</SelectItem>
-                  <SelectItem value="manager">Manager</SelectItem>
-                  <SelectItem value="supplement_specialist">Supplement Specialist</SelectItem>
+                  <SelectItem value="sales_manager">Sales Manager</SelectItem>
+                  <SelectItem value="project_manager">Project Manager</SelectItem>
+                  <SelectItem value="sales">Sales Development Rep</SelectItem>
+                  <SelectItem value="customer_success">Customer Success Rep</SelectItem>
                   <SelectItem value="crew_team_leader">Crew Team Leader</SelectItem>
                 </SelectContent>
               </Select>
@@ -154,9 +155,10 @@ const UserManagement = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="sales">Sales</SelectItem>
-                        <SelectItem value="manager">Manager</SelectItem>
-                        <SelectItem value="supplement_specialist">Supplement Specialist</SelectItem>
+                        <SelectItem value="sales_manager">Sales Manager</SelectItem>
+                        <SelectItem value="project_manager">Project Manager</SelectItem>
+                        <SelectItem value="sales">Sales Development Rep</SelectItem>
+                        <SelectItem value="customer_success">Customer Success Rep</SelectItem>
                         <SelectItem value="crew_team_leader">Crew Team Leader</SelectItem>
                       </SelectContent>
                     </Select>
