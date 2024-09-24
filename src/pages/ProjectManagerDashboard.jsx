@@ -8,7 +8,7 @@ const ProjectManagerDashboard = () => {
   const [jobs, setJobs] = useState([]);
   const [performanceMetrics, setPerformanceMetrics] = useState({
     onTimeCompletion: 0,
-    customerSatisfaction: 0,
+    contactSatisfaction: 0,
     averageBudgetVariance: 0,
   });
   const [resourceUtilization, setResourceUtilization] = useState([]);
@@ -83,8 +83,8 @@ const ProjectManagerDashboard = () => {
           description="Jobs completed on schedule"
         />
         <MetricCard
-          title="Customer Satisfaction"
-          value={`${performanceMetrics.customerSatisfaction}/5`}
+          title="Satisfaction"
+          value={`${performanceMetrics.contactSatisfaction}/5`}
           description="Average rating from customers"
         />
         <MetricCard
