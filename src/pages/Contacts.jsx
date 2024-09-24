@@ -25,7 +25,7 @@ const Contacts = () => {
     email: '',
     phone_number: '',
     address: '',
-    lead_status: 'New',
+    contact_status: 'Prospect',
     tags: [],
   });
   const [aiResponse, setAiResponse] = useState('');
@@ -60,7 +60,7 @@ const Contacts = () => {
       const { data, error } = await supabase.from('contacts').insert([newContact]);
       if (error) throw error;
       fetchContacts();
-      setNewContact({ full_name: '', email: '', phone_number: '', address: '', lead_status: 'New', tags: [] });
+      setNewContact({ full_name: '', email: '', phone_number: '', address: '', contact_status: 'Prospect', tags: [] });
       toast.success('Contact added successfully');
     } catch (error) {
       console.error('Error adding contact:', error);
@@ -68,18 +68,18 @@ const Contacts = () => {
     }
   };
 
-  const handleUpdateLeadStatus = async (contactId, newStatus) => {
+  const handleUpdateContactStatus = async (contactId, newStatus) => {
     try {
       const { error } = await supabase
         .from('contacts')
-        .update({ lead_status: newStatus })
+        .update({ contact_status: newStatus })
         .eq('id', contactId);
       if (error) throw error;
       fetchContacts();
-      toast.success('Lead status updated successfully');
+      toast.success('Contact status updated successfully');
     } catch (error) {
-      console.error('Error updating lead status:', error);
-      toast.error('Failed to update lead status');
+      console.error('Error updating contact status:', error);
+      toast.error('Failed to update contact status');
     }
   };
 
@@ -87,7 +87,7 @@ const Contacts = () => {
     try {
       const response = await salesGPTService.initiateCall(
         { name: contact.full_name, phone: contact.phone_number },
-        'Roof inspection after recent weather events'
+        'Call contacts to set up an appointment for a free AI drone roof inspection'
       );
       setAiResponse(response);
     } catch (error) {
@@ -179,8 +179,8 @@ const Contacts = () => {
                     <TableCell>{contact.email}</TableCell>
                     <TableCell>{contact.phone_number}</TableCell>
                     <TableCell>
-                      <Badge variant={contact.lead_status === 'New' ? 'default' : 'secondary'}>
-                        {contact.lead_status}
+                      <Badge variant={contact.contact_status === 'Prospect' ? 'default' : 'secondary'}>
+                        {contact.contact_status}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -214,8 +214,8 @@ const Contacts = () => {
                     <p className="flex items-center"><MapPin className="mr-2" /> {selectedContact.address}</p>
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-2">Lead Information</h3>
-                    <p className="flex items-center"><Star className="mr-2" /> Status: {selectedContact.lead_status}</p>
+                    <h3 className="font-semibold mb-2">{selectedContact.contact_status} Information</h3>
+                    <p className="flex items-center"><Star className="mr-2" /> Status: {selectedContact.contact_status}</p>
                     <p className="flex items-center"><Calendar className="mr-2" /> Created: {new Date(selectedContact.created_at).toLocaleDateString()}</p>
                     <p className="flex items-center"><Clock className="mr-2" /> Last Updated: {new Date(selectedContact.updated_at).toLocaleDateString()}</p>
                   </div>
