@@ -12,7 +12,7 @@ import { Camera, Upload, FileText, Download } from "lucide-react";
 const InspectionReport = () => {
   const [uploadedImages, setUploadedImages] = useState([]);
   const [annotatedImages, setAnnotatedImages] = useState([]);
-  const [customerInfo, setCustomerInfo] = useState({
+  const [contactInfo, setContactInfo] = useState({
     name: '',
     address: '',
     phone: '',
@@ -80,7 +80,7 @@ const InspectionReport = () => {
     yOffset += 20;
 
     doc.setFontSize(12);
-    doc.text(`Customer: ${customerInfo.name}`, 20, yOffset);
+    doc.text(`Contact: ${contactInfo.name}`, 20, yOffset);
     yOffset += 10;
 
     if (annotatedImages.length === 0) {
