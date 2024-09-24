@@ -10,11 +10,11 @@ import { toast } from 'sonner';
 
 const Invoices = () => {
   const [invoices, setInvoices] = useState([]);
-  const [customers, setCustomers] = useState([]);
+  const [contacts, setContacts] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [newInvoice, setNewInvoice] = useState({
-    customer_id: '',
+    contact_id: '',
     job_id: '',
     amount_due: '',
     payment_status: 'Unpaid',
@@ -27,14 +27,14 @@ const Invoices = () => {
 
   useEffect(() => {
     fetchInvoices();
-    fetchCustomers();
+    fetchContacts();
     fetchJobs();
   }, []);
 
   const fetchInvoices = async () => {
     const { data, error } = await supabase
       .from('invoices')
-      .select('*, customers(full_name), jobs(job_type)')
+      .select('*, contacts(full_name), jobs(job_type)')
       .order('invoice_date', { ascending: false });
 
     if (error) {
@@ -45,23 +45,23 @@ const Invoices = () => {
     }
   };
 
-  const fetchCustomers = async () => {
+  const fetchContacts = async () => {
     const { data, error } = await supabase
-      .from('customers')
+      .from('contacts')
       .select('id, full_name');
 
     if (error) {
-      console.error('Error fetching customers:', error);
-      toast.error('Failed to fetch customers');
+      console.error('Error fetching contacts:', error);
+      toast.error('Failed to fetch contacts');
     } else {
-      setCustomers(data);
+      setContacts(data);
     }
   };
 
   const fetchJobs = async () => {
     const { data, error } = await supabase
       .from('jobs')
-      .select('id, job_type, customer_id');
+      .select('id, job_type, contact_id');
 
     if (error) {
       console.error('Error fetching jobs:', error);
@@ -72,7 +72,7 @@ const Invoices = () => {
   };
 
   const handleCreateInvoice = async () => {
-    if (!newInvoice.customer_id || !newInvoice.job_id || !newInvoice.amount_due) {
+    if (!newInvoice.contact_id || !newInvoice.job_id || !newInvoice.amount_due) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -88,7 +88,7 @@ const Invoices = () => {
       toast.success('Invoice created successfully');
       fetchInvoices();
       setNewInvoice({
-        customer_id: '',
+        contact_id: '',
         job_id: '',
         amount_due: '',
         payment_status: 'Unpaid',
@@ -116,7 +116,7 @@ const Invoices = () => {
   };
 
   const filteredInvoices = invoices.filter(invoice =>
-    invoice.customers.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    invoice.contacts.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     invoice.jobs.job_type.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -138,13 +138,13 @@ const Invoices = () => {
             <DialogTitle>Create New Invoice</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <Select onValueChange={(value) => setNewInvoice({ ...newInvoice, customer_id: value })}>
+            <Select onValueChange={(value) => setNewInvoice({ ...newInvoice, contact_id: value })}>
               <SelectTrigger>
-                <SelectValue placeholder="Select a customer" />
+                <SelectValue placeholder="Select a contact" />
               </SelectTrigger>
               <SelectContent>
-                {customers.map((customer) => (
-                  <SelectItem key={customer.id} value={customer.id}>{customer.full_name}</SelectItem>
+                {contacts.map((contact) => (
+                  <SelectItem key={contact.id} value={contact.id}>{contact.full_name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -183,7 +183,7 @@ const Invoices = () => {
             {filteredInvoices.map((invoice) => (
               <li key={invoice.id} className="flex justify-between items-center">
                 <div>
-                  <p className="font-semibold">{invoice.customers.full_name}</p>
+                  <p className="font-semibold">{invoice.contacts.full_name}</p>
                   <p>Job: {invoice.jobs.job_type}</p>
                   <p>Amount: ${invoice.amount_due}</p>
                   <p>Status: {invoice.payment_status}</p>
