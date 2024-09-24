@@ -11,7 +11,7 @@ import { DollarSign, Users, FileText, Clipboard } from 'lucide-react';
 import { toast } from 'sonner';
 import KPICard from '../components/KPICard';
 import RevenueChart from '../components/RevenueChart';
-import LeadChart from '../components/ProspectChart';
+import ProspectChart from '../components/ProspectChart';
 import UserManagement from '../components/UserManagement';
 
 const AdminDashboard = () => {
