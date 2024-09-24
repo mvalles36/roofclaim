@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { getSupplementKPIs, getCurrentSupplementRequests, getSupplementPerformanceHistory } from '../integrations/supabase/supabase';
 
-const SupplementSpecialistDashboard = () => {
+const CustomerSuccessDashboard = () => {
   const [kpis, setKpis] = useState({});
   const [currentRequests, setCurrentRequests] = useState([]);
   const [performanceHistory, setPerformanceHistory] = useState([]);
@@ -45,7 +45,7 @@ const SupplementSpecialistDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Supplement Specialist Dashboard</h1>
+      <h1 className="text-3xl font-bold">Customer Success Rep Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <KPICard title="Total Supplements" value={kpis.totalSupplements} />
         <KPICard title="Approved Supplements" value={kpis.approvedSupplements} />
@@ -161,4 +161,4 @@ const KPICard = ({ title, value }) => (
   </Card>
 );
 
-export default SupplementSpecialistDashboard;
+export default CustomerSuccessDashboard;
