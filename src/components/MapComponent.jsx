@@ -1,13 +1,13 @@
 import React, { useCallback, useRef } from 'react';
 import { GoogleMap, DrawingManager } from "@react-google-maps/api";
 
-const MapComponent = ({ onAreaSelected, drawingOptions }) => {
+const MapComponent = ({ onAreaSelected, center, drawingOptions }) => {
   const mapRef = useRef(null);
   const drawingManagerRef = useRef(null);
 
   const onMapLoad = useCallback((map) => {
     mapRef.current = map;
-    map.setZoom(20);
+    map.setZoom(14);
   }, []);
 
   const onDrawingManagerLoad = useCallback((drawingManager) => {
@@ -24,14 +24,30 @@ const MapComponent = ({ onAreaSelected, drawingOptions }) => {
   return (
     <GoogleMap
       mapContainerStyle={{ width: "100%", height: "400px" }}
-      center={{ lat: 32.7555, lng: -97.3308 }}
-      zoom={20}
+      center={center || { lat: 32.7555, lng: -97.3308 }}
+      zoom={14}
       onLoad={onMapLoad}
     >
       <DrawingManager
         onLoad={onDrawingManagerLoad}
         onRectangleComplete={onRectangleComplete}
-        options={drawingOptions}
+        options={{
+          drawingMode: window.google?.maps?.drawing?.OverlayType?.RECTANGLE,
+          drawingControl: true,
+          drawingControlOptions: {
+            position: window.google?.maps?.ControlPosition?.TOP_CENTER,
+            drawingModes: [window.google?.maps?.drawing?.OverlayType?.RECTANGLE]
+          },
+          rectangleOptions: {
+            fillColor: "#4bd1a0",
+            fillOpacity: 0.3,
+            strokeWeight: 2,
+            strokeColor: "#4bd1a0",
+            clickable: false,
+            editable: true,
+            zIndex: 1
+          }
+        }}
       />
     </GoogleMap>
   );

@@ -15,7 +15,14 @@ export const fetchLeadsFromMelissaData = async (center, radius) => {
   try {
     const response = await axios.get(apiUrl, { params });
     if (response.data && response.data.Records) {
-      return response.data.Records;
+      return response.data.Records.map(record => ({
+        AddressLine1: record.AddressLine1,
+        City: record.City,
+        State: record.State,
+        PostalCode: record.PostalCode,
+        Latitude: record.Latitude,
+        Longitude: record.Longitude
+      }));
     } else {
       throw new Error('Invalid response from Melissa Data API');
     }
