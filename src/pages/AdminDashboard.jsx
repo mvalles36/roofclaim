@@ -11,23 +11,23 @@ import { DollarSign, Users, FileText, Clipboard } from 'lucide-react';
 import { toast } from 'sonner';
 import KPICard from '../components/KPICard';
 import RevenueChart from '../components/RevenueChart';
-import LeadChart from '../components/LeadChart';
+import LeadChart from '../components/ProspectChart';
 import UserManagement from '../components/UserManagement';
 
 const AdminDashboard = () => {
   const [kpis, setKpis] = useState({
     totalRevenue: 0,
-    totalLeads: 0,
+    totalProspects: 0,
     totalInspections: 0,
     totalSupplements: 0
   });
   const [revenueData, setRevenueData] = useState([]);
-  const [leadData, setLeadData] = useState([]);
+  const [prospectData, setProspectData] = useState([]);
 
   useEffect(() => {
     fetchKPIs();
     fetchRevenueData();
-    fetchLeadData();
+    fetchProspectData();
   }, []);
 
   const fetchKPIs = async () => {
@@ -48,12 +48,12 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchLeadData = async () => {
-    const { data, error } = await supabase.rpc('get_daily_leads');
+  const fetchProspectData = async () => {
+    const { data, error } = await supabase.rpc('get_daily_prospects');
     if (error) {
-      console.error('Error fetching lead data:', error);
+      console.error('Error fetching prospect data:', error);
     } else {
-      setLeadData(data);
+      setProspectData(data);
     }
   };
 
@@ -62,18 +62,18 @@ const AdminDashboard = () => {
       <h1 className="text-3xl font-bold">Admin Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard title="Total Revenue" value={`$${kpis.totalRevenue.toLocaleString()}`} icon={<DollarSign className="h-8 w-8 text-green-500" />} />
-        <KPICard title="Total Leads" value={kpis.totalLeads} icon={<Users className="h-8 w-8 text-blue-500" />} />
+        <KPICard title="Total Prospects" value={kpis.totalProspects} icon={<Users className="h-8 w-8 text-blue-500" />} />
         <KPICard title="Total Inspections" value={kpis.totalInspections} icon={<Clipboard className="h-8 w-8 text-yellow-500" />} />
         <KPICard title="Total Supplements" value={kpis.totalSupplements} icon={<FileText className="h-8 w-8 text-purple-500" />} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <RevenueChart data={revenueData} />
-        <LeadChart data={leadData} />
+        <ProspectChart data={prospectData} />
       </div>
       <UserManagement />
       <div className="flex space-x-4">
         <Button asChild>
-          <Link to="/find-leads">Find Leads</Link>
+          <Link to="/find-prospects">Find Prospects</Link>
         </Button>
         <Button asChild>
           <Link to="/tasks">Manage Tasks</Link>
