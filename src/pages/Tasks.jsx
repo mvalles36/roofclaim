@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,68 +14,71 @@ import TaskKanban from '../components/TaskKanban';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const Tasks = () => {
-  const [tasks, setTasks] = useState([]);
   const [viewMode, setViewMode] = useState('list');
   const { userRole } = useSupabaseAuth();
-  const [taskStats, setTaskStats] = useState({
-    totalTasks: 0,
-    completedTasks: 0,
-    pendingTasks: 0,
-  });
-
-  useEffect(() => {
-    fetchTasks();
-    fetchTaskStats();
-  }, [userRole]);
+  const queryClient = useQueryClient();
 
   const fetchTasks = async () => {
     let query = supabase.from('tasks').select('*');
-
     if (userRole !== 'admin' && userRole !== 'project_manager') {
       query = query.eq('assignee_role', userRole);
     }
-
     const { data, error } = await query.order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching tasks:', error);
-    } else {
-      setTasks(data);
-    }
+    if (error) throw error;
+    return data;
   };
 
-  const fetchTaskStats = async () => {
-    const { data, error } = await supabase.rpc('get_task_stats');
-    if (error) {
-      console.error('Error fetching task stats:', error);
-    } else {
-      setTaskStats(data);
-    }
-  };
+  const { data: tasks, isLoading, error } = useQuery({
+    queryKey: ['tasks'],
+    queryFn: fetchTasks,
+  });
 
-  const handleTaskCreated = async () => {
-    await fetchTasks();
-    await fetchTaskStats();
+  const createTaskMutation = useMutation({
+    mutationFn: async (newTask) => {
+      const { data, error } = await supabase.from('tasks').insert([newTask]);
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['tasks']);
+    },
+  });
+
+  const updateTaskMutation = useMutation({
+    mutationFn: async ({ taskId, updates }) => {
+      const { data, error } = await supabase
+        .from('tasks')
+        .update(updates)
+        .eq('id', taskId);
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['tasks']);
+    },
+  });
+
+  const handleTaskCreated = async (newTask) => {
+    await createTaskMutation.mutateAsync(newTask);
   };
 
   const handleTaskUpdated = async (taskId, updates) => {
-    const { error } = await supabase
-      .from('tasks')
-      .update(updates)
-      .eq('id', taskId);
-
-    if (error) {
-      console.error('Error updating task:', error);
-    } else {
-      await fetchTasks();
-      await fetchTaskStats();
-    }
+    await updateTaskMutation.mutateAsync({ taskId, updates });
   };
+
+  const taskStats = tasks ? {
+    totalTasks: tasks.length,
+    completedTasks: tasks.filter(task => task.status === 'Completed').length,
+    pendingTasks: tasks.filter(task => task.status !== 'Completed').length,
+  } : { totalTasks: 0, completedTasks: 0, pendingTasks: 0 };
 
   const taskCompletionData = [
     { name: 'Completed', value: taskStats.completedTasks },
     { name: 'Pending', value: taskStats.pendingTasks },
   ];
+
+  if (isLoading) return <div>Loading tasks...</div>;
+  if (error) return <div>Error loading tasks: {error.message}</div>;
 
   return (
     <div className="space-y-6 p-6">

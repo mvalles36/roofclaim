@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from '../integrations/supabase/supabase';
 
 export const TaskForm = ({ onTaskCreated }) => {
   const [task, setTask] = useState({
@@ -18,20 +17,15 @@ export const TaskForm = ({ onTaskCreated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { data, error } = await supabase.from('tasks').insert([task]);
-    if (error) {
-      console.error('Error creating task:', error);
-    } else {
-      onTaskCreated();
-      setTask({
-        title: '',
-        description: '',
-        priority: 'Medium',
-        due_date: '',
-        assignee_role: '',
-        status: 'To-Do'
-      });
-    }
+    onTaskCreated(task);
+    setTask({
+      title: '',
+      description: '',
+      priority: 'Medium',
+      due_date: '',
+      assignee_role: '',
+      status: 'To-Do'
+    });
   };
 
   const handleChange = (e) => {
