@@ -6,14 +6,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useLoadScript, StandaloneSearchBox } from "@react-google-maps/api";
 import { toast } from 'sonner';
 import MapComponent from '../components/MapComponent';
-import LeadsList from '../components/LeadsList';
-import { fetchLeadsFromMelissaData } from '../services/melissaDataService';
+import ProspectsList from '../components/ProspectsList';
+import { fetchProspectsFromMelissaData } from '../services/melissaDataService';
 
 const libraries = ["places", "drawing", "geometry"];
 
-const FindLeads = () => {
+const FindProspects = () => {
   const [selectedArea, setSelectedArea] = useState(null);
-  const [leads, setLeads] = useState([]);
+  const [prospects, setProspects] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [searchAddress, setSearchAddress] = useState("");
@@ -36,7 +36,7 @@ const FindLeads = () => {
     }
   };
 
-  const handleFindLeads = useCallback(async () => {
+  const handleFindProspects = useCallback(async () => {
     if (!selectedArea) {
       toast.error("Please select an area on the map first.");
       return;
@@ -53,12 +53,12 @@ const FindLeads = () => {
         new window.google.maps.LatLng(sw.lat(), sw.lng())
       ) / 1609.34; // Convert meters to miles
 
-      const leadsData = await fetchLeadsFromMelissaData(center, radius);
-      setLeads(leadsData);
+      const ProspectsData = await fetchProspectsFromMelissaData(center, radius);
+      setProspects(prospectData);
       setIsDialogOpen(true);
     } catch (error) {
-      console.error("Error fetching leads:", error);
-      toast.error("An error occurred while fetching leads. Please try again.");
+      console.error("Error fetching prospects:", error);
+      toast.error("An error occurred while fetching prospects. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +69,7 @@ const FindLeads = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Find Leads</h1>
+      <h1 className="text-3xl font-bold">Find Prospects</h1>
       <Card>
         <CardHeader>
           <CardTitle>Search Area</CardTitle>
@@ -93,17 +93,17 @@ const FindLeads = () => {
             onAreaSelected={setSelectedArea}
             center={selectedArea ? selectedArea.getBounds().getCenter().toJSON() : undefined}
           />
-          <Button onClick={handleFindLeads} className="mt-4" disabled={isLoading}>
-            {isLoading ? "Finding Leads..." : "Find Leads"}
+          <Button onClick={handleFindProspects} className="mt-4" disabled={isLoading}>
+            {isLoading ? "Finding Prospects..." : "Find Prospects"}
           </Button>
         </CardContent>
       </Card>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Found Leads</DialogTitle>
+            <DialogTitle>Found Prospects</DialogTitle>
           </DialogHeader>
-          <LeadsList leads={leads} />
+          <ProspectsList prospects={prospects} />
           <DialogFooter>
             <Button onClick={() => setIsDialogOpen(false)}>Close</Button>
           </DialogFooter>
@@ -113,4 +113,4 @@ const FindLeads = () => {
   );
 };
 
-export default FindLeads;
+export default FindProspects;
