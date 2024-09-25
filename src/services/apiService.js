@@ -142,3 +142,13 @@ export const fetchLeadSourceDistribution = async () => {
   if (error) throw error;
   return data;
 };
+
+export const fetchSalesProcess = async () => {
+  const { data, error } = await supabase
+    .from('stages')
+    .select('*, steps(*)')
+    .order('created_at', { ascending: true });
+  
+  if (error) throw error;
+  return data;
+};
