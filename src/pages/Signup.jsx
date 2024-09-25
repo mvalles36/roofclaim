@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -136,9 +136,12 @@ const SignUp = () => {
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="customer">Customer</SelectItem>
-                <SelectItem value="employee">Employee</SelectItem>
+                <SelectItem value="sales">Sales</SelectItem>
+                <SelectItem value="sales_manager">Sales Manager</SelectItem>
+                <SelectItem value="project_manager">Project Manager</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="customer_success">Customer Success</SelectItem>
+                <SelectItem value="contractor">Contractor</SelectItem>
               </SelectContent>
             </Select>
           </div>
