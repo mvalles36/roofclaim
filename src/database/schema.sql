@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    role VARCHAR(50) NOT NULL CHECK (role IN ('sales', 'sales manager', 'project manager', 'admin', 'sales development representative', 'customer success manager', 'contractor')),
+    role VARCHAR(50) NOT NULL CHECK (role IN ('sales', 'sales_manager', 'project_manager', 'admin', 'customer_success', 'contractor', 'customer')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -85,16 +85,16 @@ CREATE POLICY select_own_user ON users FOR SELECT USING (auth.uid() = id);
 CREATE POLICY update_own_user ON users FOR UPDATE USING (auth.uid() = id);
 
 CREATE POLICY select_contacts ON contacts FOR SELECT USING (true);
-CREATE POLICY insert_contacts ON contacts FOR INSERT WITH CHECK (auth.uid() IN (SELECT id FROM users WHERE role IN ('sales', 'sales manager', 'admin')));
-CREATE POLICY update_contacts ON contacts FOR UPDATE USING (auth.uid() IN (SELECT id FROM users WHERE role IN ('sales', 'sales manager', 'admin')));
+CREATE POLICY insert_contacts ON contacts FOR INSERT WITH CHECK (auth.uid() IN (SELECT id FROM users WHERE role IN ('sales', 'sales_manager', 'admin')));
+CREATE POLICY update_contacts ON contacts FOR UPDATE USING (auth.uid() IN (SELECT id FROM users WHERE role IN ('sales', 'sales_manager', 'admin')));
 
 CREATE POLICY select_jobs ON jobs FOR SELECT USING (true);
-CREATE POLICY insert_jobs ON jobs FOR INSERT WITH CHECK (auth.uid() IN (SELECT id FROM users WHERE role IN ('sales', 'sales manager', 'project manager', 'admin')));
-CREATE POLICY update_jobs ON jobs FOR UPDATE USING (auth.uid() IN (SELECT id FROM users WHERE role IN ('sales', 'sales manager', 'project manager', 'admin')));
+CREATE POLICY insert_jobs ON jobs FOR INSERT WITH CHECK (auth.uid() IN (SELECT id FROM users WHERE role IN ('sales', 'sales_manager', 'project_manager', 'admin')));
+CREATE POLICY update_jobs ON jobs FOR UPDATE USING (auth.uid() IN (SELECT id FROM users WHERE role IN ('sales', 'sales_manager', 'project_manager', 'admin')));
 
 CREATE POLICY select_documents ON documents FOR SELECT USING (true);
-CREATE POLICY insert_documents ON documents FOR INSERT WITH CHECK (auth.uid() IN (SELECT id FROM users WHERE role IN ('sales', 'sales manager', 'admin')));
-CREATE POLICY update_documents ON documents FOR UPDATE USING (auth.uid() IN (SELECT id FROM users WHERE role IN ('sales', 'sales manager', 'admin')));
+CREATE POLICY insert_documents ON documents FOR INSERT WITH CHECK (auth.uid() IN (SELECT id FROM users WHERE role IN ('sales', 'sales_manager', 'admin')));
+CREATE POLICY update_documents ON documents FOR UPDATE USING (auth.uid() IN (SELECT id FROM users WHERE role IN ('sales', 'sales_manager', 'admin')));
 
 CREATE POLICY select_stages ON stages FOR SELECT USING (true);
 CREATE POLICY insert_stages ON stages FOR INSERT WITH CHECK (auth.uid() IN (SELECT id FROM users WHERE role IN ('admin')));
@@ -105,8 +105,8 @@ CREATE POLICY insert_steps ON steps FOR INSERT WITH CHECK (auth.uid() IN (SELECT
 CREATE POLICY update_steps ON steps FOR UPDATE USING (auth.uid() IN (SELECT id FROM users WHERE role IN ('admin')));
 
 CREATE POLICY select_activities ON activities FOR SELECT USING (true);
-CREATE POLICY insert_activities ON activities FOR INSERT WITH CHECK (auth.uid() IN (SELECT id FROM users WHERE role IN ('sales', 'sales manager', 'admin')));
-CREATE POLICY update_activities ON activities FOR UPDATE USING (auth.uid() IN (SELECT id FROM users WHERE role IN ('sales', 'sales manager', 'admin')));
+CREATE POLICY insert_activities ON activities FOR INSERT WITH CHECK (auth.uid() IN (SELECT id FROM users WHERE role IN ('sales', 'sales_manager', 'admin')));
+CREATE POLICY update_activities ON activities FOR UPDATE USING (auth.uid() IN (SELECT id FROM users WHERE role IN ('sales', 'sales_manager', 'admin')));
 
 -- Grant necessary permissions
 GRANT SELECT, INSERT, UPDATE ON users, contacts, jobs, documents, stages, steps, activities TO authenticated;
