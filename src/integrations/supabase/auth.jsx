@@ -1,147 +1,137 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
-import { supabase } from './supabase';
-import { useQueryClient } from '@tanstack/react-query';
-import { Auth } from '@supabase/auth-ui-react';
-import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from '../integrations/supabase/supabase';
 import { toast } from 'sonner';
 
-const SupabaseAuthContext = createContext();
-
-export const SupabaseAuthProvider = ({ children }) => {
-  const [session, setSession] = useState(null);
-  const [userRole, setUserRole] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const queryClient = useQueryClient();
+const SignUp = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const getSession = async () => {
-      try {
-        setLoading(true);
-        const { data: { session } } = await supabase.auth.getSession();
-        setSession(session);
-        if (session) {
-          await fetchUserRole(session.user.id);
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    if (!email || !password || !name) {
+      setError('Please complete all fields.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Hardcode the role as "employee"
+      const { data: { user }, error: authError } = await supabase.auth.signUp({ 
+        email, 
+        password,
+        options: {
+          data: {
+            name,
+            role: 'employee'  // Set the role as employee
+          }
         }
-      } catch (error) {
-        console.error('Error fetching session:', error);
-        toast.error('Failed to fetch user session');
-      } finally {
-        setLoading(false);
-      }
-    };
+      });
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session);
-      if (session) {
-        await fetchUserRole(session.user.id);
-      } else {
-        setUserRole(null);
-      }
-      queryClient.invalidateQueries(['user']);
-    });
+      if (authError) throw authError;
 
-    getSession();
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, [queryClient]);
-
-  const fetchUserRole = async (userId) => {
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', userId)
-        .single();
-
-      if (error) throw error;
-      if (!data.role) {
-        // If no role is set, default to 'customer'
-        await supabase
+      if (user) {
+        const { error: dbError } = await supabase
           .from('users')
-          .update({ role: 'customer' })
-          .eq('id', userId);
-        setUserRole('customer');
-      } else {
-        setUserRole(data.role);
+          .insert([{ 
+            id: user.id, 
+            email, 
+            name, 
+            role: 'employee', // Ensure the role is "employee" in the users table
+            created_at: new Date(), 
+            updated_at: new Date() 
+          }]);
+
+        if (dbError) throw dbError;
+
+        toast.success('Account created successfully!');
+        navigate('/login');
       }
     } catch (error) {
-      console.error('Error fetching user role:', error);
-      toast.error('Failed to fetch user role');
-      setUserRole('customer'); // Default to 'customer' if there's an error
-    }
-  };
-
-  const login = async (email, password) => {
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Login error:', error);
-      toast.error('Login failed. Please check your credentials and try again.');
-      throw error;
-    }
-  };
-
-  const logout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      setSession(null);
-      setUserRole(null);
-      queryClient.invalidateQueries(['user']);
-      navigate('/login');
-      toast.success('Logged out successfully');
-    } catch (error) {
-      console.error('Logout error:', error);
-      toast.error('Failed to log out. Please try again.');
-      throw error;
-    }
-  };
-
-  const updateProfile = async (updates) => {
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .update(updates)
-        .eq('id', session?.user?.id);
-
-      if (error) throw error;
-      toast.success('Profile updated successfully');
-      return data;
-    } catch (error) {
-      console.error('Update profile error:', error);
-      toast.error('Failed to update profile. Please try again.');
-      throw error;
+      console.error('Sign-up error:', error);
+      setError(error.message || 'Sign up failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <SupabaseAuthContext.Provider value={{ session, userRole, loading, login, logout, updateProfile }}>
-      {children}
-    </SupabaseAuthContext.Provider>
+    <Card className="max-w-md mx-auto mt-8 shadow-lg">
+      <CardHeader>
+        <CardTitle className="text-2xl font-bold text-center">
+          Sign Up for RoofClaim
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        <form onSubmit={handleSignUp} className="space-y-4">
+          <div>
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              disabled={loading}
+              className="w-full"
+            />
+          </div>
+          <div>
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+              className="w-full"
+            />
+          </div>
+          <div>
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={loading}
+              className="w-full"
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Signing up...' : 'Sign Up'}
+          </Button>
+        </form>
+        <p className="mt-4 text-center text-sm">
+          Already have an account?{' '}
+          <Link to="/login" className="text-blue-600 hover:underline">
+            Sign In
+          </Link>
+        </p>
+      </CardContent>
+    </Card>
   );
 };
 
-export const useSupabaseAuth = () => {
-  return useContext(SupabaseAuthContext);
-};
-
-export const SupabaseAuthUI = () => (
-  <Auth
-    supabaseClient={supabase}
-    appearance={{
-      theme: ThemeSupa,
-      style: {
-        button: { backgroundColor: '#4A5568' },
-        input: { borderColor: '#E2E8F0' },
-      },
-    }}
-    theme="default"
-    providers={['google', 'github']}
-  />
-);
+export default SignUp;
