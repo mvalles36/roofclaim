@@ -13,7 +13,7 @@ const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [role, setRole] = useState('');
+  const [role, setRole] = useState('customer'); // Set default role to 'customer'
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ const SignUp = () => {
     setError(null);
     setLoading(true);
 
-    if (!email || !password || !name || !role) {
+    if (!email || !password || !name) {
       setError('Please complete all fields.');
       setLoading(false);
       return;
@@ -122,7 +122,7 @@ const SignUp = () => {
           </div>
           <div>
             <Label htmlFor="role">Role</Label>
-            <Select onValueChange={setRole} required>
+            <Select onValueChange={setRole} defaultValue="customer">
               <SelectTrigger>
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
