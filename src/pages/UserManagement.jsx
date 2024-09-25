@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
-  const [newUser, setNewUser] = useState({ name: '', email: '', role: '' });
+  const [newUser, setNewUser] = useState({ name: '', email: '', role: '', title: '' });
   const { session } = useSupabaseAuth();
 
   useEffect(() => {
@@ -40,7 +40,7 @@ const UserManagement = () => {
         email: newUser.email,
         password: Math.random().toString(36).slice(-8), // Generate a random password
         email_confirm: true,
-        user_metadata: { name: newUser.name, role: newUser.role }
+        user_metadata: { name: newUser.name, role: newUser.role, title: newUser.title }
       });
 
       if (error) throw error;
@@ -49,11 +49,12 @@ const UserManagement = () => {
         id: data.user.id,
         email: newUser.email,
         name: newUser.name,
-        role: newUser.role
+        role: newUser.role,
+        title: newUser.title // Add title field
       }]);
 
       fetchUsers();
-      setNewUser({ name: '', email: '', role: '' });
+      setNewUser({ name: '', email: '', role: '', title: '' });
       toast.success('User added successfully');
     } catch (error) {
       console.error('Error adding user:', error);
@@ -61,11 +62,11 @@ const UserManagement = () => {
     }
   };
 
-  const handleUpdateUserRole = async (userId, newRole) => {
+  const handleUpdateUserRole = async (userId, newRole, newTitle) => {
     try {
       const { error } = await supabase
         .from('users')
-        .update({ role: newRole })
+        .update({ role: newRole, title: newTitle }) // Update role and title
         .eq('id', userId);
 
       if (error) throw error;
@@ -118,8 +119,18 @@ const UserManagement = () => {
                   <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="customer_success">Customer Success</SelectItem>
                   <SelectItem value="contractor">Contractor</SelectItem>
+                  <SelectItem value="customer">Customer</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div>
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                value={newUser.title}
+                onChange={(e) => setNewUser({ ...newUser, title: e.target.value })}
+                required
+              />
             </div>
             <Button type="submit">Add User</Button>
           </form>
@@ -136,6 +147,7 @@ const UserManagement = () => {
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
+                <TableHead>Title</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -145,10 +157,11 @@ const UserManagement = () => {
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{user.role}</TableCell>
+                  <TableCell>{user.title}</TableCell>
                   <TableCell>
                     <Select
                       defaultValue={user.role}
-                      onValueChange={(value) => handleUpdateUserRole(user.id, value)}
+                      onValueChange={(value) => handleUpdateUserRole(user.id, value, user.title)}
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -160,6 +173,7 @@ const UserManagement = () => {
                         <SelectItem value="admin">Admin</SelectItem>
                         <SelectItem value="customer_success">Customer Success</SelectItem>
                         <SelectItem value="contractor">Contractor</SelectItem>
+                        <SelectItem value="customer">Customer</SelectItem>
                       </SelectContent>
                     </Select>
                   </TableCell>
