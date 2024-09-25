@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { supabase } from '../integrations/supabase/supabase';
 import { Link } from 'react-router-dom';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { DollarSign, Users, Clock, Briefcase } from 'lucide-react';
 import KPICard from '../components/KPICard';
 import SalesProcessVisualization from '../components/SalesProcessVisualization';
+import { fetchSalesKPIs, fetchLeadFunnelData, fetchRecentSalesActivities, fetchSalesPerformance, fetchLeadSourceDistribution, fetchSalesProcess } from '../services/apiService';
 
 const SalesDashboard = () => {
   const [kpis, setKpis] = useState({
@@ -22,98 +22,30 @@ const SalesDashboard = () => {
   const [salesProcess, setSalesProcess] = useState(null);
 
   useEffect(() => {
-    fetchSalesKPIs();
-    fetchLeadFunnelData();
-    fetchRecentActivities();
-    fetchSalesPerformance();
-    fetchLeadSourceDistribution();
-    fetchSalesProcess();
-  }, []);
+    const fetchDashboardData = async () => {
+      try {
+        const [kpisData, funnelData, activitiesData, performanceData, sourceData, processData] = await Promise.all([
+          fetchSalesKPIs(),
+          fetchLeadFunnelData(),
+          fetchRecentSalesActivities(),
+          fetchSalesPerformance(),
+          fetchLeadSourceDistribution(),
+          fetchSalesProcess()
+        ]);
 
-  const fetchSalesKPIs = async () => {
-    const { data, error } = await supabase.rpc('get_sales_kpis');
-    if (error) {
-      console.error('Error fetching Sales KPIs:', error);
-    } else {
-      setKpis(data);
-    }
-  };
-
-  const fetchLeadFunnelData = async () => {
-    const { data, error } = await supabase.rpc('get_lead_funnel_data');
-    if (error) {
-      console.error('Error fetching lead funnel data:', error);
-    } else {
-      setLeadFunnelData(data);
-    }
-  };
-
-  const fetchRecentActivities = async () => {
-    const { data, error } = await supabase.rpc('get_recent_sales_activities');
-    if (error) {
-      console.error('Error fetching recent activities:', error);
-    } else {
-      setRecentActivities(data);
-    }
-  };
-
-  const fetchSalesPerformance = async () => {
-    const { data, error } = await supabase.rpc('get_sales_performance');
-    if (error) {
-      console.error('Error fetching sales performance:', error);
-    } else {
-      setSalesPerformance(data);
-    }
-  };
-
-  const fetchLeadSourceDistribution = async () => {
-    const { data, error } = await supabase.rpc('get_lead_source_distribution');
-    if (error) {
-      console.error('Error fetching lead source distribution:', error);
-    } else {
-      setLeadSourceDistribution(data);
-    }
-  };
-
-  const fetchSalesProcess = async () => {
-    const { data: processData, error: processError } = await supabase
-      .from('sales_process')
-      .select('*')
-      .single();
-
-    if (processError) {
-      console.error('Error fetching sales process:', processError);
-      return;
-    }
-
-    const { data: stagesData, error: stagesError } = await supabase
-      .from('stages')
-      .select('*')
-      .eq('process_id', processData.id)
-      .order('order_index', { ascending: true });
-
-    if (stagesError) {
-      console.error('Error fetching stages:', stagesError);
-      return;
-    }
-
-    const stagesWithSteps = await Promise.all(stagesData.map(async (stage) => {
-      const { data: stepsData, error: stepsError } = await supabase
-        .from('steps')
-        .select('*')
-        .eq('stage_id', stage.id)
-        .order('order_index', { ascending: true });
-
-      if (stepsError) {
-        console.error('Error fetching steps:', stepsError);
-        return stage;
+        setKpis(kpisData);
+        setLeadFunnelData(funnelData);
+        setRecentActivities(activitiesData);
+        setSalesPerformance(performanceData);
+        setLeadSourceDistribution(sourceData);
+        setSalesProcess(processData);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
       }
+    };
 
-      return { ...stage, steps: stepsData };
-    }));
-
-    setSalesProcess({ ...processData, stages: stagesWithSteps });
-  };
+    fetchDashboardData();
+  }, []);
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 

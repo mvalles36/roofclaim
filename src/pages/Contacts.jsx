@@ -13,6 +13,7 @@ import { useRoleBasedAccess } from '../hooks/useRoleBasedAccess';
 import { salesGPTService } from '../services/SalesGPTService';
 import { toast } from 'sonner';
 import { Phone, Mail, MapPin, Star, Calendar, Clock } from 'lucide-react';
+import { fetchContacts } from '../services/apiService';
 
 const Contacts = () => {
   const [contacts, setContacts] = useState([]);
@@ -32,20 +33,13 @@ const Contacts = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchContacts();
+    loadContacts();
   }, [session]);
 
-  const fetchContacts = async () => {
+  const loadContacts = async () => {
     setLoading(true);
-    console.log("Fetching contacts..."); // Log fetching action
     try {
-      const { data, error } = await supabase
-        .from('contacts')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      console.log("Contacts fetched:", data); // Log fetched data
+      const data = await fetchContacts();
       setContacts(data);
     } catch (error) {
       console.error('Error fetching contacts:', error);
@@ -59,7 +53,7 @@ const Contacts = () => {
     try {
       const { data, error } = await supabase.from('contacts').insert([newContact]);
       if (error) throw error;
-      fetchContacts();
+      loadContacts();
       setNewContact({ full_name: '', email: '', phone_number: '', address: '', contact_status: 'Prospect', tags: [] });
       toast.success('Contact added successfully');
     } catch (error) {
@@ -75,7 +69,7 @@ const Contacts = () => {
         .update({ contact_status: newStatus })
         .eq('id', contactId);
       if (error) throw error;
-      fetchContacts();
+      loadContacts();
       toast.success('Contact status updated successfully');
     } catch (error) {
       console.error('Error updating contact status:', error);

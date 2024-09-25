@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { toast } from 'sonner';
+import { fetchInvoices, fetchContacts, fetchJobs } from '../services/apiService';
 
 const Invoices = () => {
   const [invoices, setInvoices] = useState([]);
@@ -26,48 +27,22 @@ const Invoices = () => {
   const { userRole } = useSupabaseAuth();
 
   useEffect(() => {
-    fetchInvoices();
-    fetchContacts();
-    fetchJobs();
+    loadData();
   }, []);
 
-  const fetchInvoices = async () => {
-    const { data, error } = await supabase
-      .from('invoices')
-      .select('*, contacts(full_name), jobs(job_type)')
-      .order('invoice_date', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching invoices:', error);
-      toast.error('Failed to fetch invoices');
-    } else {
-      setInvoices(data);
-    }
-  };
-
-  const fetchContacts = async () => {
-    const { data, error } = await supabase
-      .from('contacts')
-      .select('id, full_name');
-
-    if (error) {
-      console.error('Error fetching contacts:', error);
-      toast.error('Failed to fetch contacts');
-    } else {
-      setContacts(data);
-    }
-  };
-
-  const fetchJobs = async () => {
-    const { data, error } = await supabase
-      .from('jobs')
-      .select('id, job_type, contact_id');
-
-    if (error) {
-      console.error('Error fetching jobs:', error);
-      toast.error('Failed to fetch jobs');
-    } else {
-      setJobs(data);
+  const loadData = async () => {
+    try {
+      const [invoicesData, contactsData, jobsData] = await Promise.all([
+        fetchInvoices(),
+        fetchContacts(),
+        fetchJobs()
+      ]);
+      setInvoices(invoicesData);
+      setContacts(contactsData);
+      setJobs(jobsData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      toast.error('Failed to fetch data');
     }
   };
 
@@ -77,16 +52,14 @@ const Invoices = () => {
       return;
     }
 
-    const { data, error } = await supabase
-      .from('invoices')
-      .insert([newInvoice]);
+    try {
+      const { data, error } = await supabase
+        .from('invoices')
+        .insert([newInvoice]);
 
-    if (error) {
-      console.error('Error creating invoice:', error);
-      toast.error('Failed to create invoice');
-    } else {
+      if (error) throw error;
       toast.success('Invoice created successfully');
-      fetchInvoices();
+      loadData();
       setNewInvoice({
         contact_id: '',
         job_id: '',
@@ -97,21 +70,25 @@ const Invoices = () => {
         payment_method: '',
         late_payment_fees: 0
       });
+    } catch (error) {
+      console.error('Error creating invoice:', error);
+      toast.error('Failed to create invoice');
     }
   };
 
   const handleUpdateInvoiceStatus = async (invoiceId, newStatus) => {
-    const { error } = await supabase
-      .from('invoices')
-      .update({ payment_status: newStatus })
-      .eq('id', invoiceId);
+    try {
+      const { error } = await supabase
+        .from('invoices')
+        .update({ payment_status: newStatus })
+        .eq('id', invoiceId);
 
-    if (error) {
+      if (error) throw error;
+      loadData();
+      toast.success('Invoice status updated successfully');
+    } catch (error) {
       console.error('Error updating invoice status:', error);
       toast.error('Failed to update invoice status');
-    } else {
-      fetchInvoices();
-      toast.success('Invoice status updated successfully');
     }
   };
 
