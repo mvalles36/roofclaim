@@ -136,12 +136,9 @@ const SignUp = () => {
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="customer">Customer</SelectItem>
+                <SelectItem value="employee">Employee</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="sales_manager">Sales Manager</SelectItem>
-                <SelectItem value="project_manager">Project Manager</SelectItem>
-                <SelectItem value="sales_rep">Sales Rep</SelectItem>
-                <SelectItem value="customer_success_rep">Customer Success Rep</SelectItem>
-                <SelectItem value="contractor">Contractor</SelectItem>
               </SelectContent>
             </Select>
           </div>
