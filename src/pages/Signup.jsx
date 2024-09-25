@@ -11,7 +11,8 @@ import { toast } from 'sonner';
 const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState(''); // Changed name to firstName
+  const [lastName, setLastName] = useState('');   // Added lastName state
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ const SignUp = () => {
     setError(null);
     setLoading(true);
 
-    if (!email || !password || !name) {
+    if (!email || !password || !firstName || !lastName) { // Check for both first and last name
       setError('Please complete all fields.');
       setLoading(false);
       return;
@@ -33,7 +34,7 @@ const SignUp = () => {
         password,
         options: {
           data: {
-            name,
+            name: firstName + ' ' + lastName, // Combine first and last names
             role: 'employee'  // Hardcode the role as 'employee'
           }
         }
@@ -47,7 +48,8 @@ const SignUp = () => {
           .insert([{ 
             id: user.id, 
             email, 
-            name, 
+            first_name: firstName, // Insert first name
+            last_name: lastName,   // Insert last name
             role: 'employee', // Ensure the role is 'employee' in the users table
             created_at: new Date(), 
             updated_at: new Date() 
@@ -83,12 +85,24 @@ const SignUp = () => {
 
         <form onSubmit={handleSignUp} className="space-y-4">
           <div>
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="first_name">First Name</Label>
             <Input
-              id="name"
+              id="first_name"
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+              disabled={loading}
+              className="w-full"
+            />
+          </div>
+          <div>
+            <Label htmlFor="last_name">Last Name</Label>
+            <Input
+              id="last_name"
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
               required
               disabled={loading}
               className="w-full"
