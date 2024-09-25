@@ -13,7 +13,7 @@ const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [role, setRole] = useState('customer'); // Set default role to 'customer'
+  const [role, setRole] = useState('employee'); // Set default role to 'customer'
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -121,18 +121,19 @@ const SignUp = () => {
             />
           </div>
           <div>
-            <Label htmlFor="role">Role</Label>
-            <Select onValueChange={setRole} defaultValue="customer">
-              <SelectTrigger>
-                <SelectValue placeholder="Select a role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="customer">Customer</SelectItem>
-                <SelectItem value="employee">Employee</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+  <Label htmlFor="role">Role</Label>
+  <Select onValueChange={setRole} value={role}> {/* Ensure value is bound correctly */}
+    <SelectTrigger aria-label="Select role">
+      <SelectValue placeholder="Select a role" />
+    </SelectTrigger>
+    <SelectContent>
+      <SelectItem value="customer">Customer</SelectItem>
+      <SelectItem value="employee">Employee</SelectItem>
+      <SelectItem value="admin">Admin</SelectItem>
+    </SelectContent>
+  </Select>
+</div>
+
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Signing up...' : 'Sign Up'}
           </Button>
