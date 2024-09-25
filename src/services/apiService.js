@@ -3,8 +3,8 @@ import { supabase } from '../integrations/supabase/supabase';
 export const fetchContacts = async () => {
   const { data, error } = await supabase
     .from('contacts')
-    .select('*')
-    .order('full_name', { ascending: true });
+    .select('*, users(name)')
+    .order('created_at', { ascending: false });
   
   if (error) throw error;
   return data;
@@ -13,19 +13,92 @@ export const fetchContacts = async () => {
 export const fetchJobs = async () => {
   const { data, error } = await supabase
     .from('jobs')
-    .select('*, contacts(id, full_name, email)')
+    .select('*, contacts(name, email)')
     .order('created_at', { ascending: false });
   
   if (error) throw error;
   return data;
 };
 
-export const fetchInvoices = async () => {
+export const fetchDocuments = async () => {
   const { data, error } = await supabase
-    .from('invoices')
-    .select('*, contacts(full_name), jobs(job_type)')
-    .order('invoice_date', { ascending: false });
+    .from('documents')
+    .select('*, contacts(name)')
+    .order('created_at', { ascending: false });
   
+  if (error) throw error;
+  return data;
+};
+
+export const fetchStages = async () => {
+  const { data, error } = await supabase
+    .from('stages')
+    .select('*, steps(*)')
+    .order('created_at', { ascending: true });
+  
+  if (error) throw error;
+  return data;
+};
+
+export const fetchActivities = async (contactId) => {
+  const { data, error } = await supabase
+    .from('activities')
+    .select('*, steps(name, stages(name))')
+    .eq('contact_id', contactId)
+    .order('created_at', { ascending: false });
+  
+  if (error) throw error;
+  return data;
+};
+
+export const createContact = async (contactData) => {
+  const { data, error } = await supabase
+    .from('contacts')
+    .insert([contactData])
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const updateContact = async (id, contactData) => {
+  const { data, error } = await supabase
+    .from('contacts')
+    .update(contactData)
+    .eq('id', id)
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const createJob = async (jobData) => {
+  const { data, error } = await supabase
+    .from('jobs')
+    .insert([jobData])
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const updateJob = async (id, jobData) => {
+  const { data, error } = await supabase
+    .from('jobs')
+    .update(jobData)
+    .eq('id', id)
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const createActivity = async (activityData) => {
+  const { data, error } = await supabase
+    .from('activities')
+    .insert([activityData])
+    .single();
+
   if (error) throw error;
   return data;
 };
@@ -58,35 +131,4 @@ export const fetchLeadSourceDistribution = async () => {
   const { data, error } = await supabase.rpc('get_lead_source_distribution');
   if (error) throw error;
   return data;
-};
-
-export const fetchSalesProcess = async () => {
-  const { data: processData, error: processError } = await supabase
-    .from('sales_process')
-    .select('*')
-    .single();
-
-  if (processError) throw processError;
-
-  const { data: stagesData, error: stagesError } = await supabase
-    .from('stages')
-    .select('*')
-    .eq('process_id', processData.id)
-    .order('order_index', { ascending: true });
-
-  if (stagesError) throw stagesError;
-
-  const stagesWithSteps = await Promise.all(stagesData.map(async (stage) => {
-    const { data: stepsData, error: stepsError } = await supabase
-      .from('steps')
-      .select('*')
-      .eq('stage_id', stage.id)
-      .order('order_index', { ascending: true });
-
-    if (stepsError) throw stepsError;
-
-    return { ...stage, steps: stepsData };
-  }));
-
-  return { ...processData, stages: stagesWithSteps };
 };

@@ -1,230 +1,169 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { supabase } from '../integrations/supabase/supabase';
-import { useRoleBasedAccess } from '../hooks/useRoleBasedAccess';
-import { salesGPTService } from '../services/SalesGPTService';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from 'sonner';
-import { Phone, Mail, MapPin, Star, Calendar, Clock } from 'lucide-react';
-import { fetchContacts } from '../services/apiService';
+import { fetchContacts, createContact, updateContact } from '../services/apiService';
 
 const Contacts = () => {
-  const [contacts, setContacts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedContact, setSelectedContact] = useState(null);
-  const { session } = useSupabaseAuth();
-  const { hasPermission } = useRoleBasedAccess();
-  const [newContact, setNewContact] = useState({
-    full_name: '',
-    email: '',
-    phone_number: '',
-    address: '',
-    contact_status: 'Prospect',
-    tags: [],
+  const [newContact, setNewContact] = useState({ name: '', email: '', address: '', contact_status: 'Prospect' });
+  const queryClient = useQueryClient();
+
+  const { data: contacts, isLoading, error } = useQuery({
+    queryKey: ['contacts'],
+    queryFn: fetchContacts,
   });
-  const [aiResponse, setAiResponse] = useState('');
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadContacts();
-  }, [session]);
-
-  const loadContacts = async () => {
-    setLoading(true);
-    try {
-      const data = await fetchContacts();
-      setContacts(data);
-    } catch (error) {
-      console.error('Error fetching contacts:', error);
-      toast.error('Failed to fetch contacts');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAddContact = async () => {
-    try {
-      const { data, error } = await supabase.from('contacts').insert([newContact]);
-      if (error) throw error;
-      loadContacts();
-      setNewContact({ full_name: '', email: '', phone_number: '', address: '', contact_status: 'Prospect', tags: [] });
+  const createContactMutation = useMutation({
+    mutationFn: createContact,
+    onSuccess: () => {
+      queryClient.invalidateQueries('contacts');
       toast.success('Contact added successfully');
-    } catch (error) {
-      console.error('Error adding contact:', error);
-      toast.error('Failed to add contact');
-    }
+    },
+    onError: (error) => {
+      toast.error(`Failed to add contact: ${error.message}`);
+    },
+  });
+
+  const updateContactMutation = useMutation({
+    mutationFn: ({ id, data }) => updateContact(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries('contacts');
+      toast.success('Contact updated successfully');
+    },
+    onError: (error) => {
+      toast.error(`Failed to update contact: ${error.message}`);
+    },
+  });
+
+  const handleAddContact = async (e) => {
+    e.preventDefault();
+    createContactMutation.mutate(newContact);
+    setNewContact({ name: '', email: '', address: '', contact_status: 'Prospect' });
   };
 
   const handleUpdateContactStatus = async (contactId, newStatus) => {
-    try {
-      const { error } = await supabase
-        .from('contacts')
-        .update({ contact_status: newStatus })
-        .eq('id', contactId);
-      if (error) throw error;
-      loadContacts();
-      toast.success('Contact status updated successfully');
-    } catch (error) {
-      console.error('Error updating contact status:', error);
-      toast.error('Failed to update contact status');
-    }
+    updateContactMutation.mutate({ id: contactId, data: { contact_status: newStatus } });
   };
 
-  const handleInitiateCall = async (contact) => {
-    try {
-      const response = await salesGPTService.initiateCall(
-        { name: contact.full_name, phone: contact.phone_number },
-        'Call contacts to set up an appointment for a free AI drone roof inspection'
-      );
-      setAiResponse(response);
-    } catch (error) {
-      console.error('Error initiating AI call:', error);
-      toast.error('Failed to initiate AI call');
-    }
-  };
-
-  const filteredContacts = contacts.filter(contact =>
-    contact.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredContacts = contacts?.filter(contact =>
+    contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     contact.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ) || [];
+
+  if (isLoading) return <div>Loading contacts...</div>;
+  if (error) return <div>Error loading contacts: {error.message}</div>;
 
   return (
     <div className="space-y-6 p-6">
+      <h1 className="text-3xl font-bold">Contacts</h1>
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Contacts</h1>
-        {hasPermission('write:contacts') && (
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button>Add New Contact</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Contact</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <Input
-                  placeholder="Full Name"
-                  value={newContact.full_name}
-                  onChange={(e) => setNewContact({ ...newContact, full_name: e.target.value })}
-                />
-                <Input
-                  placeholder="Email"
-                  value={newContact.email}
-                  onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
-                />
-                <Input
-                  placeholder="Phone Number"
-                  value={newContact.phone_number}
-                  onChange={(e) => setNewContact({ ...newContact, phone_number: e.target.value })}
-                />
-                <Input
-                  placeholder="Address"
-                  value={newContact.address}
-                  onChange={(e) => setNewContact({ ...newContact, address: e.target.value })}
-                />
-                <Button onClick={handleAddContact}>Add Contact</Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        )}
-      </div>
-      <Input
-        placeholder="Search contacts..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="mb-4"
-      />
-      {loading ? (
-        <p>Loading contacts...</p>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Contact List</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredContacts.map((contact) => (
-                  <TableRow key={contact.id}>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <Avatar>
-                          <AvatarFallback>{contact.full_name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <span>{contact.full_name}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{contact.email}</TableCell>
-                    <TableCell>{contact.phone_number}</TableCell>
-                    <TableCell>
-                      <Badge variant={contact.contact_status === 'Prospect' ? 'default' : 'secondary'}>
-                        {contact.contact_status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Button variant="outline" onClick={() => setSelectedContact(contact)}>View Details</Button>
-                      <Button variant="outline" onClick={() => handleInitiateCall(contact)}>Initiate AI Call</Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
-      {selectedContact && (
-        <Dialog open={!!selectedContact} onOpenChange={() => setSelectedContact(null)}>
-          <DialogContent className="max-w-4xl">
+        <Input
+          placeholder="Search contacts..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm"
+        />
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>Add New Contact</Button>
+          </DialogTrigger>
+          <DialogContent>
             <DialogHeader>
-              <DialogTitle>{selectedContact.full_name}</DialogTitle>
+              <DialogTitle>Add New Contact</DialogTitle>
             </DialogHeader>
-            <Tabs defaultValue="details">
-              <TabsList>
-                <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="ai-response">AI Response</TabsTrigger>
-              </TabsList>
-              <TabsContent value="details">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <h3 className="font-semibold mb-2">Contact Information</h3>
-                    <p className="flex items-center"><Mail className="mr-2" /> {selectedContact.email}</p>
-                    <p className="flex items-center"><Phone className="mr-2" /> {selectedContact.phone_number}</p>
-                    <p className="flex items-center"><MapPin className="mr-2" /> {selectedContact.address}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">{selectedContact.contact_status} Information</h3>
-                    <p className="flex items-center"><Star className="mr-2" /> Status: {selectedContact.contact_status}</p>
-                    <p className="flex items-center"><Calendar className="mr-2" /> Created: {new Date(selectedContact.created_at).toLocaleDateString()}</p>
-                    <p className="flex items-center"><Clock className="mr-2" /> Last Updated: {new Date(selectedContact.updated_at).toLocaleDateString()}</p>
-                  </div>
-                </div>
-              </TabsContent>
-              <TabsContent value="ai-response">
-                <div>
-                  <h3 className="font-semibold mb-2">AI Call Response</h3>
-                  <p>{aiResponse || "No AI call initiated yet."}</p>
-                </div>
-              </TabsContent>
-            </Tabs>
+            <form onSubmit={handleAddContact} className="space-y-4">
+              <Input
+                placeholder="Name"
+                value={newContact.name}
+                onChange={(e) => setNewContact({ ...newContact, name: e.target.value })}
+                required
+              />
+              <Input
+                placeholder="Email"
+                type="email"
+                value={newContact.email}
+                onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
+              />
+              <Input
+                placeholder="Address"
+                value={newContact.address}
+                onChange={(e) => setNewContact({ ...newContact, address: e.target.value })}
+              />
+              <Select
+                value={newContact.contact_status}
+                onValueChange={(value) => setNewContact({ ...newContact, contact_status: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Prospect">Prospect</SelectItem>
+                  <SelectItem value="Qualified Lead">Qualified Lead</SelectItem>
+                  <SelectItem value="Customer">Customer</SelectItem>
+                  <SelectItem value="Lost">Lost</SelectItem>
+                  <SelectItem value="Unqualified">Unqualified</SelectItem>
+                  <SelectItem value="Bad Data">Bad Data</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button type="submit">Add Contact</Button>
+            </form>
           </DialogContent>
         </Dialog>
-      )}
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Contact List</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Address</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Sales Rep</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredContacts.map((contact) => (
+                <TableRow key={contact.id}>
+                  <TableCell>{contact.name}</TableCell>
+                  <TableCell>{contact.email}</TableCell>
+                  <TableCell>{contact.address}</TableCell>
+                  <TableCell>{contact.contact_status}</TableCell>
+                  <TableCell>{contact.users?.name || 'Unassigned'}</TableCell>
+                  <TableCell>
+                    <Select
+                      value={contact.contact_status}
+                      onValueChange={(value) => handleUpdateContactStatus(contact.id, value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Prospect">Prospect</SelectItem>
+                        <SelectItem value="Qualified Lead">Qualified Lead</SelectItem>
+                        <SelectItem value="Customer">Customer</SelectItem>
+                        <SelectItem value="Lost">Lost</SelectItem>
+                        <SelectItem value="Unqualified">Unqualified</SelectItem>
+                        <SelectItem value="Bad Data">Bad Data</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 };
