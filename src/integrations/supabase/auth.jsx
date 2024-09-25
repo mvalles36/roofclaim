@@ -58,10 +58,14 @@ export const SupabaseAuthProvider = ({ children }) => {
         .single();
 
       if (error) throw error;
+      if (!['customer', 'employee', 'admin'].includes(data.role)) {
+        throw new Error(`Invalid role: ${data.role}. Must be customer, employee, or admin.`);
+      }
       setUserRole(data.role);
     } catch (error) {
       console.error('Error fetching user role:', error);
       toast.error('Failed to fetch user role');
+      setUserRole(null);
     }
   };
 
