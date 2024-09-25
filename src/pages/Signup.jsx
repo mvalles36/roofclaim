@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from '../integrations/supabase/supabase';
 import { toast } from 'sonner';
 
@@ -13,7 +12,6 @@ const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [role, setRole] = useState('employee'); // Set default role to 'customer'
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -36,7 +34,7 @@ const SignUp = () => {
         options: {
           data: {
             name,
-            role
+            role: 'employee'  // Hardcode the role as 'employee'
           }
         }
       });
@@ -50,7 +48,7 @@ const SignUp = () => {
             id: user.id, 
             email, 
             name, 
-            role,
+            role: 'employee', // Ensure the role is 'employee' in the users table
             created_at: new Date(), 
             updated_at: new Date() 
           }]);
@@ -120,19 +118,6 @@ const SignUp = () => {
               className="w-full"
             />
           </div>
-          <div>
-  <Label htmlFor="role">Role</Label>
-  <Select onValueChange={setRole} value={role}> {/* Ensure value is bound correctly */}
-    <SelectTrigger aria-label="Select role">
-      <SelectValue placeholder="Select a role" />
-    </SelectTrigger>
-    <SelectContent>
-      <SelectItem value="customer">Customer</SelectItem>
-      <SelectItem value="employee">Employee</SelectItem>
-      <SelectItem value="admin">Admin</SelectItem>
-    </SelectContent>
-  </Select>
-</div>
 
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Signing up...' : 'Sign Up'}
