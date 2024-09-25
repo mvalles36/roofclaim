@@ -5,11 +5,11 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../integrations/supabase/supabase';
 import SalesProcessKPIs from '../components/SalesProcessKPIs';
 
-const ProjectManagerDashboard = () => {
-  const { data: projectStatus, isLoading, error } = useQuery({
-    queryKey: ['projectStatus'],
+const SalesRepDashboard = () => {
+  const { data: pipelineData, isLoading, error } = useQuery({
+    queryKey: ['salesRepPipeline'],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_project_status');
+      const { data, error } = await supabase.rpc('get_sales_rep_pipeline');
       if (error) throw error;
       return data;
     },
@@ -20,21 +20,21 @@ const ProjectManagerDashboard = () => {
 
   return (
     <div className="space-y-6 p-6">
-      <h1 className="text-3xl font-bold">Project Manager Dashboard</h1>
+      <h1 className="text-3xl font-bold">Sales Rep Dashboard</h1>
       <SalesProcessKPIs />
       <Card>
         <CardHeader>
-          <CardTitle>Project Status Overview</CardTitle>
+          <CardTitle>Sales Pipeline</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={projectStatus}>
+            <BarChart data={pipelineData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="status" />
+              <XAxis dataKey="stage" />
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="project_count" fill="#8884d8" name="Number of Projects" />
+              <Bar dataKey="deal_count" fill="#8884d8" name="Number of Deals" />
               <Bar dataKey="total_value" fill="#82ca9d" name="Total Value" />
             </BarChart>
           </ResponsiveContainer>
@@ -44,4 +44,4 @@ const ProjectManagerDashboard = () => {
   );
 };
 
-export default ProjectManagerDashboard;
+export default SalesRepDashboard;
