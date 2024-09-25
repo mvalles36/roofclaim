@@ -1,6 +1,6 @@
 export const config = {
   companyInfo: {
-    name: 'RoofCare Assist',
+    name: 'RoofClaim',
     // Add more company details as needed
   },
   productInfo: [
