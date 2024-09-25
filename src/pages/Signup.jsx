@@ -7,6 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from '../integrations/supabase/supabase';
+import { toast } from 'sonner';
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
@@ -14,7 +15,6 @@ const SignUp = () => {
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -57,8 +57,8 @@ const SignUp = () => {
 
         if (dbError) throw dbError;
 
-        setSuccess(true);
-        setTimeout(() => navigate('/login'), 2000);
+        toast.success('Account created successfully!');
+        navigate('/login');
       }
     } catch (error) {
       console.error('Sign-up error:', error);
@@ -80,15 +80,6 @@ const SignUp = () => {
           <Alert variant="destructive" className="mb-4">
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {success && (
-          <Alert className="mb-4">
-            <AlertTitle>Success!</AlertTitle>
-            <AlertDescription>
-              Account created! Redirecting to login...
-            </AlertDescription>
           </Alert>
         )}
 

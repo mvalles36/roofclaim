@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from '../integrations/supabase/supabase';
 import { toast } from 'sonner';
 
@@ -16,14 +17,16 @@ const UserManagement = () => {
   }, []);
 
   const fetchUsers = async () => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) {
-      console.error('Error fetching users:', error);
-    } else {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
       setUsers(data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      toast.error('Failed to fetch users');
     }
   };
 
@@ -120,53 +123,51 @@ const UserManagement = () => {
           </div>
           <Button type="submit">Invite User</Button>
         </form>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr>
-                <th className="text-left">Name</th>
-                <th className="text-left">Email</th>
-                <th className="text-left">Role</th>
-                <th className="text-left">Status</th>
-                <th className="text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td>
-                    <Select
-                      defaultValue={user.role}
-                      onValueChange={(value) => handleUpdateUserRole(user.id, value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="sales">Sales</SelectItem>
-                        <SelectItem value="sales_manager">Sales Manager</SelectItem>
-                        <SelectItem value="project_manager">Project Manager</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="customer_success">Customer Success</SelectItem>
-                        <SelectItem value="contractor">Contractor</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </td>
-                  <td>{user.status}</td>
-                  <td>
-                    {user.status === 'pending' && (
-                      <Button onClick={() => sendInvitationEmail(user.email, user.invite_token)}>
-                        Resend Invite
-                      </Button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>{user.name}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>
+                  <Select
+                    defaultValue={user.role}
+                    onValueChange={(value) => handleUpdateUserRole(user.id, value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sales">Sales</SelectItem>
+                      <SelectItem value="sales_manager">Sales Manager</SelectItem>
+                      <SelectItem value="project_manager">Project Manager</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="customer_success">Customer Success</SelectItem>
+                      <SelectItem value="contractor">Contractor</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+                <TableCell>{user.status}</TableCell>
+                <TableCell>
+                  {user.status === 'pending' && (
+                    <Button onClick={() => sendInvitationEmail(user.email, user.invite_token)}>
+                      Resend Invite
+                    </Button>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
   );

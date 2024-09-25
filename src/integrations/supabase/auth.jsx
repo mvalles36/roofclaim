@@ -1,14 +1,13 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { supabase } from './supabase'; // Adjust path if needed
+import { supabase } from './supabase';
 import { useQueryClient } from '@tanstack/react-query';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
-// Create a context for Supabase authentication
 const SupabaseAuthContext = createContext();
 
-// Provider component that wraps your app and provides authentication state
 export const SupabaseAuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [userRole, setUserRole] = useState(null);
@@ -17,7 +16,6 @@ export const SupabaseAuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Function to get the current session
     const getSession = async () => {
       try {
         setLoading(true);
@@ -28,12 +26,12 @@ export const SupabaseAuthProvider = ({ children }) => {
         }
       } catch (error) {
         console.error('Error fetching session:', error);
+        toast.error('Failed to fetch user session');
       } finally {
         setLoading(false);
       }
     };
 
-    // Listener for authentication state changes
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       if (session) {
@@ -46,13 +44,11 @@ export const SupabaseAuthProvider = ({ children }) => {
 
     getSession();
 
-    // Cleanup listener on component unmount
     return () => {
       authListener.subscription.unsubscribe();
     };
   }, [queryClient]);
 
-  // Function to fetch the user's role from the database
   const fetchUserRole = async (userId) => {
     try {
       const { data, error } = await supabase
@@ -65,10 +61,10 @@ export const SupabaseAuthProvider = ({ children }) => {
       setUserRole(data.role);
     } catch (error) {
       console.error('Error fetching user role:', error);
+      toast.error('Failed to fetch user role');
     }
   };
 
-  // Function to handle user login
   const login = async (email, password) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -76,11 +72,11 @@ export const SupabaseAuthProvider = ({ children }) => {
       return data;
     } catch (error) {
       console.error('Login error:', error);
+      toast.error('Login failed. Please check your credentials and try again.');
       throw error;
     }
   };
 
-  // Function to handle user logout
   const logout = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -89,24 +85,27 @@ export const SupabaseAuthProvider = ({ children }) => {
       setUserRole(null);
       queryClient.invalidateQueries(['user']);
       navigate('/login');
+      toast.success('Logged out successfully');
     } catch (error) {
       console.error('Logout error:', error);
+      toast.error('Failed to log out. Please try again.');
       throw error;
     }
   };
 
-  // Function to update user profile
   const updateProfile = async (updates) => {
     try {
       const { data, error } = await supabase
         .from('users')
         .update(updates)
-        .eq('id', session?.user?.id); // Handle possible null session
+        .eq('id', session?.user?.id);
 
       if (error) throw error;
+      toast.success('Profile updated successfully');
       return data;
     } catch (error) {
       console.error('Update profile error:', error);
+      toast.error('Failed to update profile. Please try again.');
       throw error;
     }
   };
@@ -118,12 +117,10 @@ export const SupabaseAuthProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use Supabase authentication context
 export const useSupabaseAuth = () => {
   return useContext(SupabaseAuthContext);
 };
 
-// Component to render Supabase Auth UI
 export const SupabaseAuthUI = () => (
   <Auth
     supabaseClient={supabase}
