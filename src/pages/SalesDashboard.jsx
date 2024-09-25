@@ -19,7 +19,7 @@ const SalesDashboard = () => {
   const [recentActivities, setRecentActivities] = useState([]);
   const [salesPerformance, setSalesPerformance] = useState([]);
   const [leadSourceDistribution, setLeadSourceDistribution] = useState([]);
-  const [salesProcessData, setSalesProcessData] = useState([]);
+  const [salesProcess, setSalesProcess] = useState(null);
 
   useEffect(() => {
     fetchSalesKPIs();
@@ -27,7 +27,7 @@ const SalesDashboard = () => {
     fetchRecentActivities();
     fetchSalesPerformance();
     fetchLeadSourceDistribution();
-    fetchSalesProcessData();
+    fetchSalesProcess();
   }, []);
 
   const fetchSalesKPIs = async () => {
@@ -75,35 +75,44 @@ const SalesDashboard = () => {
     }
   };
 
-  const fetchSalesProcessData = async () => {
-    const { data, error } = await supabase
-      .from('Stages')
-      .select(`
-        id,
-        name,
-        description,
-        duration,
-        min_probability,
-        max_probability,
-        Steps (
-          id,
-          name,
-          description,
-          probability,
-          wait_time,
-          Activities (id, activity),
-          Tools (id, tool),
-          ExpectedOutcomes (id, outcome),
-          Challenges (id, challenge)
-        )
-      `)
-      .order('id', { ascending: true });
+  const fetchSalesProcess = async () => {
+    const { data: processData, error: processError } = await supabase
+      .from('sales_process')
+      .select('*')
+      .single();
 
-    if (error) {
-      console.error('Error fetching sales process data:', error);
-    } else {
-      setSalesProcessData(data);
+    if (processError) {
+      console.error('Error fetching sales process:', processError);
+      return;
     }
+
+    const { data: stagesData, error: stagesError } = await supabase
+      .from('stages')
+      .select('*')
+      .eq('process_id', processData.id)
+      .order('order_index', { ascending: true });
+
+    if (stagesError) {
+      console.error('Error fetching stages:', stagesError);
+      return;
+    }
+
+    const stagesWithSteps = await Promise.all(stagesData.map(async (stage) => {
+      const { data: stepsData, error: stepsError } = await supabase
+        .from('steps')
+        .select('*')
+        .eq('stage_id', stage.id)
+        .order('order_index', { ascending: true });
+
+      if (stepsError) {
+        console.error('Error fetching steps:', stepsError);
+        return stage;
+      }
+
+      return { ...stage, steps: stepsData };
+    }));
+
+    setSalesProcess({ ...processData, stages: stagesWithSteps });
   };
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
@@ -180,14 +189,7 @@ const SalesDashboard = () => {
           </ResponsiveContainer>
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Sales Process Visualization</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <SalesProcessVisualization data={salesProcessData} />
-        </CardContent>
-      </Card>
+      {salesProcess && <SalesProcessVisualization process={salesProcess} />}
       <Card>
         <CardHeader>
           <CardTitle>Recent Sales Activities</CardTitle>
