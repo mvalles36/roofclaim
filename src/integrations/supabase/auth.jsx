@@ -16,6 +16,12 @@ const SignUp = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const validatePassword = (password) => {
+    // Example password validation: At least 8 characters, 1 uppercase, 1 lowercase, 1 digit
+    const regex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+    return regex.test(password);
+  };
+
   const handleSignUp = async (e) => {
     e.preventDefault();
     setError(null);
@@ -23,6 +29,12 @@ const SignUp = () => {
 
     if (!email || !password || !name) {
       setError('Please complete all fields.');
+      setLoading(false);
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      setError('Password must be at least 8 characters long, with at least 1 uppercase, 1 lowercase, and 1 number.');
       setLoading(false);
       return;
     }
@@ -118,6 +130,7 @@ const SignUp = () => {
               disabled={loading}
               className="w-full"
             />
+            <p className="text-sm text-gray-600 mt-1">Password must be at least 8 characters long, with at least 1 uppercase, 1 lowercase, and 1 number.</p>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Signing up...' : 'Sign Up'}
