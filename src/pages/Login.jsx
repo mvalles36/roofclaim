@@ -1,53 +1,151 @@
 import React, { useState } from 'react';
-import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from '../integrations/supabase/supabase';
+import { toast } from 'sonner';
 
-const Login = () => {
+const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { signIn } = useSupabaseAuth();
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
-    const { error } = await signIn({ email, password });
-    if (!error) {
-      navigate('/'); // Redirect to home on successful login
-    } else {
-      alert(error.message); // Handle error (better to use a toast notification)
+    setError(null);
+    setLoading(true);
+
+    if (!email || !password || !firstName || !lastName) {
+      setError('Please complete all fields.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.signUp({ 
+        email, 
+        password,
+        options: {
+          data: {
+            name: firstName + ' ' + lastName,
+            role: 'employee'  // Set default role to 'employee'
+          }
+        }
+      });
+
+      if (authError) throw authError;
+
+      if (user) {
+        const { error: dbError } = await supabase
+          .from('users')
+          .insert([{ 
+            id: user.id, 
+            email, 
+            first_name: firstName,
+            last_name: lastName,
+            role: 'employee', // Ensure the role is 'employee' in the users table
+            created_at: new Date(), 
+            updated_at: new Date() 
+          }]);
+
+        if (dbError) throw dbError;
+
+        toast.success('Account created successfully!');
+        navigate('/login');
+      }
+    } catch (error) {
+      console.error('Sign-up error:', error);
+      setError(error.message || 'Sign up failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-full">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md">
-        <h2 className="mb-4 text-2xl">Login</h2>
-        <div>
-          <label htmlFor="email" className="block mb-2">Email:</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="border rounded w-full p-2 mb-4"
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="password" className="block mb-2">Password:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border rounded w-full p-2 mb-4"
-            required
-          />
-        </div>
-        <button type="submit" className="bg-blue-500 text-white rounded p-2 w-full">Login</button>
-      </form>
-    </div>
+    <Card className="max-w-md mx-auto mt-8 shadow-lg">
+      <CardHeader>
+        <CardTitle className="text-2xl font-bold text-center">
+          Sign Up for RoofClaim
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        <form onSubmit={handleSignUp} className="space-y-4">
+          <div>
+            <Label htmlFor="first_name">First Name</Label>
+            <Input
+              id="first_name"
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+              disabled={loading}
+              className="w-full"
+            />
+          </div>
+          <div>
+            <Label htmlFor="last_name">Last Name</Label>
+            <Input
+              id="last_name"
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+              disabled={loading}
+              className="w-full"
+            />
+          </div>
+          <div>
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+              className="w-full"
+            />
+          </div>
+          <div>
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={loading}
+              className="w-full"
+            />
+          </div>
+
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Signing up...' : 'Sign Up'}
+          </Button>
+        </form>
+        <p className="mt-4 text-center text-sm">
+          Already have an account?{' '}
+          <Link to="/login" className="text-blue-600 hover:underline">
+            Sign In
+          </Link>
+        </p>
+      </CardContent>
+    </Card>
   );
 };
 
-export default Login;
+export default SignUp;
