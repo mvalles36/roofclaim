@@ -13,8 +13,9 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [role] = useState('employee'); // Default role, modify as needed
   const navigate = useNavigate();
-  const { session, login } = useSupabaseAuth();
+  const { session } = useSupabaseAuth();
 
   useEffect(() => {
     if (session) {
@@ -29,10 +30,17 @@ const Login = () => {
     try {
       console.log('Attempting login with email:', email);
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      
+
       if (error) {
         console.error('Supabase login error:', error);
-        throw error;
+        if (error.message.includes('invalid login credentials')) {
+          setError('Invalid email or password. Please try again.');
+        } else if (error.message.includes('user not found')) {
+          setError('No user found with this email address.');
+        } else {
+          setError('An unknown error occurred. Please try again.');
+        }
+        return;
       }
 
       console.log('Login successful, user data:', data);
@@ -48,7 +56,7 @@ const Login = () => {
   return (
     <Card className="max-w-md mx-auto mt-8 shadow-lg">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">roofClaim Login</CardTitle>
+        <CardTitle className="text-2xl font-bold text-center">RoofClaim Login</CardTitle>
       </CardHeader>
       <CardContent>
         {error && (
@@ -82,6 +90,7 @@ const Login = () => {
               disabled={loading}
             />
           </div>
+          <input type="hidden" id="role" name="role" value={role} />
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
           </Button>
