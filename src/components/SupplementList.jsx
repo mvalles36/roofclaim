@@ -6,10 +6,6 @@ import { supabase } from '../integrations/supabase/supabase';
 export const SupplementList = ({ contactId }) => {
   const [supplements, setSupplements] = useState([]);
 
-  useEffect(() => {
-    fetchSupplements();
-  }, [contactId]);
-
   const fetchSupplements = async () => {
     const { data, error } = await supabase
       .from('supplements')
@@ -23,6 +19,10 @@ export const SupplementList = ({ contactId }) => {
       setSupplements(data);
     }
   };
+
+  useEffect(() => {
+    fetchSupplements();
+  }, [contactId]); // Added fetchSupplements as a dependency
 
   return (
     <Card>
