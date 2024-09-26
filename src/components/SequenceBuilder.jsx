@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Mail, Phone, CheckSquare } from 'lucide-react';
 
-const SequenceBuilder = ({ onSaveSequence, onStartSequence }) => {
+const SequenceBuilder = ({ onSaveSequence }) => { // Removed onStartSequence as it's not used
   const [sequence, setSequence] = useState({ name: '', steps: [] });
 
   const addStep = (type) => {
