@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -23,13 +22,13 @@ const AdminKnowledgeBase = () => {
 
   const fetchKnowledgeBase = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: entries, error } = await supabase
         .from('knowledge_base')
         .select('*')
         .order('category', { ascending: true });
 
       if (error) throw error;
-      setKnowledgeBase(data);
+      setKnowledgeBase(entries); // Using the data variable now named entries
     } catch (error) {
       console.error('Error fetching knowledge base:', error);
       toast.error('Failed to fetch knowledge base');
@@ -39,7 +38,7 @@ const AdminKnowledgeBase = () => {
   const handleAddEntry = async (e) => {
     e.preventDefault();
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('knowledge_base')
         .insert([newEntry]);
 
