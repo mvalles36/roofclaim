@@ -1,10 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 
-const DamageDetectionUploader = ({ onUpload, uploadProgress, uploadError }) => {
+const DamageDetectionUploader = ({ onUpload, uploadError }) => {
   const [progresses, setProgresses] = useState({});
 
   // Handle file drop
@@ -43,7 +43,7 @@ const DamageDetectionUploader = ({ onUpload, uploadProgress, uploadError }) => {
           {isDragActive ? (
             <p>Drop the files here...</p>
           ) : (
-            <p>Drag 'n' drop files here, or click to select files</p>
+            <p>Drag &apos;n&apos; drop files here, or click to select files</p>
           )}
         </div>
         <div className="mt-4">
