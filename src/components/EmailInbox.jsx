@@ -1,28 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from 'sonner';
-import { Mail, Plus, Send, Clock, User } from 'lucide-react';
+import { Mail, Plus } from 'lucide-react';
 import { supabase } from '../integrations/supabase/supabase';
-import EmailSequenceBuilder from './EmailSequenceBuilder';
 import InboxView from './InboxView';
 import ComposeEmail from './ComposeEmail';
+import SequenceBuilder from './SequenceBuilder';
+import ProspectSelector from './ProspectSelector';
+import SequenceVisualizer from './SequenceVisualizer';
 
 const EmailInbox = () => {
   const [emails, setEmails] = useState([]);
   const [sequences, setSequences] = useState([]);
-  const [contacts, setContacts] = useState([]);
+  const [selectedSequence, setSelectedSequence] = useState(null);
 
   useEffect(() => {
     fetchEmails();
     fetchSequences();
-    fetchContacts();
   }, []);
 
   const fetchEmails = async () => {
@@ -38,44 +34,32 @@ const EmailInbox = () => {
 
   const fetchSequences = async () => {
     try {
-      const { data, error } = await supabase.from('email_sequences').select('*');
+      const { data, error } = await supabase.from('sequences').select('*');
       if (error) throw error;
       setSequences(data);
     } catch (error) {
       console.error('Error fetching sequences:', error);
-      toast.error('Failed to fetch email sequences');
-    }
-  };
-
-  const fetchContacts = async () => {
-    try {
-      const { data, error } = await supabase.from('contacts').select('id, full_name, email');
-      if (error) throw error;
-      setContacts(data);
-    } catch (error) {
-      console.error('Error fetching contacts:', error);
-      toast.error('Failed to fetch contacts');
+      toast.error('Failed to fetch sequences');
     }
   };
 
   const handleSaveSequence = async (newSequence) => {
     try {
-      const { data, error } = await supabase.from('email_sequences').insert([newSequence]);
+      const { data, error } = await supabase.from('sequences').insert([newSequence]);
       if (error) throw error;
       setSequences([...sequences, data[0]]);
-      toast.success('Email sequence saved successfully');
+      toast.success('Sequence saved successfully');
     } catch (error) {
       console.error('Error saving sequence:', error);
-      toast.error('Failed to save email sequence');
+      toast.error('Failed to save sequence');
     }
   };
 
-  const handleStartSequence = async (sequenceId, selectedContacts) => {
+  const handleStartSequence = async (sequenceId, selectedProspects) => {
     try {
-      // Here you would typically start the sequence for selected contacts
-      // This is a placeholder for the actual implementation
-      console.log(`Starting sequence ${sequenceId} for contacts:`, selectedContacts);
-      toast.success('Sequence started for selected contacts');
+      // Here you would typically start the sequence for selected prospects
+      console.log(`Starting sequence ${sequenceId} for prospects:`, selectedProspects);
+      toast.success('Sequence started for selected prospects');
     } catch (error) {
       console.error('Error starting sequence:', error);
       toast.error('Failed to start sequence');
@@ -98,12 +82,34 @@ const EmailInbox = () => {
           <ComposeEmail onSend={fetchEmails} />
         </TabsContent>
         <TabsContent value="sequences">
-          <EmailSequenceBuilder
-            sequences={sequences}
-            contacts={contacts}
-            onSaveSequence={handleSaveSequence}
-            onStartSequence={handleStartSequence}
-          />
+          <Card>
+            <CardHeader>
+              <CardTitle>Sequence Builder</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SequenceBuilder
+                onSaveSequence={handleSaveSequence}
+                onStartSequence={handleStartSequence}
+              />
+              {selectedSequence && (
+                <SequenceVisualizer sequence={selectedSequence} />
+              )}
+              <ProspectSelector onSelectProspects={(prospects) => console.log('Selected prospects:', prospects)} />
+            </CardContent>
+          </Card>
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Saved Sequences</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {sequences.map((sequence) => (
+                <div key={sequence.id} className="flex items-center justify-between p-2 border-b">
+                  <span>{sequence.name}</span>
+                  <Button onClick={() => setSelectedSequence(sequence)}>View</Button>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

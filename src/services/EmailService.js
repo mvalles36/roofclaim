@@ -17,38 +17,37 @@ export const EmailService = {
   },
 
   saveSequence: async (sequence) => {
-    const { data, error } = await supabase.from('email_sequences').insert([sequence]);
+    const { data, error } = await supabase.from('sequences').insert([sequence]);
     if (error) throw error;
     return data;
   },
 
   fetchSequences: async () => {
-    const { data, error } = await supabase.from('email_sequences').select('*');
+    const { data, error } = await supabase.from('sequences').select('*');
     if (error) throw error;
     return data;
   },
 
-  startSequence: async (sequenceId, contactIds) => {
+  startSequence: async (sequenceId, prospectIds) => {
     // This is a placeholder for the actual implementation
-    // You would typically create a new table to track sequence progress for each contact
-    console.log(`Starting sequence ${sequenceId} for contacts:`, contactIds);
-    // Simulating an API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ success: true, message: 'Sequence started successfully' });
-      }, 1000);
-    });
+    console.log(`Starting sequence ${sequenceId} for prospects:`, prospectIds);
+    // Here you would typically create entries in a 'sequence_executions' table
+    // and schedule the first step for each prospect
+    return { success: true, message: 'Sequence started successfully' };
   },
 
-  checkForReplies: async (sequenceId, contactId) => {
-    // This is a placeholder for checking if a contact has replied to a sequence email
-    // You would typically check against your emails table for any replies from the contact
-    console.log(`Checking for replies from contact ${contactId} in sequence ${sequenceId}`);
-    // Simulating an API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ hasReplied: Math.random() > 0.7, lastReplyDate: new Date() });
-      }, 500);
-    });
+  executeSequenceStep: async (executionId, stepIndex) => {
+    // This is a placeholder for executing a single step in a sequence
+    console.log(`Executing step ${stepIndex} for execution ${executionId}`);
+    // Here you would perform the action (send email, create task, etc.)
+    // and schedule the next step if there is one
+    return { success: true, message: 'Step executed successfully' };
+  },
+
+  getSequenceProgress: async (sequenceId) => {
+    // This is a placeholder for fetching sequence progress
+    console.log(`Fetching progress for sequence ${sequenceId}`);
+    // Here you would query the 'sequence_executions' table and calculate progress
+    return { totalProspects: 100, completedSteps: 50, totalSteps: 200 };
   },
 };
