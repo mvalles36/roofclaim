@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Plus, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
 const ContactView = ({ contactId }) => {
-  const { session } = useSupabaseAuth();
+  const { session } = useSupabaseAuth(); // Ensure session is being used
   const queryClient = useQueryClient();
   const [newTask, setNewTask] = useState({ title: '', description: '', priority: 'medium' });
 
