@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { getSupplementKPIs, getCurrentSupplementRequests, getSupplementPerformanceHistory } from '../integrations/supabase/supabase';
 import { supabase } from '../integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 
