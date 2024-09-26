@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'; // Retained for compatibility with JSX
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const KPICard = ({ title, value, icon }) => (
