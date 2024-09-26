@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from 'sonner';
-import { Mail, Plus } from 'lucide-react';
 import { supabase } from '../integrations/supabase/supabase';
 import InboxView from './InboxView';
 import ComposeEmail from './ComposeEmail';
