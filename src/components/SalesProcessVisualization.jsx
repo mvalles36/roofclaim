@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'; // Retained for JSX compatibility
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
@@ -17,7 +17,7 @@ const SalesProcessVisualization = ({ process }) => {
                 <p className="text-sm text-gray-500 mb-2">{stage.description}</p>
                 <p className="text-sm mb-4">Duration: {stage.duration} days</p>
                 <ul className="list-disc list-inside">
-                  {stage.steps.map((step, stepIndex) => (
+                  {stage.steps.map((step) => ( // Removed stepIndex as it's not used
                     <li key={step.id} className="mb-2">
                       <span className="font-semibold">{step.name}</span>
                       <p className="text-sm ml-4">{step.description}</p>
