@@ -1,14 +1,18 @@
-import { HomeIcon } from "lucide-react";
-import Index from "./pages/Index.jsx";
+import { Home, Users, FileText, Settings, BarChart2, Mail, Phone, Calendar } from 'lucide-react';
+import Dashboard from './pages/Dashboard';
+import Contacts from './pages/Contacts';
+import DocumentHub from './pages/DocumentHub';
+import Settings from './pages/Settings';
+import SalesManagerDashboard from './pages/SalesManagerDashboard';
+import EmailInbox from './components/EmailInbox';
+import WebsiteVisitors from './components/WebsiteVisitors';
 
-/**
- * Central place for defining the navigation items. Used for navigation components and routing.
- */
 export const navItems = [
-  {
-    title: "Home",
-    to: "/",
-    icon: <HomeIcon className="h-4 w-4" />,
-    page: <Index />,
-  },
+  { icon: Home, label: 'Dashboard', component: Dashboard },
+  { icon: Users, label: 'Contacts', component: Contacts },
+  { icon: FileText, label: 'Document Hub', component: DocumentHub },
+  { icon: BarChart2, label: 'Sales Dashboard', component: SalesManagerDashboard },
+  { icon: Mail, label: 'Email Inbox', component: EmailInbox },
+  { icon: Calendar, label: 'Website Visitors', component: WebsiteVisitors },
+  { icon: Settings, label: 'Settings', component: Settings },
 ];
