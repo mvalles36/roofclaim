@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/input"; // Not used in this component
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from 'sonner';
 import { supabase } from '../integrations/supabase/supabase';
 
-const Settings = () => {
+const UserSettings = () => { // Renamed component
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [smsNotifications, setSmsNotifications] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -35,9 +35,9 @@ const Settings = () => {
       .from('user_settings')
       .upsert({
         user_id: supabase.auth.user().id,
-        email_notifications,
-        sms_notifications,
-        dark_mode,
+        email_notifications: emailNotifications, // Updated to use state variable
+        sms_notifications: smsNotifications, // Updated to use state variable
+        dark_mode: darkMode, // Updated to use state variable
       }, {
         returning: 'minimal'
       });
@@ -96,4 +96,4 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default UserSettings; // Export the renamed component
