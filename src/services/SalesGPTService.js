@@ -1,9 +1,9 @@
 import { generateAIResponse } from '../utils/openAIClient';
+import { supabase } from '../integrations/supabase/supabase';
 
 class SalesGPTService {
   constructor() {
     this.conversations = new Map();
-    this.voipService = new VoIPService(); // Placeholder for VoIP service
   }
 
   async initializeKnowledgeBase(companyInfo, productInfo, salesScripts) {
@@ -37,15 +37,10 @@ class SalesGPTService {
     const initialPrompt = `You're calling ${contactInfo.full_name} regarding ${callReason}. Start the conversation politely and professionally.`;
     const response = await this.generateResponse(initialPrompt, contactInfo.id);
 
-    // Simulate VoIP call initiation
-    await this.voipService.initiateCall(contactInfo.phone_number);
-
     return response;
   }
 
   async endCall(conversationId) {
-    // Simulate ending the VoIP call
-    await this.voipService.endCall(conversationId);
     console.log(`Ended call for conversation ${conversationId}`);
   }
 
@@ -54,26 +49,17 @@ class SalesGPTService {
   }
 
   async getMetrics() {
-    // Simulate fetching metrics from a backend
-    return {
-      callsInitiated: Math.floor(Math.random() * 100),
-      conversionsRate: (Math.random() * 30).toFixed(2),
-      averageCallDuration: (Math.random() * 10 + 5).toFixed(1),
-      customerSatisfaction: (Math.random() * 1 + 4).toFixed(1),
-    };
-  }
-}
-
-// Placeholder VoIP service
-class VoIPService {
-  async initiateCall(phoneNumber) {
-    console.log(`Simulating VoIP call initiation to ${phoneNumber}`);
-    // In a real implementation, this would integrate with a VoIP API
+    const { data, error } = await supabase.rpc('get_sales_metrics');
+    if (error) throw error;
+    return data;
   }
 
-  async endCall(conversationId) {
-    console.log(`Simulating VoIP call termination for conversation ${conversationId}`);
-    // In a real implementation, this would end the call via a VoIP API
+  async generateEmailContent(emailType, contactInfo) {
+    const prompt = `Generate a professional ${emailType} email for a roofing company. The email is for ${contactInfo.full_name}. Include a subject line and body.`;
+    const response = await generateAIResponse(prompt);
+    const [subject, ...bodyParts] = response.split('\n');
+    const body = bodyParts.join('\n').trim();
+    return { subject: subject.replace('Subject: ', ''), body };
   }
 }
 

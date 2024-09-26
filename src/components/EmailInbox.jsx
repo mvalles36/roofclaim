@@ -10,6 +10,7 @@ import ComposeEmail from './ComposeEmail';
 import SequenceBuilder from './SequenceBuilder';
 import ProspectSelector from './ProspectSelector';
 import SequenceVisualizer from './SequenceVisualizer';
+import { salesGPTService } from '../services/SalesGPTService';
 
 const EmailInbox = () => {
   const [emails, setEmails] = useState([]);
@@ -59,6 +60,26 @@ const EmailInbox = () => {
     try {
       // Here you would typically start the sequence for selected prospects
       console.log(`Starting sequence ${sequenceId} for prospects:`, selectedProspects);
+      
+      // Generate email content for each step in the sequence
+      const sequence = sequences.find(seq => seq.id === sequenceId);
+      for (const step of sequence.steps) {
+        if (step.type === 'email') {
+          for (const prospectId of selectedProspects) {
+            const { data: contactInfo } = await supabase
+              .from('contacts')
+              .select('full_name, email')
+              .eq('id', prospectId)
+              .single();
+
+            const emailContent = await salesGPTService.generateEmailContent(step.emailType, contactInfo);
+            
+            // Here you would typically send the email or schedule it to be sent
+            console.log(`Generated email for ${contactInfo.full_name}:`, emailContent);
+          }
+        }
+      }
+      
       toast.success('Sequence started for selected prospects');
     } catch (error) {
       console.error('Error starting sequence:', error);

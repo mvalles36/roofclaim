@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { salesGPTService } from '../services/SalesGPTService';
 import { supabase } from '../integrations/supabase/supabase';
-import { Phone, MessageSquare, User, Mail } from 'lucide-react';
+import { Phone, MessageSquare, User } from 'lucide-react';
 import { toast } from 'sonner';
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { useQuery } from '@tanstack/react-query';
 
 const SalesGPT = () => {
   const [contacts, setContacts] = useState([]);
@@ -16,16 +17,14 @@ const SalesGPT = () => {
   const [conversation, setConversation] = useState([]);
   const [userInput, setUserInput] = useState('');
   const [isCallActive, setIsCallActive] = useState(false);
-  const [metrics, setMetrics] = useState({
-    callsInitiated: 0,
-    conversionsRate: 0,
-    averageCallDuration: 0,
-    customerSatisfaction: 0,
+
+  const { data: metrics, isLoading: isLoadingMetrics, error: metricsError } = useQuery({
+    queryKey: ['salesMetrics'],
+    queryFn: salesGPTService.getMetrics,
   });
 
   useEffect(() => {
     fetchContacts();
-    fetchMetrics();
   }, []);
 
   const fetchContacts = async () => {
@@ -39,16 +38,6 @@ const SalesGPT = () => {
       toast.error('Failed to fetch contacts');
     } else {
       setContacts(data);
-    }
-  };
-
-  const fetchMetrics = async () => {
-    try {
-      const metricsData = await salesGPTService.getMetrics();
-      setMetrics(metricsData);
-    } catch (error) {
-      console.error('Error fetching metrics:', error);
-      toast.error('Failed to fetch metrics');
     }
   };
 
@@ -95,22 +84,17 @@ const SalesGPT = () => {
     }
   };
 
-  const performanceData = [
-    { name: 'Mon', calls: 20, conversions: 5 },
-    { name: 'Tue', calls: 25, conversions: 8 },
-    { name: 'Wed', calls: 30, conversions: 10 },
-    { name: 'Thu', calls: 28, conversions: 7 },
-    { name: 'Fri', calls: 35, conversions: 12 },
-  ];
+  if (isLoadingMetrics) return <div>Loading metrics...</div>;
+  if (metricsError) return <div>Error loading metrics: {metricsError.message}</div>;
 
   return (
     <div className="space-y-6 p-6">
       <h1 className="text-3xl font-bold">SalesGPT</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <MetricCard title="Calls Initiated" value={metrics.callsInitiated} icon={<Phone className="h-8 w-8 text-blue-500" />} />
-        <MetricCard title="Conversion Rate" value={`${metrics.conversionsRate}%`} icon={<MessageSquare className="h-8 w-8 text-green-500" />} />
-        <MetricCard title="Avg. Call Duration" value={`${metrics.averageCallDuration} min`} icon={<User className="h-8 w-8 text-yellow-500" />} />
-        <MetricCard title="Customer Satisfaction" value={`${metrics.customerSatisfaction}/5`} icon={<Mail className="h-8 w-8 text-purple-500" />} />
+        <MetricCard title="Conversion Rate" value={`${metrics.conversionRate}%`} icon={<MessageSquare className="h-8 w-8 text-green-500" />} />
+        <MetricCard title="Avg. Call Duration" value={`${metrics.avgCallDuration} min`} icon={<User className="h-8 w-8 text-yellow-500" />} />
+        <MetricCard title="Customer Satisfaction" value={`${metrics.customerSatisfaction}/5`} icon={<MessageSquare className="h-8 w-8 text-purple-500" />} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
@@ -119,7 +103,7 @@ const SalesGPT = () => {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={performanceData}>
+              <LineChart data={metrics.weeklyPerformance}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis yAxisId="left" />
