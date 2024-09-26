@@ -113,6 +113,55 @@ export const createActivity = async (activityData) => {
   return data;
 };
 
+export const fetchTasks = async (userId) => {
+  const { data, error } = await supabase.rpc('get_user_tasks', { p_user_id: userId });
+  if (error) throw error;
+  return data;
+};
+
+export const fetchContactTasks = async (contactId) => {
+  const { data, error } = await supabase
+    .from('tasks')
+    .select('*')
+    .eq('contact_id', contactId)
+    .order('priority', { ascending: false })
+    .order('due_date', { ascending: true });
+  
+  if (error) throw error;
+  return data;
+};
+
+export const createTask = async (taskData) => {
+  const { data, error } = await supabase
+    .from('tasks')
+    .insert([taskData])
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const updateTask = async ({ taskId, updates }) => {
+  const { data, error } = await supabase
+    .from('tasks')
+    .update(updates)
+    .eq('id', taskId)
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const fetchTaskStatistics = async (userId, isManager) => {
+  const { data, error } = await supabase.rpc('get_task_statistics', {
+    p_user_id: userId,
+    p_is_manager: isManager
+  });
+
+  if (error) throw error;
+  return data;
+};
+
 export const fetchSalesKPIs = async () => {
   const { data, error } = await supabase.rpc('get_sales_kpis');
   if (error) throw error;
