@@ -1,10 +1,9 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from '@tanstack/react-query';
 import { fetchTaskStatistics } from '../services/apiService';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { CheckCircle, Clock, AlertCircle, AlertTriangle } from 'lucide-react';
+import { CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 
 const Dashboard = () => {
   const { session, userRole } = useSupabaseAuth();
