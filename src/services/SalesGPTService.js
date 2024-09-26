@@ -4,39 +4,12 @@ import { supabase } from '../integrations/supabase/supabase';
 class SalesGPTService {
   constructor() {
     this.conversations = new Map();
-    this.knowledgeBase = null;
   }
 
-  async initializeKnowledgeBase() {
-    try {
-      const { data, error } = await supabase
-        .from('knowledge_base')
-        .select('*');
-      
-      if (error) throw error;
-      
-      this.knowledgeBase = data.reduce((acc, entry) => {
-        if (!acc[entry.category]) {
-          acc[entry.category] = [];
-        }
-        acc[entry.category].push(entry.content);
-        return acc;
-      }, {});
-      
-      console.log('Knowledge base initialized:', this.knowledgeBase);
-    } catch (error) {
-      console.error('Error initializing knowledge base:', error);
-    }
-  }
-
-  async generateResponse(userInput, conversationId, userEmail) {
+  async generateResponse(userInput, conversationId, userEmail, knowledgeBase) {
     console.log('Generating response for:', userInput);
     try {
-      if (!this.knowledgeBase) {
-        await this.initializeKnowledgeBase();
-      }
-
-      const prompt = this.constructPrompt(userInput);
+      const prompt = this.constructPrompt(userInput, knowledgeBase);
       const response = await generateAIResponse(prompt, userEmail);
       
       if (!this.conversations.has(conversationId)) {
@@ -52,23 +25,25 @@ class SalesGPTService {
     }
   }
 
-  constructPrompt(userInput) {
+  constructPrompt(userInput, knowledgeBase) {
     let prompt = "You are an AI sales assistant. Use the following information to assist with sales inquiries:\n\n";
     
-    for (const [category, entries] of Object.entries(this.knowledgeBase)) {
-      prompt += `${category.toUpperCase()}:\n${entries.join('\n')}\n\n`;
+    if (knowledgeBase) {
+      for (const entry of knowledgeBase) {
+        prompt += `${entry.category.toUpperCase()}:\n${entry.content}\n\n`;
+      }
     }
     
     prompt += `User Input: ${userInput}\n\nResponse:`;
     return prompt;
   }
 
-  async initiateCall(contactInfo, callReason, userEmail) {
+  async initiateCall(contactInfo, callReason, userEmail, knowledgeBase) {
     console.log(`Initiating call to ${contactInfo.full_name} at ${contactInfo.phone_number}`);
     console.log(`Reason for call: ${callReason}`);
 
     const initialPrompt = `You're calling ${contactInfo.full_name} regarding ${callReason}. Start the conversation politely and professionally.`;
-    const response = await this.generateResponse(initialPrompt, contactInfo.id, userEmail);
+    const response = await this.generateResponse(initialPrompt, contactInfo.id, userEmail, knowledgeBase);
 
     return response;
   }
@@ -87,12 +62,8 @@ class SalesGPTService {
     return data;
   }
 
-  async generateEmailContent(emailType, contactInfo, userEmail) {
-    if (!this.knowledgeBase) {
-      await this.initializeKnowledgeBase();
-    }
-
-    const prompt = `Generate a professional ${emailType} email for a roofing company. The email is for ${contactInfo.full_name}. Include a subject line and body. Use the following information:\n\n${JSON.stringify(this.knowledgeBase)}`;
+  async generateEmailContent(emailType, contactInfo, userEmail, knowledgeBase) {
+    const prompt = `Generate a professional ${emailType} email for a roofing company. The email is for ${contactInfo.full_name}. Include a subject line and body. Use the following information:\n\n${JSON.stringify(knowledgeBase)}`;
     const response = await generateAIResponse(prompt, userEmail);
     const [subject, ...bodyParts] = response.split('\n');
     const body = bodyParts.join('\n').trim();

@@ -18,6 +18,7 @@ const EmailInbox = () => {
   const [sequences, setSequences] = useState([]);
   const [selectedSequence, setSelectedSequence] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
+  const [knowledgeBase, setKnowledgeBase] = useState(null);
   const { session } = useSupabaseAuth();
 
   useEffect(() => {
@@ -25,6 +26,7 @@ const EmailInbox = () => {
       fetchEmails();
       fetchSequences();
       fetchUserProfile();
+      fetchKnowledgeBase();
     }
   }, [session]);
 
@@ -40,6 +42,17 @@ const EmailInbox = () => {
       toast.error('Failed to fetch user profile');
     } else {
       setUserProfile(data);
+    }
+  };
+
+  const fetchKnowledgeBase = async () => {
+    try {
+      const { data, error } = await supabase.from('knowledge_base').select('*');
+      if (error) throw error;
+      setKnowledgeBase(data);
+    } catch (error) {
+      console.error('Error fetching knowledge base:', error);
+      toast.error('Failed to fetch knowledge base');
     }
   };
 
@@ -83,6 +96,11 @@ const EmailInbox = () => {
       return;
     }
 
+    if (!knowledgeBase) {
+      toast.error('Knowledge base is not available. Please try again later.');
+      return;
+    }
+
     try {
       console.log(`Starting sequence ${sequenceId} for prospects:`, selectedProspects);
       
@@ -96,7 +114,12 @@ const EmailInbox = () => {
               .eq('id', prospectId)
               .single();
 
-            const emailContent = await salesGPTService.generateEmailContent(step.emailType, contactInfo, session.user.email);
+            const emailContent = await salesGPTService.generateEmailContent(
+              step.emailType,
+              contactInfo,
+              session.user.email,
+              knowledgeBase
+            );
             
             // Here you would typically send the email using the configured email provider
             console.log(`Generated email for ${contactInfo.full_name}:`, emailContent);
@@ -125,7 +148,7 @@ const EmailInbox = () => {
           <InboxView emails={emails} />
         </TabsContent>
         <TabsContent value="compose">
-          <ComposeEmail onSend={fetchEmails} userProfile={userProfile} />
+          <ComposeEmail onSend={fetchEmails} userProfile={userProfile} knowledgeBase={knowledgeBase} />
         </TabsContent>
         <TabsContent value="sequences">
           <Card>
@@ -136,6 +159,7 @@ const EmailInbox = () => {
               <SequenceBuilder
                 onSaveSequence={handleSaveSequence}
                 onStartSequence={handleStartSequence}
+                knowledgeBase={knowledgeBase}
               />
               {selectedSequence && (
                 <SequenceVisualizer sequence={selectedSequence} />
