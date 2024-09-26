@@ -1,8 +1,6 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { DollarSign, Users, Briefcase, FileText } from 'lucide-react';
 import KPICard from '../components/KPICard';
 import RevenueChart from '../components/RevenueChart';
