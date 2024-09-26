@@ -12,12 +12,21 @@ serve(async (req) => {
   }
 
   try {
+    // Log the request body
+    const requestBody = await req.json();
+    console.log("Request Body:", requestBody);
+
+    const { visitor_id, page, time_on_page, visited_at } = requestBody;
+
+    // Check if values are undefined
+    if (!visitor_id || !page || !time_on_page || !visited_at) {
+      throw new Error("Missing required fields in request body.");
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     );
-
-    const { visitor_id, page, time_on_page, visited_at } = await req.json();
 
     const { data, error } = await supabase
       .from('website_visitors')
