@@ -33,9 +33,10 @@ const SignUp = () => {
         email, 
         password,
         options: {
+          emailRedirectTo: `${window.location.origin}/email-confirmation`, // Redirect to confirmation URL
           data: {
             name: firstName + ' ' + lastName,
-            role: 'employee'  // Set default role to 'customer'
+            role: 'employee'  // Set default role to 'employee'
           }
         }
       });
@@ -50,14 +51,14 @@ const SignUp = () => {
             email, 
             first_name: firstName,
             last_name: lastName,
-            role: 'employee', // Ensure the role is 'customer' in the users table
+            role: 'employee', // Ensure the role is 'employee' in the users table
             created_at: new Date(), 
             updated_at: new Date() 
           }]);
 
         if (dbError) throw dbError;
 
-        toast.success('Account created successfully!');
+        toast.success('Account created successfully! Please check your email to confirm your account.');
         navigate('/login');
       }
     } catch (error) {
