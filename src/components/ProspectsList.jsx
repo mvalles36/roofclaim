@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'; // Retained for JSX compatibility
 import { Button } from "@/components/ui/button";
 import { useAddContacts } from '../integrations/supabase/hooks/useContacts';
 import { toast } from 'sonner';
@@ -31,7 +31,7 @@ const ProspectsList = ({ prospects }) => {
     <div>
       <p>Total prospects found: {prospects.length}</p>
       <div className="max-h-96 overflow-y-auto">
-        {prospects.map((prospects, index) => (
+        {prospects.map((prospect, index) => ( // Corrected the parameter to 'prospect'
           <div key={index} className="mb-2">
             <p><strong>Address:</strong> {prospect.AddressLine1}, {prospect.City}, {prospect.State} {prospect.PostalCode}</p>
           </div>
