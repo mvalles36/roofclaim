@@ -76,7 +76,7 @@ const FileUploader = () => {
 
   const onDrop = useCallback((acceptedFiles) => {
     handleUpload(acceptedFiles);
-  }, [handleUpload]); // Added handleUpload to dependencies
+  }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -92,7 +92,7 @@ const FileUploader = () => {
           {isDragActive ? (
             <p>Drop the files here ...</p>
           ) : (
-            <p>Drag &apos;n&apos; drop some files here, or click to select files</p> {/* Escaped single quotes */}
+            <p>Drag &apos;n&apos; drop some files here, or click to select files</p>
           )}
         </div>
         {isUploading && (
@@ -101,7 +101,7 @@ const FileUploader = () => {
         {uploadError && (
           <p className="text-red-500 mt-2">{uploadError}</p>
         )}
-        <Button className="mt-4" onClick={() => document.querySelector('input').click()}>
+        <Button className="mt-4" onClick={() => document.querySelector('input[type="file"]').click()}>
           Select Files
         </Button>
       </CardContent>
