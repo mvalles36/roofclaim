@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
@@ -9,11 +9,7 @@ const WebsiteVisitors = () => {
   const [pageViews, setPageViews] = useState([]);
   const [timeOnPage, setTimeOnPage] = useState([]);
 
-  useEffect(() => {
-    fetchVisitorData();
-  }, []);
-
-  const fetchVisitorData = async () => {
+  const fetchVisitorData = useCallback(async () => {
     const { data, error } = await supabase
       .from('website_visitors')
       .select('*')
@@ -26,7 +22,11 @@ const WebsiteVisitors = () => {
       processPageViews(data);
       processTimeOnPage(data);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchVisitorData();
+  }, [fetchVisitorData]);
 
   const processPageViews = (data) => {
     const pageViewCounts = data.reduce((acc, visit) => {
@@ -54,7 +54,7 @@ const WebsiteVisitors = () => {
         o.defer = true;
         o.onload = function() {
           window.visitorTrackingFunctions.onLoad({
-            appId: "${process.env.VITE_SUPABASE_PROJECT_URL}"
+            appId: "${import.meta.env.VITE_SUPABASE_PROJECT_URL}"
           });
         };
         document.head.appendChild(o);
