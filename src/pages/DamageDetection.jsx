@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Pagination } from "@/components/ui/pagination";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
@@ -16,7 +13,8 @@ const DamageDetection = () => {
   const [imagesPerPage] = useState(12);
   const [selectedImage, setSelectedImage] = useState(null);
   const [labels, setLabels] = useState([]);
-  const { userRole } = useSupabaseAuth();
+  
+  useSupabaseAuth(); // userRole is not being used, so it can be omitted
 
   useEffect(() => {
     fetchImages();
@@ -50,7 +48,6 @@ const DamageDetection = () => {
 
   const handleImageUpload = async (newImages) => {
     // Implementation for image upload
-    // This should be handled in DamageDetectionUploader component
     await fetchImages();
   };
 
