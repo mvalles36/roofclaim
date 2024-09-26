@@ -28,53 +28,45 @@ const SignUp = () => {
       return;
     }
 
-   try {
-  const { data: { user }, error: authError } = await supabase.auth.signUp({ 
-    email, 
-    password,
-    options: {
-      data: {
-        first_name: firstName,
-        last_name: lastName,
-        role: 'employee' // Set default role to 'customer'
-      }
-    }
-  });
-
-  if (authError) {
-    // Check if the error is due to an existing email
-    if (authError.message.includes("Email already exists")) {
-      setError("An account with this email already exists. Please log in.");
-    } else {
-      setError(authError.message);
-    }
-    throw authError;
-  }
-
-  if (user) {
-    const { error: dbError } = await supabase
-      .from('users')
-      .insert([{ 
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.signUp({ 
         email, 
-        first_name: firstName,
-        last_name: lastName,
-        role: 'employee', 
-        created_at: new Date(), 
-        updated_at: new Date() 
-      }]);
+        password,
+        options: {
+          data: {
+            name: firstName + ' ' + lastName,
+            role: 'employee'  // Set default role to 'customer'
+          }
+        }
+      });
 
-    if (dbError) throw dbError;
+      if (authError) throw authError;
 
-    toast.success('Account created successfully!');
-    navigate('/login');
-  }
-} catch (error) {
-  console.error('Sign-up error:', error);
-  setError(error.message || 'Sign up failed. Please try again.');
-} finally {
-  setLoading(false);
-};
+      if (user) {
+        const { error: dbError } = await supabase
+          .from('users')
+          .insert([{ 
+            id: user.id, 
+            email, 
+            first_name: firstName,
+            last_name: lastName,
+            role: 'employee', // Ensure the role is 'customer' in the users table
+            created_at: new Date(), 
+            updated_at: new Date() 
+          }]);
 
+        if (dbError) throw dbError;
+
+        toast.success('Account created successfully!');
+        navigate('/login');
+      }
+    } catch (error) {
+      console.error('Sign-up error:', error);
+      setError(error.message || 'Sign up failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Card className="max-w-md mx-auto mt-8 shadow-lg">
