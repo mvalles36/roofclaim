@@ -11,16 +11,37 @@ import SequenceBuilder from './SequenceBuilder';
 import ProspectSelector from './ProspectSelector';
 import SequenceVisualizer from './SequenceVisualizer';
 import { salesGPTService } from '../services/SalesGPTService';
+import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const EmailInbox = () => {
   const [emails, setEmails] = useState([]);
   const [sequences, setSequences] = useState([]);
   const [selectedSequence, setSelectedSequence] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
+  const { session } = useSupabaseAuth();
 
   useEffect(() => {
-    fetchEmails();
-    fetchSequences();
-  }, []);
+    if (session) {
+      fetchEmails();
+      fetchSequences();
+      fetchUserProfile();
+    }
+  }, [session]);
+
+  const fetchUserProfile = async () => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching user profile:', error);
+      toast.error('Failed to fetch user profile');
+    } else {
+      setUserProfile(data);
+    }
+  };
 
   const fetchEmails = async () => {
     try {
@@ -57,11 +78,14 @@ const EmailInbox = () => {
   };
 
   const handleStartSequence = async (sequenceId, selectedProspects) => {
+    if (!userProfile || !userProfile.email_provider || !userProfile.email_api_key || !userProfile.email_domain) {
+      toast.error('Please configure your email settings in your profile before starting a sequence.');
+      return;
+    }
+
     try {
-      // Here you would typically start the sequence for selected prospects
       console.log(`Starting sequence ${sequenceId} for prospects:`, selectedProspects);
       
-      // Generate email content for each step in the sequence
       const sequence = sequences.find(seq => seq.id === sequenceId);
       for (const step of sequence.steps) {
         if (step.type === 'email') {
@@ -72,10 +96,11 @@ const EmailInbox = () => {
               .eq('id', prospectId)
               .single();
 
-            const emailContent = await salesGPTService.generateEmailContent(step.emailType, contactInfo);
+            const emailContent = await salesGPTService.generateEmailContent(step.emailType, contactInfo, session.user.email);
             
-            // Here you would typically send the email or schedule it to be sent
+            // Here you would typically send the email using the configured email provider
             console.log(`Generated email for ${contactInfo.full_name}:`, emailContent);
+            // Implement email sending logic here using userProfile.email_provider, userProfile.email_api_key, and userProfile.email_domain
           }
         }
       }
@@ -100,7 +125,7 @@ const EmailInbox = () => {
           <InboxView emails={emails} />
         </TabsContent>
         <TabsContent value="compose">
-          <ComposeEmail onSend={fetchEmails} />
+          <ComposeEmail onSend={fetchEmails} userProfile={userProfile} />
         </TabsContent>
         <TabsContent value="sequences">
           <Card>

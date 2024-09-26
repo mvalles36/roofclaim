@@ -11,10 +11,10 @@ class SalesGPTService {
     // In a real implementation, this would set up the AI model with the provided information
   }
 
-  async generateResponse(userInput, conversationId) {
+  async generateResponse(userInput, conversationId, userEmail) {
     console.log('Generating response for:', userInput);
     try {
-      const response = await generateAIResponse(userInput);
+      const response = await generateAIResponse(userInput, userEmail);
       
       // Store the conversation
       if (!this.conversations.has(conversationId)) {
@@ -30,12 +30,12 @@ class SalesGPTService {
     }
   }
 
-  async initiateCall(contactInfo, callReason) {
+  async initiateCall(contactInfo, callReason, userEmail) {
     console.log(`Initiating call to ${contactInfo.full_name} at ${contactInfo.phone_number}`);
     console.log(`Reason for call: ${callReason}`);
 
     const initialPrompt = `You're calling ${contactInfo.full_name} regarding ${callReason}. Start the conversation politely and professionally.`;
-    const response = await this.generateResponse(initialPrompt, contactInfo.id);
+    const response = await this.generateResponse(initialPrompt, contactInfo.id, userEmail);
 
     return response;
   }
@@ -54,9 +54,9 @@ class SalesGPTService {
     return data;
   }
 
-  async generateEmailContent(emailType, contactInfo) {
+  async generateEmailContent(emailType, contactInfo, userEmail) {
     const prompt = `Generate a professional ${emailType} email for a roofing company. The email is for ${contactInfo.full_name}. Include a subject line and body.`;
-    const response = await generateAIResponse(prompt);
+    const response = await generateAIResponse(prompt, userEmail);
     const [subject, ...bodyParts] = response.split('\n');
     const body = bodyParts.join('\n').trim();
     return { subject: subject.replace('Subject: ', ''), body };
