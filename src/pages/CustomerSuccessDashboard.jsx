@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../integrations/supabase/supabase';
-import { Button } from "@/components/ui/button";
+import SalesProcessKPIs from '../components/SalesProcessKPIs';
 
 const CustomerSuccessDashboard = () => {
+  const { data: customerSatisfaction, isLoading, error } = useQuery({
+    queryKey: ['customerSatisfaction'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_customer_satisfaction');
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const [kpis, setKpis] = useState({});
   const [currentRequests, setCurrentRequests] = useState([]);
   const [performanceHistory, setPerformanceHistory] = useState([]);
@@ -27,7 +37,6 @@ const CustomerSuccessDashboard = () => {
       const historyData = await getSupplementPerformanceHistory();
       setPerformanceHistory(historyData);
 
-      // New data fetching for additional charts
       const { data: typeDistribution } = await supabase.rpc('get_supplement_type_distribution');
       setSupplementTypeDistribution(typeDistribution);
 
@@ -44,9 +53,31 @@ const CustomerSuccessDashboard = () => {
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
+  if (isLoading) return <div>Loading dashboard...</div>;
+  if (error) return <div>Error loading dashboard: {error.message}</div>;
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Customer Success Rep Dashboard</h1>
+    <div className="space-y-6 p-6">
+      <h1 className="text-3xl font-bold">Customer Success Dashboard</h1>
+      <SalesProcessKPIs />
+      <Card>
+        <CardHeader>
+          <CardTitle>Customer Satisfaction by Stage</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={customerSatisfaction}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="stage" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="satisfaction_score" fill="#8884d8" name="Satisfaction Score" />
+              <Bar dataKey="response_rate" fill="#82ca9d" name="Response Rate" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <KPICard title="Total Supplements" value={kpis.totalSupplements} />
         <KPICard title="Approved Supplements" value={kpis.approvedSupplements} />
