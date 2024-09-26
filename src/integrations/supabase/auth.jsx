@@ -16,6 +16,7 @@ const SignUp = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Password validation function
   const validatePassword = (password) => {
     // Example password validation: At least 8 characters, 1 uppercase, 1 lowercase, 1 digit
     const regex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
@@ -27,12 +28,14 @@ const SignUp = () => {
     setError(null);
     setLoading(true);
 
+    // Check for empty fields
     if (!email || !password || !name) {
       setError('Please complete all fields.');
       setLoading(false);
       return;
     }
 
+    // Validate password format
     if (!validatePassword(password)) {
       setError('Password must be at least 8 characters long, with at least 1 uppercase, 1 lowercase, and 1 number.');
       setLoading(false);
@@ -40,20 +43,21 @@ const SignUp = () => {
     }
 
     try {
-      // Hardcode the role as "employee"
+      // Call Supabase auth sign-up function
       const { data: { user }, error: authError } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
           data: {
             name,
-            role: 'employee'  // Set the role as employee
+            role: 'employee'  // Hardcode the role as employee
           }
         }
       });
 
       if (authError) throw authError;
 
+      // Insert the new user into the 'users' table in the database
       if (user) {
         const { error: dbError } = await supabase
           .from('users')
@@ -61,13 +65,14 @@ const SignUp = () => {
             id: user.id, 
             email, 
             name, 
-            role: 'employee', // Ensure the role is "employee" in the users table
+            role: 'employee', // Set the role in the users table as employee
             created_at: new Date(), 
             updated_at: new Date() 
           }]);
 
         if (dbError) throw dbError;
 
+        // Show success notification
         toast.success('Account created successfully!');
         navigate('/login');
       }
@@ -130,7 +135,9 @@ const SignUp = () => {
               disabled={loading}
               className="w-full"
             />
-            <p className="text-sm text-gray-600 mt-1">Password must be at least 8 characters long, with at least 1 uppercase, 1 lowercase, and 1 number.</p>
+            <p className="text-sm text-gray-600 mt-1">
+              Password must be at least 8 characters long, with at least 1 uppercase, 1 lowercase, and 1 number.
+            </p>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Signing up...' : 'Sign Up'}
