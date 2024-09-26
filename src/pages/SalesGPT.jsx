@@ -9,6 +9,7 @@ import { Phone, MessageSquare, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
+import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const SalesGPT = () => {
   const [contacts, setContacts] = useState([]);
@@ -17,6 +18,7 @@ const SalesGPT = () => {
   const [conversation, setConversation] = useState([]);
   const [userInput, setUserInput] = useState('');
   const [isCallActive, setIsCallActive] = useState(false);
+  const { session } = useSupabaseAuth();
 
   const { data: metrics, isLoading: isLoadingMetrics, error: metricsError } = useQuery({
     queryKey: ['salesMetrics'],
@@ -25,6 +27,7 @@ const SalesGPT = () => {
 
   useEffect(() => {
     fetchContacts();
+    salesGPTService.initializeKnowledgeBase();
   }, []);
 
   const fetchContacts = async () => {
@@ -48,7 +51,7 @@ const SalesGPT = () => {
     }
 
     try {
-      const response = await salesGPTService.initiateCall(selectedContact, callReason);
+      const response = await salesGPTService.initiateCall(selectedContact, callReason, session.user.email);
       setConversation([{ role: 'assistant', content: response }]);
       setIsCallActive(true);
       toast.success('Call initiated successfully');
@@ -76,7 +79,7 @@ const SalesGPT = () => {
     setUserInput('');
 
     try {
-      const response = await salesGPTService.generateResponse(userInput, selectedContact.id);
+      const response = await salesGPTService.generateResponse(userInput, selectedContact.id, session.user.email);
       setConversation(prev => [...prev, { role: 'assistant', content: response }]);
     } catch (error) {
       console.error('Error generating response:', error);
