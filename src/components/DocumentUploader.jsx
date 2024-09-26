@@ -1,4 +1,3 @@
-import React from 'react';
 import { useDropzone } from 'react-dropzone';
 import DocumentUploader from '../services/DocumentUploader'; // Import the backend logic
 
@@ -27,7 +26,7 @@ const DocumentUploaderComponent = ({ onUpload }) => {
       {isDragActive ? (
         <p>Drop the file here ...</p>
       ) : (
-        <p>Drag 'n' drop a file here, or click to select a file</p>
+        <p>Drag "n" drop a file here, or click to select a file</p> // Changed to double quotes
       )}
     </div>
   );
