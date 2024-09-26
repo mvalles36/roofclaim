@@ -11,8 +11,8 @@ import { toast } from 'sonner';
 const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState(''); // Changed name to firstName
-  const [lastName, setLastName] = useState('');   // Added lastName state
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ const SignUp = () => {
     setError(null);
     setLoading(true);
 
-    if (!email || !password || !firstName || !lastName) { // Check for both first and last name
+    if (!email || !password || !firstName || !lastName) {
       setError('Please complete all fields.');
       setLoading(false);
       return;
@@ -34,8 +34,8 @@ const SignUp = () => {
         password,
         options: {
           data: {
-            name: firstName + ' ' + lastName, // Combine first and last names
-            role: 'employee'  // Hardcode the role as 'employee'
+            name: firstName + ' ' + lastName,
+            role: 'customer'  // Set default role to 'customer'
           }
         }
       });
@@ -48,9 +48,9 @@ const SignUp = () => {
           .insert([{ 
             id: user.id, 
             email, 
-            first_name: firstName, // Insert first name
-            last_name: lastName,   // Insert last name
-            role: 'employee', // Ensure the role is 'employee' in the users table
+            first_name: firstName,
+            last_name: lastName,
+            role: 'customer', // Ensure the role is 'customer' in the users table
             created_at: new Date(), 
             updated_at: new Date() 
           }]);

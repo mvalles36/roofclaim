@@ -10,21 +10,18 @@ export const useRoleBasedAccess = () => {
   const { userRole } = useSupabaseAuth();
 
   const hasPermission = (permission) => {
-    if (!userRole) {
-      console.warn('User role not set. Defaulting to customer permissions.');
+    const role = userRole || 'customer'; // Default to 'customer' if no role is set
+
+    if (!rolePermissions[role]) {
+      console.error(`Invalid role: ${role}. Defaulting to customer permissions.`);
       return rolePermissions.customer.includes(permission);
     }
 
-    if (!rolePermissions[userRole]) {
-      console.error(`Invalid role: ${userRole}. Defaulting to customer permissions.`);
-      return rolePermissions.customer.includes(permission);
-    }
-
-    if (userRole === 'admin' && rolePermissions[userRole].includes('read:all')) {
+    if (role === 'admin' && rolePermissions[role].includes('read:all')) {
       return true;
     }
 
-    return rolePermissions[userRole].includes(permission);
+    return rolePermissions[role].includes(permission);
   };
 
   return { hasPermission };
