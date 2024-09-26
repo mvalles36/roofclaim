@@ -12,7 +12,7 @@ const ComposeEmail = ({ onSend }) => {
 
   const handleSendEmail = async () => {
     try {
-      const { data, error } = await supabase.from('emails').insert([newEmail]);
+      const { error } = await supabase.from('emails').insert([newEmail]);
       if (error) throw error;
       setNewEmail({ to: '', subject: '', body: '' });
       onSend();
