@@ -6,7 +6,6 @@ import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, L
 import { DollarSign, Users, Briefcase, FileText } from 'lucide-react';
 
 const Dashboard = () => {
-  const { userRole } = useSupabaseAuth();
   const [metrics, setMetrics] = useState({
     totalRevenue: 0,
     totalContacts: 0,
