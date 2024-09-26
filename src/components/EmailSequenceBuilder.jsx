@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectItem } from "@/components/ui/select"; // Removed unused imports
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Clock } from 'lucide-react';
 import { toast } from 'sonner';
@@ -58,13 +58,14 @@ const EmailSequenceBuilder = ({ sequences, contacts, onSaveSequence, onStartSequ
       <CardContent>
         <Dialog>
           <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> Create New Sequence
+            <Button variant="outline">
+              <Plus className="mr-2" />
+              Add Sequence
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-4xl">
+          <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create Email Sequence</DialogTitle>
+              <DialogTitle>Create New Sequence</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <Input
@@ -73,63 +74,41 @@ const EmailSequenceBuilder = ({ sequences, contacts, onSaveSequence, onStartSequ
                 onChange={(e) => setNewSequence({ ...newSequence, name: e.target.value })}
               />
               {newSequence.steps.map((step, index) => (
-                <div key={index} className="space-y-2 border p-4 rounded">
-                  <h3 className="font-semibold">Step {index + 1}</h3>
+                <div key={index} className="border p-4 rounded">
+                  <Select
+                    value={step.email.type}
+                    onValueChange={(value) => handleUpdateSequenceStep(index, 'email.type', value)}
+                  >
+                    <SelectItem value="follow-up">Follow-up</SelectItem>
+                    <SelectItem value="introduction">Introduction</SelectItem>
+                  </Select>
                   <Input
-                    placeholder="Subject"
+                    placeholder="Email Subject"
                     value={step.email.subject}
                     onChange={(e) => handleUpdateSequenceStep(index, 'email.subject', e.target.value)}
                   />
                   <Textarea
-                    placeholder="Body"
+                    placeholder="Email Body"
                     value={step.email.body}
                     onChange={(e) => handleUpdateSequenceStep(index, 'email.body', e.target.value)}
-                    rows={3}
                   />
-                  <div className="flex items-center space-x-2">
-                    <Clock className="h-4 w-4" />
+                  <div className="flex items-center">
                     <Input
                       type="number"
+                      min="0"
                       placeholder="Wait Days"
                       value={step.waitDays}
-                      onChange={(e) => handleUpdateSequenceStep(index, 'waitDays', parseInt(e.target.value))}
-                      className="w-24"
+                      onChange={(e) => handleUpdateSequenceStep(index, 'waitDays', e.target.value)}
                     />
-                    <span>days</span>
+                    <Button onClick={() => handleAIWriteEmail(index)}>Generate Email</Button>
                   </div>
-                  <Button onClick={() => handleAIWriteEmail(index)}>Ask AI to Write Email</Button>
                 </div>
               ))}
-              <Button onClick={handleAddSequenceStep}>
-                <Plus className="mr-2 h-4 w-4" /> Add Step
-              </Button>
-              <Button onClick={() => onSaveSequence(newSequence)}>Save Sequence</Button>
+              <Button onClick={handleAddSequenceStep}>Add Step</Button>
             </div>
+            <Button onClick={() => { onSaveSequence(newSequence); setNewSequence({ name: '', steps: [] }); }}>Save Sequence</Button>
           </DialogContent>
         </Dialog>
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold mb-2">Existing Sequences</h3>
-          {sequences.map((sequence) => (
-            <div key={sequence.id} className="flex items-center justify-between border p-4 rounded mb-2">
-              <span>{sequence.name}</span>
-              <Button onClick={() => onStartSequence(sequence.id, selectedContacts)}>Start Sequence</Button>
-            </div>
-          ))}
-        </div>
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold mb-2">Select Contacts for Sequence</h3>
-          <Select
-            multiple
-            value={selectedContacts}
-            onChange={(value) => setSelectedContacts(value)}
-          >
-            {contacts.map((contact) => (
-              <SelectItem key={contact.id} value={contact.id}>
-                {contact.full_name} ({contact.email})
-              </SelectItem>
-            ))}
-          </Select>
-        </div>
       </CardContent>
     </Card>
   );
