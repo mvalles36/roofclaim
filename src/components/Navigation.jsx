@@ -1,8 +1,8 @@
-import React from 'react';
+import React from 'react'; // Retained for JSX compatibility
 import { Link } from 'react-router-dom';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Button } from "@/components/ui/button";
-import { Home, Users, Briefcase, FileText, Search, Inbox, CheckSquare, DollarSign, User, Settings, FileSpreadsheet, BarChart2, PieChart, Folder, Phone, Bot, Shield, Mail, UserCog, FileCheck } from 'lucide-react';
+import { Home, Users, Briefcase, FileText, Search, Inbox, CheckSquare, DollarSign, User, Settings, FileSpreadsheet, BarChart2, PieChart, Folder, Bot, Shield, Mail, UserCog, FileCheck } from 'lucide-react';
 
 const Navigation = () => {
   const { userRole, signOut } = useSupabaseAuth();
