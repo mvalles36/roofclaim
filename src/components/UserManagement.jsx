@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,12 +18,12 @@ const UserManagement = () => {
 
   const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('users')
         .select('*')
         .order('created_at', { ascending: false });
       if (error) throw error;
-      setUsers(data);
+      setUsers(data); // Ensure data is assigned correctly
     } catch (error) {
       console.error('Error fetching users:', error);
       toast.error('Failed to fetch users');
@@ -35,7 +35,7 @@ const UserManagement = () => {
     try {
       const inviteToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('users')
         .insert([{
           email: newUser.email,
