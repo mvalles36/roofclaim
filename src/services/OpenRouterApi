@@ -1,5 +1,3 @@
-import { fetchAiGeneratedScore } from './apiService'; // This would be your internal helper to call OpenRouter API
-
 export const generateContactScore = async (contactData, interactions) => {
   const prompt = `
     Evaluate the prospect based on the following data:
@@ -21,4 +19,21 @@ export const generateContactScore = async (contactData, interactions) => {
     console.error('Error generating contact score:', error);
     throw error;
   }
+};
+
+export const fetchAiGeneratedScore = async (prompt) => {
+  const response = await fetch('your-openrouter-endpoint-url', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`
+    },
+    body: JSON.stringify({ prompt })
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch AI generated score');
+  }
+
+  return await response.json();
 };
