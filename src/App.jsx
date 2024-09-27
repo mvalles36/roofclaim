@@ -43,6 +43,7 @@ const CustomerSuccessDashboard = loadable(() => import('./pages/CustomerSuccessD
 const SalesManagerDashboard = loadable(() => import('./pages/SalesManagerDashboard'));
 const SalesDashboard = loadable(() => import('./pages/SalesDashboard'));
 const WebsiteVisitors = loadable(() => import('./components/WebsiteVisitors'));
+const ClientPortal = loadable(() => import('./pages/ClientPortal'));
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { session, userRole } = useSupabaseAuth();
@@ -107,6 +108,7 @@ const AppContent = () => {
             <Route path="/sales-dashboard" element={<ProtectedRoute allowedRoles={['employee', 'admin', 'sales']}><SalesDashboard /></ProtectedRoute>} />
             <Route path="/customer-success-dashboard" element={<ProtectedRoute allowedRoles={['employee', 'admin', 'customer_success']}><CustomerSuccessDashboard /></ProtectedRoute>} />
             <Route path="/website-visitors" element={<ProtectedRoute allowedRoles={['admin']}><WebsiteVisitors /></ProtectedRoute>} />
+            <Route path="/client-portal" element={<ProtectedRoute><ClientPortal /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to={session ? "/" : "/login"} replace />} />
           </Routes>
         </Suspense>
