@@ -8,61 +8,33 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from '../integrations/supabase/supabase';
 import { toast } from 'sonner';
 
-const SignUp = () => {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignUp = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
-    if (!email || !password || !firstName || !lastName) {
-      setError('Please complete all fields.');
-      setLoading(false);
-      return;
-    }
-
     try {
-      const { data: { user }, error: authError } = await supabase.auth.signUp({ 
-        email, 
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
         password,
-        options: {
-          data: {
-            name: firstName + ' ' + lastName,
-            role: 'employee'  // Set default role to 'employee'
-          }
-        }
       });
 
-      if (authError) throw authError;
+      if (error) throw error;
 
-      if (user) {
-        const { error: dbError } = await supabase
-          .from('users')
-          .insert([{ 
-            id: user.id, 
-            email, 
-            first_name: firstName,
-            last_name: lastName,
-            role: 'employee', // Ensure the role is 'employee' in the users table
-            created_at: new Date(), 
-            updated_at: new Date() 
-          }]);
-
-        if (dbError) throw dbError;
-
-        toast.success('Account created successfully!');
-        navigate('/login');
+      if (data.user) {
+        toast.success('Login successful!');
+        navigate('/');
       }
     } catch (error) {
-      console.error('Sign-up error:', error);
-      setError(error.message || 'Sign up failed. Please try again.');
+      console.error('Login error:', error);
+      setError(error.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -71,9 +43,7 @@ const SignUp = () => {
   return (
     <Card className="max-w-md mx-auto mt-8 shadow-lg">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">
-          Sign Up for RoofClaim
-        </CardTitle>
+        <CardTitle className="text-2xl font-bold text-center">Login to RoofClaim</CardTitle>
       </CardHeader>
       <CardContent>
         {error && (
@@ -82,32 +52,7 @@ const SignUp = () => {
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-
-        <form onSubmit={handleSignUp} className="space-y-4">
-          <div>
-            <Label htmlFor="first_name">First Name</Label>
-            <Input
-              id="first_name"
-              type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              required
-              disabled={loading}
-              className="w-full"
-            />
-          </div>
-          <div>
-            <Label htmlFor="last_name">Last Name</Label>
-            <Input
-              id="last_name"
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              required
-              disabled={loading}
-              className="w-full"
-            />
-          </div>
+        <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <Label htmlFor="email">Email</Label>
             <Input
@@ -132,15 +77,14 @@ const SignUp = () => {
               className="w-full"
             />
           </div>
-
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Signing up...' : 'Sign Up'}
+            {loading ? 'Logging in...' : 'Login'}
           </Button>
         </form>
         <p className="mt-4 text-center text-sm">
-          Already have an account?{' '}
-          <Link to="/login" className="text-blue-600 hover:underline">
-            Sign In
+          Don't have an account?{' '}
+          <Link to="/signup" className="text-blue-600 hover:underline">
+            Sign Up
           </Link>
         </p>
       </CardContent>
@@ -148,4 +92,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default Login;

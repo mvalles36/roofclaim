@@ -29,36 +29,21 @@ const SignUp = () => {
     }
 
     try {
-      const { data: { user }, error: authError } = await supabase.auth.signUp({ 
-        email, 
+      const { data, error } = await supabase.auth.signUp({
+        email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/email-confirmation`, // Redirect to confirmation URL
           data: {
-            name: firstName + ' ' + lastName,
-            role: 'employee'  // Set default role to 'employee'
-          }
-        }
-      });
-
-      if (authError) throw authError;
-
-      if (user) {
-        const { error: dbError } = await supabase
-          .from('users')
-          .insert([{ 
-            id: user.id, 
-            email, 
             first_name: firstName,
             last_name: lastName,
-            role: 'employee', // Ensure the role is 'employee' in the users table
-            created_at: new Date(), 
-            updated_at: new Date() 
-          }]);
+          },
+        },
+      });
 
-        if (dbError) throw dbError;
+      if (error) throw error;
 
-        toast.success('Account created successfully! Please check your email to confirm your account.');
+      if (data.user) {
+        toast.success('Sign up successful! Please check your email to confirm your account.');
         navigate('/login');
       }
     } catch (error) {
@@ -72,9 +57,7 @@ const SignUp = () => {
   return (
     <Card className="max-w-md mx-auto mt-8 shadow-lg">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">
-          Sign Up for RoofClaim
-        </CardTitle>
+        <CardTitle className="text-2xl font-bold text-center">Sign Up for RoofClaim</CardTitle>
       </CardHeader>
       <CardContent>
         {error && (
@@ -83,7 +66,6 @@ const SignUp = () => {
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-
         <form onSubmit={handleSignUp} className="space-y-4">
           <div>
             <Label htmlFor="first_name">First Name</Label>
@@ -133,7 +115,6 @@ const SignUp = () => {
               className="w-full"
             />
           </div>
-
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Signing up...' : 'Sign Up'}
           </Button>
