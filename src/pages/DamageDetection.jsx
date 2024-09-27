@@ -1,91 +1,115 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import ImageUploadComponent from '../components/ImageUploadComponent';
-import ImageAnnotatorComponent from '../components/ImageAnnotatorComponent';
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useGoogleMap, useDrawingManager, useGoogleAutocomplete } from '@/hooks/useGoogleMaps'; // Custom hooks for Google Maps, Autocomplete, and Drawing Manager
+import { useSupabase } from '@/hooks/useSupabase'; // Custom hook to interact with Supabase
+import { useOpenRouterAI } from '@/hooks/useOpenRouter'; // Custom hook to interact with OpenRouter AI
+import { fetchProspectsFromMelissaData } from '@/services/melissaDataService'; // Melissa Data fetching service
 
-const DamageDetection = () => {
-  const [uploadedImages, setUploadedImages] = useState([]);
-  const [annotations, setAnnotations] = useState({});
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [labels] = useState([
-    { id: 1, name: 'Front View' },
-    { id: 2, name: 'Side View' },
-    { id: 3, name: 'Back View' },
-    // Add more tags as needed
-  ]);
+const FindProspects = () => {
+  const [address, setAddress] = useState('');
+  const [map, setMap] = useState(null);
+  const [contacts, setContacts] = useState([]);
+  const supabase = useSupabase();
+  const openRouterAI = useOpenRouterAI();
 
-  const handleUpload = (newImages) => {
-    setUploadedImages(prevImages => [...prevImages, ...newImages]);
-    setSelectedImage(newImages[0]); // Automatically select the first image
+  const handlePlaceChanged = (place) => {
+    setAddress(place.formatted_address);
+    map.setCenter(place.geometry.location);
+    map.setZoom(18); // Zoom in to show detailed house areas
   };
 
-  const handleAnnotationSave = (imageId, newAnnotations) => {
-    setAnnotations(prevAnnotations => ({
-      ...prevAnnotations,
-      [imageId]: newAnnotations
-    }));
-  };
+  const handleAreaSelected = async (polygon) => {
+    const bounds = polygon.getBounds();
+    const center = {
+      lat: bounds.getCenter().lat(),
+      lng: bounds.getCenter().lng(),
+    };
 
-  const handleLabelAssign = (imageId, labelId) => {
-    const updatedAnnotations = annotations[imageId] || [];
-    updatedAnnotations.push({ labelId, class: labels.find(label => label.id === labelId).name });
-    setAnnotations(prevAnnotations => ({
-      ...prevAnnotations,
-      [imageId]: updatedAnnotations
-    }));
-  };
+    try {
+      // Call Melissa Data API to fetch prospects within the drawn area
+      const prospects = await fetchProspectsFromMelissaData(center, '1'); // 1-mile radius or adjust based on the drawn area
+      setContacts(prospects);
 
-  const handleImageSelect = (image) => {
-    setSelectedImage(image);
+      // Insert the fetched data into Supabase and assign to the user
+      for (const contact of prospects) {
+        const { data: insertedContact } = await supabase
+          .from('contacts')
+          .insert([{ ...contact, assigned_to: 'user_id' }])
+          .single();
+
+        // Send contact to OpenRouter AI for scoring
+        const score = await openRouterAI.generateContactScore(insertedContact);
+        await supabase
+          .from('contacts')
+          .update({ score })
+          .eq('id', insertedContact.id);
+      }
+    } catch (error) {
+      console.error('Error fetching and inserting prospects:', error);
+    }
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Damage Detection</h1>
-
+    <div className="space-y-6 p-4">
+      <h1 className="text-4xl font-bold text-center">Find Prospects</h1>
       <Card>
         <CardHeader>
-          <CardTitle>Upload Inspection Images</CardTitle>
+          <CardTitle>Enter an Address to Begin</CardTitle>
         </CardHeader>
         <CardContent>
-          <ImageUploadComponent onUpload={handleUpload} />
+          <div className="space-y-4">
+            <Input
+              placeholder="Enter Address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="w-full"
+              autoComplete="off"
+              data-testid="address-input"
+            />
+            <Button onClick={() => useGoogleAutocomplete(handlePlaceChanged)} className="w-full">
+              Search Address
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-4 gap-4 mt-6">
-        {uploadedImages.map((image, index) => (
-          <Card key={index} onClick={() => handleImageSelect(image)} className="cursor-pointer">
-            <CardContent>
-              <img src={image.url} alt={`Uploaded ${index}`} className="w-full h-auto" />
-              <p className="text-center mt-2">Image {index + 1}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Map Area Selection</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="relative h-96">
+            {map && <div ref={useGoogleMap(map, setMap)} className="w-full h-full" data-testid="map" />}
+            <Button onClick={() => useDrawingManager(map, handleAreaSelected)} className="absolute top-2 left-2 z-10">
+              Select Area
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-      {selectedImage && (
+      {contacts.length > 0 && (
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle>Annotate and Tag Image</CardTitle>
+            <CardTitle>Selected Contacts</CardTitle>
           </CardHeader>
           <CardContent>
-            <ImageAnnotatorComponent
-              image={selectedImage}
-              annotations={annotations[selectedImage.id] || []}
-              onSave={(newAnnotations) => handleAnnotationSave(selectedImage.id, newAnnotations)}
-              labels={labels}
-              onLabelAssign={handleLabelAssign}
-            />
+            <div className="space-y-4">
+              {contacts.map((contact) => (
+                <div key={contact.AddressLine1} className="border rounded p-4 shadow-md bg-gray-50">
+                  <p><strong>Address:</strong> {contact.AddressLine1}, {contact.City}, {contact.State}, {contact.PostalCode}</p>
+                  <p><strong>Latitude:</strong> {contact.Latitude}</p>
+                  <p><strong>Longitude:</strong> {contact.Longitude}</p>
+                  <p><strong>Score:</strong> {contact.score || 'Not yet scored'}</p>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       )}
-
-      <div className="flex justify-end mt-4">
-        <Button onClick={() => console.log('Generate Report')}>Generate Report</Button>
-      </div>
     </div>
   );
 };
 
-export default DamageDetection;
+export default FindProspects;
