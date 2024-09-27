@@ -30,7 +30,7 @@ const Login = () => {
 
       if (data.user) {
         toast.success('Login successful!');
-        navigate('/');
+        navigate('/', { replace: true });
       }
     } catch (error) {
       console.error('Login error:', error);

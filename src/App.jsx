@@ -78,8 +78,8 @@ const AppContent = () => {
       <main className={`flex-1 overflow-y-auto p-8 ${!session ? 'w-full' : ''}`}>
         <Suspense fallback={<div className="text-center mt-10">Loading...</div>}>
           <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={!session ? <Login /> : <Navigate to="/" replace />} />
+            <Route path="/signup" element={!session ? <Signup /> : <Navigate to="/" replace />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
