@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ImageAnnotator = ({ image, annotations, onSave, labels, onLabelAssign }) => {
+const ImageAnnotatorComponent = ({ image, annotations, onSave, labels, onLabelAssign }) => {
   const handleLabelAssign = (labelId) => {
     onLabelAssign(image.id, labelId);
   };
@@ -43,4 +43,4 @@ const ImageAnnotator = ({ image, annotations, onSave, labels, onLabelAssign }) =
   );
 };
 
-export default ImageAnnotator;
+export default ImageAnnotatorComponent;
