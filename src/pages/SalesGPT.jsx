@@ -10,7 +10,7 @@ const SalesGPT = () => {
           <CardTitle>SalesGPT</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>This is a placeholder for the SalesGPT page. Implementation coming soon.</p>
+          <p>This is the SalesGPT page. Implementation coming soon.</p>
         </CardContent>
       </Card>
     </div>

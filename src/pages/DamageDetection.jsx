@@ -10,7 +10,7 @@ const DamageDetection = () => {
           <CardTitle>Damage Detection</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>This is a placeholder for the Damage Detection page. Implementation coming soon.</p>
+          <p>This is the Damage Detection page. Implementation coming soon.</p>
         </CardContent>
       </Card>
     </div>
