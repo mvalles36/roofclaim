@@ -1,24 +1,24 @@
-import axios from 'axios';
+import { fetchAiGeneratedScore } from './apiService'; // This would be your internal helper to call OpenRouter API
 
-const openRouterApi = axios.create({
-  baseURL: 'https://api.openrouter.ai', // Adjust if needed
-  headers: {
-    'Authorization': `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
-    'Content-Type': 'application/json',
-  },
-});
+export const generateContactScore = async (contactData, interactions) => {
+  const prompt = `
+    Evaluate the prospect based on the following data:
+    
+    - Contact: ${contactData.name}
+    - Address: ${contactData.address}
+    - Email interactions: Opened ${interactions.email.opens} times, Clicked ${interactions.email.clicks} times
+    - Website visits: ${interactions.website.visits} visits, ${interactions.website.pagesVisited} pages visited
+    - Document opens: ${interactions.documents.opened} documents opened
+    - Last activity: ${interactions.lastActivity}
+    
+    Based on this data, generate a score from 0 to 100, where 100 is the most engaged prospect.
+  `;
 
-export const fetchAiGeneratedScore = async (prompt) => {
   try {
-    const response = await openRouterApi.post('/v1/generate', {
-      prompt: prompt,
-      model: 'openai', // Specify the model if needed
-    });
-    return response.data;
+    const aiResponse = await fetchAiGeneratedScore(prompt);
+    return aiResponse.score; // Assuming the AI responds with a `score` field
   } catch (error) {
-    console.error('Error fetching AI generated score:', error);
+    console.error('Error generating contact score:', error);
     throw error;
   }
 };
-
-export default openRouterApi;
