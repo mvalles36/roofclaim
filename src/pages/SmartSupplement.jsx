@@ -10,7 +10,7 @@ const SmartSupplement = () => {
           <CardTitle>Smart Supplement</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>This is a placeholder for the Smart Supplement page. Implementation coming soon.</p>
+          <p>This is the Smart Supplement page. Implementation coming soon.</p>
         </CardContent>
       </Card>
     </div>

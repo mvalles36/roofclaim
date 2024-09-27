@@ -10,7 +10,7 @@ const FindProspects = () => {
           <CardTitle>Find Prospects</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>This is a placeholder for the Find Prospects page. Implementation coming soon.</p>
+          <p>This is the Find Prospects page. Implementation coming soon.</p>
         </CardContent>
       </Card>
     </div>

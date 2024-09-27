@@ -10,7 +10,7 @@ const InsuranceMortgageTracker = () => {
           <CardTitle>Insurance/Mortgage Tracker</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>This is a placeholder for the Insurance/Mortgage Tracker page. Implementation coming soon.</p>
+          <p>This is the Insurance/Mortgage Tracker page. Implementation coming soon.</p>
         </CardContent>
       </Card>
     </div>

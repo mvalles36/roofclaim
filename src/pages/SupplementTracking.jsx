@@ -10,7 +10,7 @@ const SupplementTracking = () => {
           <CardTitle>Supplement Tracking</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>This is a placeholder for the Supplement Tracking page. Implementation coming soon.</p>
+          <p>This is the Supplement Tracking page. Implementation coming soon.</p>
         </CardContent>
       </Card>
     </div>

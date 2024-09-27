@@ -10,7 +10,7 @@ const ClientPortal = () => {
           <CardTitle>Client Portal</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>This is a placeholder for the Client Portal page. Implementation coming soon.</p>
+          <p>This is the Client Portal page. Implementation coming soon.</p>
         </CardContent>
       </Card>
     </div>
