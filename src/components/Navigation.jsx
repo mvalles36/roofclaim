@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Button } from "@/components/ui/button";
-import { Home, Users, Briefcase, FileText, Search, Inbox, CheckSquare, DollarSign, User, Settings, FileSpreadsheet, BarChart2, PieChart, Folder, Bot, Shield, Mail, UserCog, FileCheck } from 'lucide-react';
+import { Home, Users, Briefcase, FileText, Search, Inbox, CheckSquare, DollarSign, User, Settings, FileSpreadsheet, BarChart2, PieChart, Folder, Bot, Shield, Mail, UserCog, FileCheck, Activity } from 'lucide-react';
 
 const Navigation = () => {
   const { userRole, signOut } = useSupabaseAuth();
@@ -28,6 +28,7 @@ const Navigation = () => {
     { to: "/client-portal", icon: <User className="w-4 h-4 mr-2" />, label: "Client Portal" },
     { to: "/smart-supplement", icon: <FileCheck className="w-4 h-4 mr-2" />, label: "Smart Supplement" },
     { to: "/user-management", icon: <UserCog className="w-4 h-4 mr-2" />, label: "User Management", roles: ['admin'] },
+    { to: "/website-visitors", icon: <Activity className="w-4 h-4 mr-2" />, label: "Website Visitors", roles: ['admin'] },
     { to: "/profile", icon: <User className="w-4 h-4 mr-2" />, label: "Profile" },
     { to: "/settings", icon: <Settings className="w-4 h-4 mr-2" />, label: "Settings" },
   ];

@@ -1,186 +1,127 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from 'sonner';
 import { supabase } from '../integrations/supabase/supabase';
-import InboxView from './InboxView';
-import ComposeEmail from './ComposeEmail';
-import SequenceBuilder from './SequenceBuilder';
-import ProspectSelector from './ProspectSelector';
-import SequenceVisualizer from './SequenceVisualizer';
-import { salesGPTService } from '../services/SalesGPTService';
-import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const EmailInbox = () => {
-  const [emails, setEmails] = useState([]);
-  const [sequences, setSequences] = useState([]);
-  const [selectedSequence, setSelectedSequence] = useState(null);
-  const [userProfile, setUserProfile] = useState(null);
-  const [knowledgeBase, setKnowledgeBase] = useState(null);
-  const { session } = useSupabaseAuth();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [newEmail, setNewEmail] = useState({ to: '', subject: '', body: '' });
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (session) {
-      fetchEmails();
-      fetchSequences();
-      fetchUserProfile();
-      fetchKnowledgeBase();
-    }
-  }, [session]);
-
-  const fetchUserProfile = async () => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', session.user.id)
-      .single();
-
-    if (error) {
-      console.error('Error fetching user profile:', error);
-      toast.error('Failed to fetch user profile');
-    } else {
-      setUserProfile(data);
-    }
-  };
-
-  const fetchKnowledgeBase = async () => {
-    try {
-      const { data, error } = await supabase.from('knowledge_base').select('*');
-      if (error) throw error;
-      setKnowledgeBase(data);
-    } catch (error) {
-      console.error('Error fetching knowledge base:', error);
-      toast.error('Failed to fetch knowledge base');
-    }
-  };
-
-  const fetchEmails = async () => {
-    try {
+  const { data: emails, isLoading, error } = useQuery({
+    queryKey: ['emails'],
+    queryFn: async () => {
       const { data, error } = await supabase.from('emails').select('*').order('created_at', { ascending: false });
       if (error) throw error;
-      setEmails(data);
-    } catch (error) {
-      console.error('Error fetching emails:', error);
-      toast.error('Failed to fetch emails');
-    }
-  };
+      return data;
+    },
+  });
 
-  const fetchSequences = async () => {
-    try {
-      const { data, error } = await supabase.from('sequences').select('*');
+  const sendEmailMutation = useMutation({
+    mutationFn: async (newEmail) => {
+      // In a real application, you would integrate with an email service here
+      const { data, error } = await supabase.from('emails').insert([{ ...newEmail, status: 'sent' }]);
       if (error) throw error;
-      setSequences(data);
-    } catch (error) {
-      console.error('Error fetching sequences:', error);
-      toast.error('Failed to fetch sequences');
-    }
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries('emails');
+      toast.success('Email sent successfully');
+    },
+    onError: (error) => {
+      toast.error(`Failed to send email: ${error.message}`);
+    },
+  });
+
+  const handleSendEmail = async (e) => {
+    e.preventDefault();
+    sendEmailMutation.mutate(newEmail);
+    setNewEmail({ to: '', subject: '', body: '' });
   };
 
-  const handleSaveSequence = async (newSequence) => {
-    try {
-      const { data, error } = await supabase.from('sequences').insert([newSequence]);
-      if (error) throw error;
-      setSequences([...sequences, data[0]]);
-      toast.success('Sequence saved successfully');
-    } catch (error) {
-      console.error('Error saving sequence:', error);
-      toast.error('Failed to save sequence');
-    }
-  };
+  const filteredEmails = emails?.filter(email =>
+    email.to.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    email.subject.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
 
-  const handleStartSequence = async (sequenceId, selectedProspects) => {
-    if (!userProfile || !userProfile.email_provider || !userProfile.email_api_key || !userProfile.email_domain) {
-      toast.error('Please configure your email settings in your profile before starting a sequence.');
-      return;
-    }
-
-    if (!knowledgeBase) {
-      toast.error('Knowledge base is not available. Please try again later.');
-      return;
-    }
-
-    try {
-      console.log(`Starting sequence ${sequenceId} for prospects:`, selectedProspects);
-      
-      const sequence = sequences.find(seq => seq.id === sequenceId);
-      for (const step of sequence.steps) {
-        if (step.type === 'email') {
-          for (const prospectId of selectedProspects) {
-            const { data: contactInfo } = await supabase
-              .from('contacts')
-              .select('full_name, email')
-              .eq('id', prospectId)
-              .single();
-
-            const emailContent = await salesGPTService.generateEmailContent(
-              step.emailType,
-              contactInfo,
-              session.user.email,
-              knowledgeBase
-            );
-            
-            // Here you would typically send the email using the configured email provider
-            console.log(`Generated email for ${contactInfo.full_name}:`, emailContent);
-            // Implement email sending logic here using userProfile.email_provider, userProfile.email_api_key, and userProfile.email_domain
-          }
-        }
-      }
-      
-      toast.success('Sequence started for selected prospects');
-    } catch (error) {
-      console.error('Error starting sequence:', error);
-      toast.error('Failed to start sequence');
-    }
-  };
+  if (isLoading) return <div>Loading emails...</div>;
+  if (error) return <div>Error loading emails: {error.message}</div>;
 
   return (
     <div className="space-y-6 p-6">
       <h1 className="text-3xl font-bold">Email Inbox</h1>
-      <Tabs defaultValue="inbox">
-        <TabsList>
-          <TabsTrigger value="inbox">Inbox</TabsTrigger>
-          <TabsTrigger value="compose">Compose</TabsTrigger>
-          <TabsTrigger value="sequences">Sequences</TabsTrigger>
-        </TabsList>
-        <TabsContent value="inbox">
-          <InboxView emails={emails} />
-        </TabsContent>
-        <TabsContent value="compose">
-          <ComposeEmail onSend={fetchEmails} userProfile={userProfile} knowledgeBase={knowledgeBase} />
-        </TabsContent>
-        <TabsContent value="sequences">
-          <Card>
-            <CardHeader>
-              <CardTitle>Sequence Builder</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SequenceBuilder
-                onSaveSequence={handleSaveSequence}
-                onStartSequence={handleStartSequence}
-                knowledgeBase={knowledgeBase}
+      <div className="flex justify-between items-center">
+        <Input
+          placeholder="Search emails..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm"
+        />
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>Compose Email</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Compose New Email</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSendEmail} className="space-y-4">
+              <Input
+                placeholder="To"
+                value={newEmail.to}
+                onChange={(e) => setNewEmail({ ...newEmail, to: e.target.value })}
+                required
               />
-              {selectedSequence && (
-                <SequenceVisualizer sequence={selectedSequence} />
-              )}
-              <ProspectSelector onSelectProspects={(prospects) => console.log('Selected prospects:', prospects)} />
-            </CardContent>
-          </Card>
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Saved Sequences</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {sequences.map((sequence) => (
-                <div key={sequence.id} className="flex items-center justify-between p-2 border-b">
-                  <span>{sequence.name}</span>
-                  <Button onClick={() => setSelectedSequence(sequence)}>View</Button>
-                </div>
+              <Input
+                placeholder="Subject"
+                value={newEmail.subject}
+                onChange={(e) => setNewEmail({ ...newEmail, subject: e.target.value })}
+                required
+              />
+              <Textarea
+                placeholder="Email body"
+                value={newEmail.body}
+                onChange={(e) => setNewEmail({ ...newEmail, body: e.target.value })}
+                required
+              />
+              <Button type="submit">Send Email</Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Inbox</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>To</TableHead>
+                <TableHead>Subject</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredEmails.map((email) => (
+                <TableRow key={email.id}>
+                  <TableCell>{email.to}</TableCell>
+                  <TableCell>{email.subject}</TableCell>
+                  <TableCell>{email.status}</TableCell>
+                  <TableCell>{new Date(email.created_at).toLocaleString()}</TableCell>
+                </TableRow>
               ))}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 };

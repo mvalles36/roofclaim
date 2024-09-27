@@ -7,20 +7,28 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from 'sonner';
-import { fetchContacts, createContact, updateContact } from '../services/apiService';
+import { supabase } from '../integrations/supabase/supabase';
 
 const Contacts = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [newContact, setNewContact] = useState({ name: '', email: '', address: '', contact_status: 'Prospect' });
+  const [newContact, setNewContact] = useState({ name: '', email: '', phone: '', status: 'Lead' });
   const queryClient = useQueryClient();
 
   const { data: contacts, isLoading, error } = useQuery({
     queryKey: ['contacts'],
-    queryFn: fetchContacts,
+    queryFn: async () => {
+      const { data, error } = await supabase.from('contacts').select('*');
+      if (error) throw error;
+      return data;
+    },
   });
 
   const createContactMutation = useMutation({
-    mutationFn: createContact,
+    mutationFn: async (newContact) => {
+      const { data, error } = await supabase.from('contacts').insert([newContact]);
+      if (error) throw error;
+      return data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries('contacts');
       toast.success('Contact added successfully');
@@ -31,7 +39,11 @@ const Contacts = () => {
   });
 
   const updateContactMutation = useMutation({
-    mutationFn: ({ id, data }) => updateContact(id, data),
+    mutationFn: async ({ id, updates }) => {
+      const { data, error } = await supabase.from('contacts').update(updates).eq('id', id);
+      if (error) throw error;
+      return data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries('contacts');
       toast.success('Contact updated successfully');
@@ -44,16 +56,16 @@ const Contacts = () => {
   const handleAddContact = async (e) => {
     e.preventDefault();
     createContactMutation.mutate(newContact);
-    setNewContact({ name: '', email: '', address: '', contact_status: 'Prospect' });
+    setNewContact({ name: '', email: '', phone: '', status: 'Lead' });
   };
 
   const handleUpdateContactStatus = async (contactId, newStatus) => {
-    updateContactMutation.mutate({ id: contactId, data: { contact_status: newStatus } });
+    updateContactMutation.mutate({ id: contactId, updates: { status: newStatus } });
   };
 
   const filteredContacts = contacts?.filter(contact =>
     contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    contact.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    contact.email.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
 
   if (isLoading) return <div>Loading contacts...</div>;
@@ -89,26 +101,25 @@ const Contacts = () => {
                 type="email"
                 value={newContact.email}
                 onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
+                required
               />
               <Input
-                placeholder="Address"
-                value={newContact.address}
-                onChange={(e) => setNewContact({ ...newContact, address: e.target.value })}
+                placeholder="Phone"
+                type="tel"
+                value={newContact.phone}
+                onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
               />
               <Select
-                value={newContact.contact_status}
-                onValueChange={(value) => setNewContact({ ...newContact, contact_status: value })}
+                value={newContact.status}
+                onValueChange={(value) => setNewContact({ ...newContact, status: value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="Lead">Lead</SelectItem>
                   <SelectItem value="Prospect">Prospect</SelectItem>
-                  <SelectItem value="Qualified Lead">Qualified Lead</SelectItem>
                   <SelectItem value="Customer">Customer</SelectItem>
-                  <SelectItem value="Lost">Lost</SelectItem>
-                  <SelectItem value="Unqualified">Unqualified</SelectItem>
-                  <SelectItem value="Bad Data">Bad Data</SelectItem>
                 </SelectContent>
               </Select>
               <Button type="submit">Add Contact</Button>
@@ -126,9 +137,8 @@ const Contacts = () => {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Address</TableHead>
+                <TableHead>Phone</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Sales Rep</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -137,24 +147,20 @@ const Contacts = () => {
                 <TableRow key={contact.id}>
                   <TableCell>{contact.name}</TableCell>
                   <TableCell>{contact.email}</TableCell>
-                  <TableCell>{contact.address}</TableCell>
-                  <TableCell>{contact.contact_status}</TableCell>
-                  <TableCell>{contact.users?.name || 'Unassigned'}</TableCell>
+                  <TableCell>{contact.phone}</TableCell>
+                  <TableCell>{contact.status}</TableCell>
                   <TableCell>
                     <Select
-                      value={contact.contact_status}
+                      value={contact.status}
                       onValueChange={(value) => handleUpdateContactStatus(contact.id, value)}
                     >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="Lead">Lead</SelectItem>
                         <SelectItem value="Prospect">Prospect</SelectItem>
-                        <SelectItem value="Qualified Lead">Qualified Lead</SelectItem>
                         <SelectItem value="Customer">Customer</SelectItem>
-                        <SelectItem value="Lost">Lost</SelectItem>
-                        <SelectItem value="Unqualified">Unqualified</SelectItem>
-                        <SelectItem value="Bad Data">Bad Data</SelectItem>
                       </SelectContent>
                     </Select>
                   </TableCell>

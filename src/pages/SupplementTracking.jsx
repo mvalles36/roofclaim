@@ -1,163 +1,175 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from 'sonner';
 import { supabase } from '../integrations/supabase/supabase';
-import FileUploader from '../components/FileUploader';
-import { SupplementAnalyzer } from '../components/SupplementAnalyzer';
-import { SupplementList } from '../components/SupplementList';
-import { SupplementInbox } from '../components/SupplementInbox';
 
 const SupplementTracking = () => {
-  const [customers, setCustomers] = useState([]);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [documents, setDocuments] = useState({
-    insurancePolicy: null,
-    insuranceEstimate: null,
-    roofInspectionReport: null,
+  const [searchTerm, setSearchTerm] = useState('');
+  const [newSupplement, setNewSupplement] = useState({ jobId: '', description: '', amount: 0, status: 'Pending' });
+  const queryClient = useQueryClient();
+
+  const { data: supplements, isLoading, error } = useQuery({
+    queryKey: ['supplements'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('supplements').select('*');
+      if (error) throw error;
+      return data;
+    },
   });
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [supplementResult, setSupplementResult] = useState(null);
-  const [supplementStatus, setSupplementStatus] = useState('pending');
 
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
+  const createSupplementMutation = useMutation({
+    mutationFn: async (newSupplement) => {
+      const { data, error } = await supabase.from('supplements').insert([newSupplement]);
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries('supplements');
+      toast.success('Supplement created successfully');
+    },
+    onError: (error) => {
+      toast.error(`Failed to create supplement: ${error.message}`);
+    },
+  });
 
-  useEffect(() => {
-    if (selectedCustomer) {
-      fetchCustomerDocuments(selectedCustomer);
-    }
-  }, [selectedCustomer]);
+  const updateSupplementMutation = useMutation({
+    mutationFn: async ({ id, updates }) => {
+      const { data, error } = await supabase.from('supplements').update(updates).eq('id', id);
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries('supplements');
+      toast.success('Supplement updated successfully');
+    },
+    onError: (error) => {
+      toast.error(`Failed to update supplement: ${error.message}`);
+    },
+  });
 
-  const fetchCustomers = async () => {
-    const { data, error } = await supabase.from('customers').select('*');
-    if (error) {
-      console.error('Error fetching customers:', error);
-    } else {
-      setCustomers(data);
-    }
+  const handleCreateSupplement = async (e) => {
+    e.preventDefault();
+    createSupplementMutation.mutate(newSupplement);
+    setNewSupplement({ jobId: '', description: '', amount: 0, status: 'Pending' });
   };
 
-  const fetchCustomerDocuments = async (customerId) => {
-    const { data, error } = await supabase
-      .from('customer_documents')
-      .select('*')
-      .eq('customer_id', customerId);
-    if (error) {
-      console.error('Error fetching customer documents:', error);
-    } else {
-      setDocuments({
-        insurancePolicy: data.find(doc => doc.type === 'insurancePolicy'),
-        insuranceEstimate: data.find(doc => doc.type === 'insuranceEstimate'),
-        roofInspectionReport: data.find(doc => doc.type === 'roofInspectionReport'),
-      });
-      updateUploadProgress();
-    }
+  const handleUpdateSupplementStatus = async (supplementId, newStatus) => {
+    updateSupplementMutation.mutate({ id: supplementId, updates: { status: newStatus } });
   };
 
-  const handleFileUpload = async (file, type) => {
-    const { data, error } = await supabase.storage
-      .from('customer-documents')
-      .upload(`${selectedCustomer}/${type}/${file.name}`, file);
+  const filteredSupplements = supplements?.filter(supplement =>
+    supplement.jobId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    supplement.description.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
 
-    if (error) {
-      console.error('Error uploading file:', error);
-    } else {
-      const { data: insertData, error: insertError } = await supabase
-        .from('customer_documents')
-        .insert({
-          customer_id: selectedCustomer,
-          type: type,
-          file_path: data.path,
-        });
-
-      if (insertError) {
-        console.error('Error inserting document record:', insertError);
-      } else {
-        fetchCustomerDocuments(selectedCustomer);
-      }
-    }
-  };
-
-  const updateUploadProgress = () => {
-    const progress = Object.values(documents).filter(Boolean).length * 33.33;
-    setUploadProgress(progress);
-  };
-
-  const handleAnalyze = async () => {
-    // Integrate with your AI service here
-    // For now, use dummy data
-    setSupplementResult({
-      policyholderName: "John Doe",
-      policyNumber: "123456789",
-      claimNumber: "987654321",
-      propertyAddress: "123 Maple Street, Springfield, IL 62704",
-      inspectionDate: "March 15, 2024",
-      damageType: "Hail damage",
-      scopeOfWork: "Replacement of damaged shingles, underlayment, and flashing.",
-      initialEstimate: {
-        item: "20 sq. of asphalt shingles",
-        cost: 500
-      },
-      supplementalCosts: [
-        { item: "Additional underlayment", cost: 200 },
-        { item: "Flashing replacement", cost: 150 }
-      ],
-      totalSupplementAmount: 350,
-      justification: "Additional damage discovered during inspection requires extra materials and labor.",
-      submittedBy: {
-        name: "Jane Smith",
-        company: "ABC Roofing",
-        contactInfo: "jane.smith@abcroofing.com"
-      }
-    });
-  };
+  if (isLoading) return <div>Loading supplements...</div>;
+  if (error) return <div>Error loading supplements: {error.message}</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <h1 className="text-3xl font-bold">Supplement Tracking</h1>
-      <Select onValueChange={setSelectedCustomer}>
-        <SelectTrigger>
-          <SelectValue placeholder="Select a customer" />
-        </SelectTrigger>
-        <SelectContent>
-          {customers.map((customer) => (
-            <SelectItem key={customer.id} value={customer.id}>{customer.full_name}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="flex justify-between items-center">
+        <Input
+          placeholder="Search supplements..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm"
+        />
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>Create New Supplement</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New Supplement</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleCreateSupplement} className="space-y-4">
+              <Input
+                placeholder="Job ID"
+                value={newSupplement.jobId}
+                onChange={(e) => setNewSupplement({ ...newSupplement, jobId: e.target.value })}
+                required
+              />
+              <Input
+                placeholder="Description"
+                value={newSupplement.description}
+                onChange={(e) => setNewSupplement({ ...newSupplement, description: e.target.value })}
+                required
+              />
+              <Input
+                type="number"
+                placeholder="Amount"
+                value={newSupplement.amount}
+                onChange={(e) => setNewSupplement({ ...newSupplement, amount: parseFloat(e.target.value) })}
+                required
+              />
+              <Select
+                value={newSupplement.status}
+                onValueChange={(value) => setNewSupplement({ ...newSupplement, status: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Pending">Pending</SelectItem>
+                  <SelectItem value="Approved">Approved</SelectItem>
+                  <SelectItem value="Rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button type="submit">Create Supplement</Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
       <Card>
         <CardHeader>
-          <CardTitle>Document Upload</CardTitle>
+          <CardTitle>Supplement List</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <FileUploader onUpload={(file) => handleFileUpload(file, 'insurancePolicy')} />
-            <FileUploader onUpload={(file) => handleFileUpload(file, 'insuranceEstimate')} />
-            <FileUploader onUpload={(file) => handleFileUpload(file, 'roofInspectionReport')} />
-          </div>
-          <Progress value={uploadProgress} className="mt-4" />
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Job ID</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredSupplements.map((supplement) => (
+                <TableRow key={supplement.id}>
+                  <TableCell>{supplement.jobId}</TableCell>
+                  <TableCell>{supplement.description}</TableCell>
+                  <TableCell>${supplement.amount.toFixed(2)}</TableCell>
+                  <TableCell>{supplement.status}</TableCell>
+                  <TableCell>
+                    <Select
+                      value={supplement.status}
+                      onValueChange={(value) => handleUpdateSupplementStatus(supplement.id, value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Pending">Pending</SelectItem>
+                        <SelectItem value="Approved">Approved</SelectItem>
+                        <SelectItem value="Rejected">Rejected</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
-      <Button onClick={handleAnalyze} disabled={uploadProgress < 100}>Analyze Documents</Button>
-      {supplementResult && <SupplementAnalyzer result={supplementResult} />}
-      <Tabs defaultValue="list">
-        <TabsList>
-          <TabsTrigger value="list">Supplement List</TabsTrigger>
-          <TabsTrigger value="inbox">Supplement Inbox</TabsTrigger>
-        </TabsList>
-        <TabsContent value="list">
-          <SupplementList />
-        </TabsContent>
-        <TabsContent value="inbox">
-          <SupplementInbox />
-        </TabsContent>
-      </Tabs>
     </div>
   );
 };

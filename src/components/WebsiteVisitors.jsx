@@ -1,79 +1,66 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { supabase } from '../integrations/supabase/supabase';
+import { useQuery } from '@tanstack/react-query';
 
 const WebsiteVisitors = () => {
-  const [visitorData, setVisitorData] = useState([]);
-  const [pageViews, setPageViews] = useState([]);
-  const [timeOnPage, setTimeOnPage] = useState([]);
+  const [trackingScript, setTrackingScript] = useState('');
 
-  const fetchVisitorData = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('website_visitors')
-      .select('*')
-      .order('visited_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching visitor data:', error);
-    } else {
-      setVisitorData(data);
-      processPageViews(data);
-      processTimeOnPage(data);
-    }
-  }, []);
+  const { data: visitors, isLoading, error } = useQuery({
+    queryKey: ['website-visitors'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('website_visitors')
+        .select('*')
+        .order('visited_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
 
   useEffect(() => {
-    fetchVisitorData();
-  }, [fetchVisitorData]);
-
-  const processPageViews = (data) => {
-    const pageViewCounts = data.reduce((acc, visit) => {
-      acc[visit.page] = (acc[visit.page] || 0) + 1;
-      return acc;
-    }, {});
-    setPageViews(Object.entries(pageViewCounts).map(([page, count]) => ({ page, count })));
-  };
-
-  const processTimeOnPage = (data) => {
-    const timeOnPageData = data.reduce((acc, visit) => {
-      acc[visit.page] = (acc[visit.page] || 0) + visit.time_on_page;
-      return acc;
-    }, {});
-    setTimeOnPage(Object.entries(timeOnPageData).map(([page, time]) => ({ page, time })));
-  };
-
-  const trackingScript = `
-    <script>
-      function initVisitorTracking() {
-        var n = Math.random().toString(36).substring(7);
-        var o = document.createElement("script");
-        o.src = "${window.location.origin}/visitor-tracker.js?nocache=" + n;
-        o.async = true;
-        o.defer = true;
-        o.onload = function() {
-          window.visitorTrackingFunctions.onLoad({
-            appId: "${import.meta.env.VITE_SUPABASE_PROJECT_URL}"
-          });
-        };
-        document.head.appendChild(o);
-      }
-      initVisitorTracking();
-    </script>
-  `;
+    const script = `
+      <script>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','${import.meta.env.VITE_GTM_ID}');
+      </script>
+    `;
+    setTrackingScript(script);
+  }, []);
 
   const copyTrackingScript = () => {
     navigator.clipboard.writeText(trackingScript);
     alert('Tracking script copied to clipboard!');
   };
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+  if (isLoading) return <div>Loading visitor data...</div>;
+  if (error) return <div>Error loading visitor data: {error.message}</div>;
+
+  const visitorData = visitors.map(visitor => ({
+    date: new Date(visitor.visited_at).toLocaleDateString(),
+    visitors: 1,
+  }));
+
+  const aggregatedData = visitorData.reduce((acc, curr) => {
+    const existingDate = acc.find(item => item.date === curr.date);
+    if (existingDate) {
+      existingDate.visitors += curr.visitors;
+    } else {
+      acc.push(curr);
+    }
+    return acc;
+  }, []);
 
   return (
     <div className="space-y-6 p-6">
       <h1 className="text-3xl font-bold">Website Visitors</h1>
-      
       <Card>
         <CardHeader>
           <CardTitle>Tracking Script</CardTitle>
@@ -85,97 +72,48 @@ const WebsiteVisitors = () => {
           <Button onClick={copyTrackingScript} className="mt-4">Copy Tracking Script</Button>
         </CardContent>
       </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Page Views</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={pageViews}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="page" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="count" fill="#8884d8" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Time on Page</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={timeOnPage}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="page" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="time" stroke="#82ca9d" />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Visitor Distribution</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={pageViews}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="count"
-                >
-                  {pageViews.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
-
+      <Card>
+        <CardHeader>
+          <CardTitle>Visitor Trend</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={aggregatedData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="visitors" stroke="#8884d8" />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Recent Visitors</CardTitle>
         </CardHeader>
         <CardContent>
-          <table className="w-full">
-            <thead>
-              <tr>
-                <th>Visitor ID</th>
-                <th>Page</th>
-                <th>Time on Page</th>
-                <th>Visited At</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visitorData.slice(0, 10).map((visit, index) => (
-                <tr key={index}>
-                  <td>{visit.visitor_id}</td>
-                  <td>{visit.page}</td>
-                  <td>{visit.time_on_page} seconds</td>
-                  <td>{new Date(visit.visited_at).toLocaleString()}</td>
-                </tr>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Page</TableHead>
+                <TableHead>Referrer</TableHead>
+                <TableHead>Device</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {visitors.slice(0, 10).map((visitor) => (
+                <TableRow key={visitor.id}>
+                  <TableCell>{new Date(visitor.visited_at).toLocaleString()}</TableCell>
+                  <TableCell>{visitor.page}</TableCell>
+                  <TableCell>{visitor.referrer || 'Direct'}</TableCell>
+                  <TableCell>{visitor.device}</TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>
