@@ -1,7 +1,7 @@
 import React, { useCallback, useRef } from 'react';
 import { GoogleMap, DrawingManager } from "@react-google-maps/api";
 
-const MapComponent = ({ onAreaSelected, center }) => { // Removed drawingOptions prop
+const MapComponent = ({ onAreaSelected, center }) => {
   const mapRef = useRef(null);
   const drawingManagerRef = useRef(null);
 
