@@ -1,4 +1,4 @@
-import React from 'react'; // Retained for JSX compatibility
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Button } from "@/components/ui/button";
@@ -18,10 +18,10 @@ const Navigation = () => {
     { to: "/insurance-mortgage-tracker", icon: <DollarSign className="w-4 h-4 mr-2" />, label: "Insurance/Mortgage Tracker" },
     { to: "/document-hub", icon: <Folder className="w-4 h-4 mr-2" />, label: "Document Hub" },
     { to: "/admin-dashboard", icon: <Shield className="w-4 h-4 mr-2" />, label: "Admin Dashboard", roles: ['admin'] },
-    { to: "/sales-dashboard", icon: <BarChart2 className="w-4 h-4 mr-2" />, label: "Sales Dashboard", roles:['sales'] },
-    { to: "/sales-manager-dashboard", icon: <FileSpreadsheet className="w-4 h-4 mr-2" />, label: "Sales Manager Dashboard", roles: ['sales_manager'] },
-    { to: "/project-manager-dashboard", icon: <FileSpreadsheet className="w-4 h-4 mr-2" />, label: "Project Manager Dashboard", roles: ['project_manager'] },
-    { to: "/customer-success-dashboard", icon: <FileSpreadsheet className="w-4 h-4 mr-2" />, label: "Customer Success Dashboard", roles: ['customer_success'] },
+    { to: "/sales-dashboard", icon: <BarChart2 className="w-4 h-4 mr-2" />, label: "Sales Dashboard", roles: ['admin', 'sales'] },
+    { to: "/sales-manager-dashboard", icon: <FileSpreadsheet className="w-4 h-4 mr-2" />, label: "Sales Manager Dashboard", roles: ['admin', 'sales_manager'] },
+    { to: "/project-manager-dashboard", icon: <FileSpreadsheet className="w-4 h-4 mr-2" />, label: "Project Manager Dashboard", roles: ['admin', 'project_manager'] },
+    { to: "/customer-success-dashboard", icon: <FileSpreadsheet className="w-4 h-4 mr-2" />, label: "Customer Success Dashboard", roles: ['admin', 'customer_success'] },
     { to: "/damage-detection", icon: <PieChart className="w-4 h-4 mr-2" />, label: "Damage Detection" },
     { to: "/sales-gpt", icon: <Bot className="w-4 h-4 mr-2" />, label: "SalesGPT" },
     { to: "/inbox", icon: <Mail className="w-4 h-4 mr-2" />, label: "Inbox" },

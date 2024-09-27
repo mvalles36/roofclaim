@@ -101,10 +101,10 @@ const AppContent = () => {
             <Route path="/sales-gpt" element={<ProtectedRoute allowedRoles={['employee', 'admin']}><SalesGPT /></ProtectedRoute>} />
             <Route path="/inbox" element={<ProtectedRoute><EmailInbox /></ProtectedRoute>} />
             <Route path="/admin-dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/sales-manager-dashboard" element={<ProtectedRoute allowedRoles={['admin']}><SalesManagerDashboard /></ProtectedRoute>} />
-            <Route path="/project-manager-dashboard" element={<ProtectedRoute allowedRoles={['admin']}><ProjectManagerDashboard /></ProtectedRoute>} />
-            <Route path="/sales-dashboard" element={<ProtectedRoute allowedRoles={['employee', 'admin']}><SalesDashboard /></ProtectedRoute>} />
-            <Route path="/customer-success-dashboard" element={<ProtectedRoute allowedRoles={['employee', 'admin']}><CustomerSuccessDashboard /></ProtectedRoute>} />
+            <Route path="/sales-manager-dashboard" element={<ProtectedRoute allowedRoles={['admin', 'sales_manager']}><SalesManagerDashboard /></ProtectedRoute>} />
+            <Route path="/project-manager-dashboard" element={<ProtectedRoute allowedRoles={['admin', 'project_manager']}><ProjectManagerDashboard /></ProtectedRoute>} />
+            <Route path="/sales-dashboard" element={<ProtectedRoute allowedRoles={['employee', 'admin', 'sales']}><SalesDashboard /></ProtectedRoute>} />
+            <Route path="/customer-success-dashboard" element={<ProtectedRoute allowedRoles={['employee', 'admin', 'customer_success']}><CustomerSuccessDashboard /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to={session ? "/" : "/login"} replace />} />
           </Routes>
         </Suspense>
