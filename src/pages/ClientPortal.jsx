@@ -7,10 +7,10 @@ const ClientPortal = () => {
       <h1 className="text-3xl font-bold">Client Portal</h1>
       <Card>
         <CardHeader>
-          <CardTitle>Welcome to the Client Portal</CardTitle>
+          <CardTitle>Client Portal</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>This is a placeholder for the Client Portal. Implementation coming soon.</p>
+          <p>This is a placeholder for the Client Portal page. Implementation coming soon.</p>
         </CardContent>
       </Card>
     </div>
