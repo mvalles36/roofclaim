@@ -11,7 +11,7 @@ import { supabase } from '../integrations/supabase/supabase';
 
 const Contacts = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [newContact, setNewContact] = useState({ first_name: '', last_name: '', email: '', phone: '', status: 'Prospect' });
+  const [newContact, setNewContact] = useState({ name: '', email: '', phone: '', status: 'Lead' });
   const queryClient = useQueryClient();
 
   const { data: contacts, isLoading, error } = useQuery({
@@ -56,7 +56,7 @@ const Contacts = () => {
   const handleAddContact = async (e) => {
     e.preventDefault();
     createContactMutation.mutate(newContact);
-    setNewContact({ first_name: '', email: '', phone: '', status: 'Prospect' });
+    setNewContact({ name: '', email: '', phone: '', status: 'Lead' });
   };
 
   const handleUpdateContactStatus = async (contactId, newStatus) => {
@@ -64,8 +64,7 @@ const Contacts = () => {
   };
 
   const filteredContacts = contacts?.filter(contact =>
-    contact.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    contact.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     contact.email.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
 
@@ -92,15 +91,9 @@ const Contacts = () => {
             </DialogHeader>
             <form onSubmit={handleAddContact} className="space-y-4">
               <Input
-                placeholder="First Name"
-                value={newContact.first_name}
-                onChange={(e) => setNewContact({ ...newContact, first_name: e.target.value })}
-                required
-              />
-               <Input
-                placeholder="Last Name"
-                value={newContact.last_name}
-                onChange={(e) => setNewContact({ ...newContact, last_name: e.target.value })}
+                placeholder="Name"
+                value={newContact.name}
+                onChange={(e) => setNewContact({ ...newContact, name: e.target.value })}
                 required
               />
               <Input
@@ -124,8 +117,8 @@ const Contacts = () => {
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Lead">Prospect</SelectItem>
-                  <SelectItem value="Prospect">Qualified Lead</SelectItem>
+                  <SelectItem value="Lead">Lead</SelectItem>
+                  <SelectItem value="Prospect">Prospect</SelectItem>
                   <SelectItem value="Customer">Customer</SelectItem>
                 </SelectContent>
               </Select>
@@ -142,8 +135,7 @@ const Contacts = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>First Name</TableHead>
-                <TableHead>Last Name</TableHead>
+                <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Status</TableHead>
@@ -153,8 +145,7 @@ const Contacts = () => {
             <TableBody>
               {filteredContacts.map((contact) => (
                 <TableRow key={contact.id}>
-                  <TableCell>{contact.first_name}</TableCell>
-                  <TableCell>{contact.last_name}</TableCell>
+                  <TableCell>{contact.name}</TableCell>
                   <TableCell>{contact.email}</TableCell>
                   <TableCell>{contact.phone}</TableCell>
                   <TableCell>{contact.status}</TableCell>
@@ -167,8 +158,8 @@ const Contacts = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Lead">Prospect</SelectItem>
-                        <SelectItem value="Prospect">Qualified Lead</SelectItem>
+                        <SelectItem value="Lead">Lead</SelectItem>
+                        <SelectItem value="Prospect">Prospect</SelectItem>
                         <SelectItem value="Customer">Customer</SelectItem>
                       </SelectContent>
                     </Select>

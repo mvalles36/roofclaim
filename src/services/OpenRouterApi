@@ -1,43 +1,39 @@
-const generateContactScore = async (contactData, interactions) => {
+export const generateContactScore = async (contactData, interactions) => {
   const prompt = `
     Evaluate the prospect based on the following data:
+    
     - Contact: ${contactData.name}
     - Address: ${contactData.address}
     - Email interactions: Opened ${interactions.email.opens} times, Clicked ${interactions.email.clicks} times
     - Website visits: ${interactions.website.visits} visits, ${interactions.website.pagesVisited} pages visited
     - Document opens: ${interactions.documents.opened} documents opened
     - Last activity: ${interactions.lastActivity}
-
+    
     Based on this data, generate a score from 0 to 100, where 100 is the most engaged prospect.
   `;
 
   try {
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.VITE_OPENROUTER_API_KEY}`,
-        "HTTP-Referer": process.env.VITE_YOUR_SITE_URL,
-        "X-Title": process.env.VITE_YOUR_SITE_NAME,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "mistralai/mistral-7b-instruct:free",
-        messages: [
-          {
-            role: "user",
-            content: prompt
-          }
-        ]
-      })
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(`Error: ${data.message || response.status}`);
-    }
-    return data.choices[0].message.content;
+    const aiResponse = await fetchAiGeneratedScore(prompt);
+    return aiResponse.score; // Assuming the AI responds with a `score` field
   } catch (error) {
-    console.error("Error generating contact score:", error);
+    console.error('Error generating contact score:', error);
     throw error;
   }
+};
+
+export const fetchAiGeneratedScore = async (prompt) => {
+  const response = await fetch('your-openrouter-endpoint-url', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`
+    },
+    body: JSON.stringify({ prompt })
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch AI generated score');
+  }
+
+  return await response.json();
 };
