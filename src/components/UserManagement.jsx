@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
-  const [newUser, setNewUser] = useState({ email: '', role: '', name: '' });
+  const [newUser, setNewUser] = useState({ email: '', role: '', first_name: '', last_name });
 
   useEffect(() => {
     fetchUsers();
@@ -39,7 +39,8 @@ const UserManagement = () => {
         .from('users')
         .insert([{
           email: newUser.email,
-          name: newUser.name,
+          first_name: newUser.first_name,
+          last_name: newUser.last_name,
           role: newUser.role,
           status: 'pending',
           invite_token: inviteToken
@@ -50,7 +51,7 @@ const UserManagement = () => {
       await sendInvitationEmail(newUser.email, inviteToken);
 
       fetchUsers();
-      setNewUser({ email: '', role: '', name: '' });
+      setNewUser({ email: '', role: '', first_name: '', last_name });
       toast.success('Invitation sent successfully');
     } catch (error) {
       console.error('Error inviting user:', error);
@@ -87,11 +88,20 @@ const UserManagement = () => {
       <CardContent>
         <form onSubmit={handleInviteUser} className="space-y-4 mb-6">
           <div>
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="first_name">First Name</Label>
             <Input
-              id="name"
-              value={newUser.name}
-              onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+              id="first_name"
+              value={newUser.first_name}
+              onChange={(e) => setNewUser({ ...newUser, first_name: e.target.value })}
+              required
+            />
+          </div>
+           <div>
+            <Label htmlFor="last_name">Last Name</Label>
+            <Input
+              id="last_name"
+              value={newUser.last_name}
+              onChange={(e) => setNewUser({ ...newUser, last_name: e.target.value })}
               required
             />
           </div>
@@ -112,9 +122,13 @@ const UserManagement = () => {
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="customer">Customer</SelectItem>
-                <SelectItem value="employee">Employee</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="sales_manager">Sales Manager</SelectItem>
+                <SelectItem value="project_manager">Project Manager</SelectItem>
+                <SelectItem value="sales">Sales</SelectItem>
+                <SelectItem value="customer_success">Customer Success</SelectItem>
+                <SelectItem value="customer">Customer</SelectItem>
+                <SelectItem value="contractor">Contractor</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -123,7 +137,8 @@ const UserManagement = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
+              <TableHead>First Name</TableHead>
+              <TableHead>Last Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Status</TableHead>
@@ -133,7 +148,8 @@ const UserManagement = () => {
           <TableBody>
             {users.map((user) => (
               <TableRow key={user.id}>
-                <TableCell>{user.name}</TableCell>
+                <TableCell>{user.first_name}</TableCell>
+                <TableCell>{user.last_name}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
                   <Select
@@ -144,9 +160,13 @@ const UserManagement = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="customer">Customer</SelectItem>
-                      <SelectItem value="employee">Employee</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="sales_manager">Sales Manager</SelectItem>
+                <SelectItem value="project_manager">Project Manager</SelectItem>
+                <SelectItem value="sales">Sales</SelectItem>
+                <SelectItem value="customer_success">Customer Success</SelectItem>
+                <SelectItem value="customer">Customer</SelectItem>
+                <SelectItem value="contractor">Contractor</SelectItem>
                     </SelectContent>
                   </Select>
                 </TableCell>
