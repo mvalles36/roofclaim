@@ -16,13 +16,15 @@ const Tasks = () => {
   const queryClient = useQueryClient();
 
   const { data: tasks, isLoading, error } = useQuery({
-    queryKey: ['tasks'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('tasks').select('*');
-      if (error) throw error;
-      return data;
-    },
-  });
+  queryKey: ['tasks'],
+  queryFn: async () => {
+    const { data, error } = await supabase.from('tasks')
+      .select('*')
+      .is('deleted_at', null); // Exclude completed tasks
+    if (error) throw error;
+    return data;
+  },
+});
 
   const createTaskMutation = useMutation({
     mutationFn: async (newTask) => {
@@ -39,20 +41,25 @@ const Tasks = () => {
     },
   });
 
-  const updateTaskMutation = useMutation({
-    mutationFn: async ({ id, updates }) => {
-      const { data, error } = await supabase.from('tasks').update(updates).eq('id', id);
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries('tasks');
-      toast.success('Task updated successfully');
-    },
-    onError: (error) => {
-      toast.error(`Failed to update task: ${error.message}`);
-    },
-  });
+ const updateTaskMutation = useMutation({
+  mutationFn: async ({ id, updates }) => {
+    const { data, error } = await supabase.from('tasks').update(updates).eq('id', id);
+    if (error) throw error;
+    return data;
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries('tasks');
+    toast.success('Task updated successfully');
+  },
+  onError: (error) => {
+    toast.error(`Failed to update task: ${error.message}`);
+  },
+});
+
+// Modify the function to mark a task as done
+const handleMarkAsDone = async (taskId) => {
+  await updateTaskMutation.mutate({ id: taskId, updates: { deleted_at: new Date().toISOString() } });
+};
 
   const handleCreateTask = async (e) => {
     e.preventDefault();
