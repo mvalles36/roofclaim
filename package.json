@@ -2,7 +2,7 @@
 
   "name": "RoofClaim",
 
-  "private": true,
+  "private": false,
 
   "version": "0.0.0",
 
@@ -10,14 +10,13 @@
 
  "scripts": {
     "start": "vite",
-    "build": "vite build --mode production",  // Add this line for production builds
+    "build": "vite build --mode production", 
     "build:dev": "vite build --mode development",
     "test": "vtest",
     "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
 },
-
-
+  
   "dependencies": {
 
     "@google-cloud/documentai": "^8.9.0",
