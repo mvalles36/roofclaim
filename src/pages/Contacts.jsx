@@ -71,7 +71,7 @@ const Contacts = () => {
   };
 
   // Define columns for the data table
-  const columns: ColumnDef<any>[] = [
+ const columns = [
     {
       id: "select",
       header: ({ table }) => (
