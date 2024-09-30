@@ -1,6 +1,6 @@
 {
 
-  "name": "roofcare-assist",
+  "name": "RoofClaim",
 
   "private": true,
 
@@ -8,21 +8,15 @@
 
   "type": "module",
 
-  "scripts": {
-
+ "scripts": {
     "start": "vite",
-
+    "build": "vite build --mode production",  // Add this line for production builds
     "build:dev": "vite build --mode development",
-
     "test": "vtest",
-
     "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+},
 
-    "preview": "vite preview",
-
-    "seed": "node src/scripts/seedDatabase.js"
-
-  },
 
   "dependencies": {
 
