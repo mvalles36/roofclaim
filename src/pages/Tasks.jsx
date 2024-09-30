@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from 'sonner';
 import { supabase } from '../integrations/supabase/supabase';
+import { HiOutlineCheckCircle, HiOutlineClock } from "react-icons/hi"; // Example icons for completed and overdue tasks
 
 const Tasks = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -67,6 +68,15 @@ const Tasks = () => {
     task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     task.description.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
+
+  // Sort tasks: High priority > Overdue > Other
+  const sortedTasks = [...filteredTasks].sort((a, b) => {
+    if (a.priority === 'High' && b.priority !== 'High') return -1;
+    if (b.priority === 'High' && a.priority !== 'High') return 1;
+    if (new Date(a.due_date) < new Date() && b.priority !== 'High') return -1; // Overdue tasks
+    if (new Date(b.due_date) < new Date() && a.priority !== 'High') return 1; // Overdue tasks
+    return new Date(a.due_date) - new Date(b.due_date); // Sort by due date if same priority
+  });
 
   if (isLoading) return <div>Loading tasks...</div>;
   if (error) return <div>Error loading tasks: {error.message}</div>;
@@ -132,49 +142,40 @@ const Tasks = () => {
           </DialogContent>
         </Dialog>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Task List</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredTasks.map((task) => (
-                <TableRow key={task.id}>
-                  <TableCell>{task.title}</TableCell>
-                  <TableCell>{task.description}</TableCell>
-                  <TableCell>{task.status}</TableCell>
-                  <TableCell>{task.priority}</TableCell>
-                  <TableCell>
-                    <Select
-                      value={task.status}
-                      onValueChange={(value) => handleUpdateTaskStatus(task.id, value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="To Do">To Do</SelectItem>
-                        <SelectItem value="In Progress">In Progress</SelectItem>
-                        <SelectItem value="Done">Done</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 gap-4">
+        {sortedTasks.map((task) => (
+          <Card key={task.id} className={`border-l-4 ${task.priority === 'High' ? 'border-l-green-500' : 'border-l-gray-300'} transition-opacity duration-300`}>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                {task.status === 'Done' ? (
+                  <HiOutlineCheckCircle className="text-green-500 mr-2" />
+                ) : (
+                  <HiOutlineClock className="text-yellow-500 mr-2" />
+                )}
+                {task.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>{task.description}</p>
+              <p className="text-sm text-gray-500">Priority: {task.priority}</p>
+              <Select
+                value={task.status}
+                onValueChange={(value) => handleUpdateTaskStatus(task.id, value)}
+                className="mt-2"
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="To Do">To Do</SelectItem>
+                  <SelectItem value="In Progress">In Progress</SelectItem>
+                  <SelectItem value="Done">Done</SelectItem>
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };
