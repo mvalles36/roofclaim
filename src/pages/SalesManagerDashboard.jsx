@@ -1,45 +1,55 @@
+// src/components/SalesManagerDashboard.js
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { supabase } from '../integrations/supabase/supabase';
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { DollarSign, Users, Briefcase, FileText, Bell } from 'lucide-react';
+import { Bell } from 'lucide-react';
+import { getTotalCompletedTasksByRole, getDeletedTasksCount } from '../services/TaskApi';
+import { salesGPTService } from '../services/SalesGPTService';
 
 const SalesManagerDashboard = () => {
   const [metrics, setMetrics] = useState({
     totalRevenue: 0,
-    totalContacts: 0,
     totalJobs: 0,
     totalInvoices: 0,
+    totalCompletedTasks: 0,
+    totalDeletedTasks: 0,
   });
   const [recentActivities, setRecentActivities] = useState([]);
-  const [monthlyRevenue, setMonthlyRevenue] = useState([]);
-  const [jobStatusData, setJobStatusData] = useState([]);
 
   useEffect(() => {
     fetchSalesManagerDashboardData();
   }, []);
 
   const fetchSalesManagerDashboardData = async () => {
-    const { data: metricsData, error: metricsError } = await supabase.rpc('get_sales_manager_dashboard_metrics');
-    if (metricsError) console.error('Error fetching metrics:', metricsError);
-    else setMetrics(metricsData);
+    try {
+      // Fetch metrics from the SalesGPT service
+      const salesMetrics = await salesGPTService.getMetrics();
+      setMetrics((prevMetrics) => ({
+        ...prevMetrics,
+        totalRevenue: salesMetrics.totalRevenue,
+        totalJobs: salesMetrics.totalJobs,
+        totalInvoices: salesMetrics.totalInvoices,
+      }));
 
-    const { data: activitiesData, error: activitiesError } = await supabase.rpc('get_recent_activities');
-    if (activitiesError) console.error('Error fetching activities:', activitiesError);
-    else setRecentActivities(activitiesData);
+      // Fetch completed and deleted tasks
+      const completedTasks = await getTotalCompletedTasksByRole();
+      const deletedTasks = await getDeletedTasksCount();
+      setMetrics((prevMetrics) => ({
+        ...prevMetrics,
+        totalCompletedTasks: completedTasks,
+        totalDeletedTasks: deletedTasks,
+      }));
 
-    const { data: revenueData, error: revenueError } = await supabase.rpc('get_monthly_revenue');
-    if (revenueError) console.error('Error fetching revenue:', revenueError);
-    else setMonthlyRevenue(revenueData);
-
-    const { data: jobStatusData, error: jobStatusError } = await supabase.rpc('get_job_status_data');
-    if (jobStatusError) console.error('Error fetching job status data:', jobStatusError);
-    else setJobStatusData(jobStatusData);
+      // Fetch recent activities
+      const { data: activitiesData, error } = await supabase.rpc('get_recent_activities');
+      if (error) throw error;
+      setRecentActivities(activitiesData);
+    } catch (error) {
+      console.error('Error fetching sales manager dashboard data:', error);
+    }
   };
 
   const handlePraise = () => {
-    // Logic to handle praise functionality
     alert("Team praised! 🎉");
   };
 
@@ -51,46 +61,11 @@ const SalesManagerDashboard = () => {
         Praise Team
       </button>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard title="Total Revenue" value={`$${metrics.totalRevenue.toFixed(2)}`} icon={<DollarSign className="h-8 w-8 text-green-500" />} />
-        <MetricCard title="Total Contacts" value={metrics.totalContacts} icon={<Users className="h-8 w-8 text-blue-500" />} />
-        <MetricCard title="Total Jobs" value={metrics.totalJobs} icon={<Briefcase className="h-8 w-8 text-yellow-500" />} />
-        <MetricCard title="Total Invoices" value={metrics.totalInvoices} icon={<FileText className="h-8 w-8 text-purple-500" />} />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Monthly Revenue</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={monthlyRevenue}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="revenue" fill="#4bd1a0" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Job Status Distribution</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={jobStatusData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="status" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="count" stroke="#4bd1a0" />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        <MetricCard title="Total Revenue" value={`$${metrics.totalRevenue.toFixed(2)}`} />
+        <MetricCard title="Total Jobs" value={metrics.totalJobs} />
+        <MetricCard title="Total Invoices" value={metrics.totalInvoices} />
+        <MetricCard title="Completed Tasks" value={metrics.totalCompletedTasks} />
+        <MetricCard title="Deleted Tasks" value={metrics.totalDeletedTasks} />
       </div>
       <Card>
         <CardHeader>
@@ -110,16 +85,15 @@ const SalesManagerDashboard = () => {
   );
 };
 
-const MetricCard = ({ title, value, icon }) => (
+const MetricCard = ({ title, value }) => (
   <Card>
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
       <CardTitle className="text-sm font-medium">{title}</CardTitle>
-      {icon}
     </CardHeader>
     <CardContent>
       <div className="text-2xl font-bold">{value}</div>
     </CardContent>
   </Card>
-);
+); 
 
 export default SalesManagerDashboard;
