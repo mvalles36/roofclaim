@@ -8,8 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from 'sonner';
 import { supabase } from '../integrations/supabase/supabase';
-// Importing ShadCN icons (assuming you have similar icons available)
-import { CheckCircleIcon, ClockIcon } from "@/components/ui/icons"; // Adjust the path based on your project structure
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer} from 'recharts';
+import { DollarSign, Users, Briefcase, FileText, CheckCircleIcon, ClockIcon } from 'lucide-react';
 
 const Tasks = () => {
   const [searchTerm, setSearchTerm] = useState('');
