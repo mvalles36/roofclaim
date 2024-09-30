@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useGoogleMap, useDrawingManager, useGoogleAutocomplete } from '@/src/hooks/useGoogleMaps'; 
-import { useSupabase } from '@/src/integrations/supabase'; // Custom hook to interact with Supabase
+import { supabase } from '../integrations/supabase/supabase';
 import { useOpenRouterAI } from '@/src/services/useOpenRouterApi'; // Custom hook to interact with OpenRouter AI
 import { fetchProspectsFromMelissaData } from '@/src/services/melissaDataService'; // Melissa Data fetching service
 
