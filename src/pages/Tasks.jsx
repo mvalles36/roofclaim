@@ -8,7 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from 'sonner';
 import { supabase } from '../integrations/supabase/supabase';
-import { HiOutlineCheckCircle, HiOutlineClock } from "react-icons/hi"; // Example icons for completed and overdue tasks
+// Importing ShadCN icons (assuming you have similar icons available)
+import { CheckCircleIcon, ClockIcon } from "@/components/ui/icons"; // Adjust the path based on your project structure
 
 const Tasks = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -16,15 +17,15 @@ const Tasks = () => {
   const queryClient = useQueryClient();
 
   const { data: tasks, isLoading, error } = useQuery({
-  queryKey: ['tasks'],
-  queryFn: async () => {
-    const { data, error } = await supabase.from('tasks')
-      .select('*')
-      .is('deleted_at', null); // Exclude completed tasks
-    if (error) throw error;
-    return data;
-  },
-});
+    queryKey: ['tasks'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('tasks')
+        .select('*')
+        .is('deleted_at', null); // Exclude completed tasks
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const createTaskMutation = useMutation({
     mutationFn: async (newTask) => {
@@ -41,25 +42,25 @@ const Tasks = () => {
     },
   });
 
- const updateTaskMutation = useMutation({
-  mutationFn: async ({ id, updates }) => {
-    const { data, error } = await supabase.from('tasks').update(updates).eq('id', id);
-    if (error) throw error;
-    return data;
-  },
-  onSuccess: () => {
-    queryClient.invalidateQueries('tasks');
-    toast.success('Task updated successfully');
-  },
-  onError: (error) => {
-    toast.error(`Failed to update task: ${error.message}`);
-  },
-});
+  const updateTaskMutation = useMutation({
+    mutationFn: async ({ id, updates }) => {
+      const { data, error } = await supabase.from('tasks').update(updates).eq('id', id);
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries('tasks');
+      toast.success('Task updated successfully');
+    },
+    onError: (error) => {
+      toast.error(`Failed to update task: ${error.message}`);
+    },
+  });
 
-// Modify the function to mark a task as done
-const handleMarkAsDone = async (taskId) => {
-  await updateTaskMutation.mutate({ id: taskId, updates: { deleted_at: new Date().toISOString() } });
-};
+  // Modify the function to mark a task as done
+  const handleMarkAsDone = async (taskId) => {
+    await updateTaskMutation.mutate({ id: taskId, updates: { deleted_at: new Date().toISOString() } });
+  };
 
   const handleCreateTask = async (e) => {
     e.preventDefault();
@@ -155,9 +156,9 @@ const handleMarkAsDone = async (taskId) => {
             <CardHeader>
               <CardTitle className="flex items-center">
                 {task.status === 'Done' ? (
-                  <HiOutlineCheckCircle className="text-green-500 mr-2" />
+                  <CheckCircleIcon className="text-green-500 mr-2" />
                 ) : (
-                  <HiOutlineClock className="text-yellow-500 mr-2" />
+                  <ClockIcon className="text-yellow-500 mr-2" />
                 )}
                 {task.title}
               </CardTitle>
