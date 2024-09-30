@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useGoogleMap, useDrawingManager, useGoogleAutocomplete } from '@/hooks/useGoogleMaps'; // Custom hooks for Google Maps, Autocomplete, and Drawing Manager
-import { useSupabase } from '@/hooks/useSupabase'; // Custom hook to interact with Supabase
-import { useOpenRouterAI } from '@/hooks/useOpenRouter'; // Custom hook to interact with OpenRouter AI
-import { fetchProspectsFromMelissaData } from '@/services/melissaDataService'; // Melissa Data fetching service
+import { useGoogleMap, useDrawingManager, useGoogleAutocomplete } from '@/src/hooks/useGoogleMaps'; 
+import { useSupabase } from '@/src/integrations/supabase'; // Custom hook to interact with Supabase
+import { useOpenRouterAI } from '@/src/services/useOpenRouterApi'; // Custom hook to interact with OpenRouter AI
+import { fetchProspectsFromMelissaData } from '@/src/services/melissaDataService'; // Melissa Data fetching service
 
 const FindProspects = () => {
   const [address, setAddress] = useState('');
