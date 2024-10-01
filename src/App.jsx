@@ -34,7 +34,7 @@ const DocumentHub = loadable(() => import('./pages/DocumentHub'));
 const InspectionReport = loadable(() => import('./pages/InspectionReport'));
 const DocumentEditor = loadable(() => import('./pages/components/DocumentEditor'));
 const UserManagement = loadable(() => import('./pages/UserManagement'));
-const JobPortal = loadable(() => import('./pages/JobPortal'));
+const ClientPortal = loadable(() => import('./pages/ClientPortal'));
 const SalesGPT = loadable(() => import('./pages/SalesGPT'));
 const EmailInbox = loadable(() => import('./components/EmailInbox'));
 const AdminDashboard = loadable(() => import('./pages/AdminDashboard'));
@@ -43,7 +43,7 @@ const CustomerSuccessDashboard = loadable(() => import('./pages/CustomerSuccessD
 const SalesManagerDashboard = loadable(() => import('./pages/SalesManagerDashboard'));
 const SalesDashboard = loadable(() => import('./pages/SalesDashboard'));
 const WebsiteVisitors = loadable(() => import('./components/WebsiteVisitors'));
-const ClientPortal = loadable(() => import('./pages/ClientPortal'));
+const ContractorPortal = loadable(() => import('./pages/ContractorPortal'));
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { session, userRole } = useSupabaseAuth();
@@ -87,28 +87,28 @@ const AppContent = () => {
             <Route path="/contacts" element={<ProtectedRoute><Contacts /></ProtectedRoute>} />
             <Route path="/jobs" element={<ProtectedRoute><Jobs /></ProtectedRoute>} />
             <Route path="/invoices" element={<ProtectedRoute><Invoices /></ProtectedRoute>} />
-            <Route path="/find-prospects" element={<ProtectedRoute allowedRoles={['employee', 'admin']}><FindProspects /></ProtectedRoute>} />
-            <Route path="/supplement-tracking" element={<ProtectedRoute allowedRoles={['employee', 'admin']}><SupplementTracking /></ProtectedRoute>} />
+            <Route path="/find-prospects" element={<ProtectedRoute allowedRoles={['sales', 'sales_manager', 'admin']}><FindProspects /></ProtectedRoute>} />
+            <Route path="/supplement-tracking" element={<ProtectedRoute allowedRoles={['customer_success', 'admin']}><SupplementTracking /></ProtectedRoute>} />
             <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
-            <Route path="/insurance-mortgage-tracker" element={<ProtectedRoute allowedRoles={['employee', 'admin']}><InsuranceMortgageTracker /></ProtectedRoute>} />
+            <Route path="/insurance-mortgage-tracker" element={<ProtectedRoute allowedRoles={['customer_success', 'admin']}><InsuranceMortgageTracker /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            <Route path="/smart-supplement" element={<ProtectedRoute allowedRoles={['employee', 'admin']}><SmartSupplement /></ProtectedRoute>} />
-            <Route path="/damage-detection" element={<ProtectedRoute allowedRoles={['employee', 'admin']}><DamageDetection /></ProtectedRoute>} />
+            <Route path="/smart-supplement" element={<ProtectedRoute allowedRoles={['customer_success', 'admin']}><SmartSupplement /></ProtectedRoute>} />
+            <Route path="/damage-detection" element={<ProtectedRoute allowedRoles={['sales', 'sales_manager', 'admin']}><DamageDetection /></ProtectedRoute>} />
             <Route path="/document-hub" element={<ProtectedRoute><DocumentHub /></ProtectedRoute>} />
-            <Route path="/inspection-report" element={<ProtectedRoute allowedRoles={['employee', 'admin']}><InspectionReport /></ProtectedRoute>} />
-            <Route path="/document-editor" element={<ProtectedRoute allowedRoles={['employee', 'admin']}><DocumentEditor /></ProtectedRoute>} />
+            <Route path="/inspection-report" element={<ProtectedRoute><InspectionReport /></ProtectedRoute>} />
+            <Route path="/document-editor" element={<ProtectedRoute><DocumentEditor /></ProtectedRoute>} />
             <Route path="/user-management" element={<ProtectedRoute allowedRoles={['admin']}><UserManagement /></ProtectedRoute>} />
-            <Route path="/job-portal" element={<ProtectedRoute><JobPortal /></ProtectedRoute>} />
-            <Route path="/sales-gpt" element={<ProtectedRoute allowedRoles={['employee', 'admin']}><SalesGPT /></ProtectedRoute>} />
+            <Route path="/client-portal" element={<ProtectedRoute allowedRoles={['customer']}><ClientPortal /></ProtectedRoute>} />
+            <Route path="/contractor-portal" element={<ProtectedRoute allowedRoles={['contractor']}><ContractorPortal /></ProtectedRoute>} />
+            <Route path="/sales-gpt" element={<ProtectedRoute><SalesGPT /></ProtectedRoute>} />
             <Route path="/inbox" element={<ProtectedRoute><EmailInbox /></ProtectedRoute>} />
             <Route path="/admin-dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
             <Route path="/sales-manager-dashboard" element={<ProtectedRoute allowedRoles={['admin', 'sales_manager']}><SalesManagerDashboard /></ProtectedRoute>} />
             <Route path="/project-manager-dashboard" element={<ProtectedRoute allowedRoles={['admin', 'project_manager']}><ProjectManagerDashboard /></ProtectedRoute>} />
             <Route path="/sales-dashboard" element={<ProtectedRoute allowedRoles={['employee', 'admin', 'sales']}><SalesDashboard /></ProtectedRoute>} />
-            <Route path="/customer-success-dashboard" element={<ProtectedRoute allowedRoles={['employee', 'admin', 'customer_success']}><CustomerSuccessDashboard /></ProtectedRoute>} />
-            <Route path="/website-visitors" element={<ProtectedRoute allowedRoles={['admin']}><WebsiteVisitors /></ProtectedRoute>} />
-            <Route path="/client-portal" element={<ProtectedRoute><ClientPortal /></ProtectedRoute>} />
+            <Route path="/customer-success-dashboard" element={<ProtectedRoute allowedRoles={['admin', 'customer_success']}><CustomerSuccessDashboard /></ProtectedRoute>} />
+            <Route path="/website-visitors" element={<ProtectedRoute allowedRoles={['admin', 'sales', 'sales_manager']}><WebsiteVisitors /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to={session ? "/" : "/login"} replace />} />
           </Routes>
         </Suspense>
