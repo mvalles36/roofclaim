@@ -53,6 +53,9 @@ const Login = () => {
           </Alert>
         )}
         <form onSubmit={handleLogin} className="space-y-4">
+          <div className="flex justify-center mb-4">
+            <img src="/path/to/your/logo.png" alt="RoofClaim Logo" className="h-16 w-16" />
+          </div>
           <div>
             <Label htmlFor="email">Email</Label>
             <Input
@@ -85,6 +88,11 @@ const Login = () => {
           Don't have an account?{' '}
           <Link to="/signup" className="text-blue-600 hover:underline">
             Sign Up
+          </Link>
+        </p>
+        <p className="mt-2 text-center text-sm">
+          <Link to="/forgot-password" className="text-blue-600 hover:underline">
+            Forgot Password?
           </Link>
         </p>
       </CardContent>
