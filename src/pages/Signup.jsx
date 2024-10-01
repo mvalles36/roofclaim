@@ -29,6 +29,23 @@ const SignUp = () => {
     }
 
     try {
+      // Check if the email already exists
+      const { data: existingUser, error: userError } = await supabase
+        .from('users') // Ensure this is the correct table
+        .select('*')
+        .eq('email', email)
+        .single();
+
+      if (userError && userError.code !== 'PGRST116') { // Handle other errors
+        throw userError;
+      }
+
+      if (existingUser) {
+        setError('This email address is already in use. Please log in or use a different email.');
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -36,6 +53,7 @@ const SignUp = () => {
           data: {
             first_name: firstName,
             last_name: lastName,
+            role: 'user.role.sales', // Set the default role here if applicable
           },
         },
       });
