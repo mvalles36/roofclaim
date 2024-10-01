@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from 'sonner';
-import ContactsApi from '../services/ContactsApi';
-import JobsApi from '../services/JobsApi';
+import * as ContactsApi from '../services/ContactsApi';
+import * as JobsApi from '../services/JobsApi';  
 import {
   ColumnDef,
   useReactTable,
