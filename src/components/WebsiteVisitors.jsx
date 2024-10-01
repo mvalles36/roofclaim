@@ -73,7 +73,7 @@ const WebsiteVisitors = () => {
           <button onClick={handleCopyScript} className="button">
             Copy Script
           </button>
-          <p>Insert this script before the </code>&lt;/body&gt;</code> tag of your HTML.</p>
+          <p>Insert this script before the <code>&lt;/body&gt;</code> tag of your HTML.</p>
         </CardContent>
       </Card>
       {/* Here you can add your data visualization components for visitor tracking */}
