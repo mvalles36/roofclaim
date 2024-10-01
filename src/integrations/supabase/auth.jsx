@@ -36,7 +36,7 @@ export const SupabaseAuthProvider = ({ children }) => {
 
     if (error) {
       console.error('Error fetching user role:', error);
-      setUserRole('customer'); // Default to 'customer' if there's an error
+      setUserRole('sales'); // Default to 'customer' if there's an error
     } else {
       setUserRole(data.role);
     }
