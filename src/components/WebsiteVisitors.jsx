@@ -1,97 +1,82 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { toast } from 'sonner';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { Chart } from 'react-chartjs-2'; // Example for charting
+
+export const setContactCookie = (contactData) => {
+  const encodedData = btoa(JSON.stringify(contactData));
+  document.cookie = `contactData=${encodedData}; path=/; max-age=86400`; // Expires in 1 day
+};
+
+export const getContactCookie = () => {
+  const cookieValue = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('contactData='));
+
+  if (cookieValue) {
+    const encodedData = cookieValue.split('=')[1];
+    return JSON.parse(atob(encodedData));
+  }
+  return null;
+};
 
 const WebsiteVisitors = () => {
-  const [showScript, setShowScript] = useState(false);
-  const [visitorData, setVisitorData] = useState([]);
-  
-  // Example chart data (replace with real data)
-  const chartData = {
-    labels: visitorData.map(item => item.visited_at), 
-    datasets: [{
-      label: 'Time on Page',
-      data: visitorData.map(item => item.time_on_page),
-      backgroundColor: 'rgba(75, 192, 192, 0.2)',
-      borderColor: 'rgba(75, 192, 192, 1)',
-      borderWidth: 1,
-    }],
-  };
-
-  // Function to toggle the script display
-  const toggleScript = () => {
-    setShowScript(!showScript);
-  };
-
-  // Example visitor fetching (replace with real logic)
-  useEffect(() => {
-    // Fetch visitor data from your serverless function here
-    const fetchData = async () => {
-      const response = await fetch('/.netlify/functions/website-visitors'); // Example API call
-      const data = await response.json();
-      setVisitorData(data);
-    };
-
-    fetchData();
-  }, []);
-
-  // Tracking script for users to copy
   const trackingScript = `
-  <script>
-    (function() {
-      fetch("https://roofclaim.netlify.app/netlify/funtions/website-visitors", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          visitor_id: "YOUR_VISITOR_ID",
-          page: window.location.pathname,
-          time_on_page: performance.now(),
-          visited_at: new Date().toISOString()
-        })
-      });
-    })();
-  </script>
+    <script>
+      function initTracking() {
+        var visitorId = "${crypto.randomUUID()}"; // Generate a new UUID for each visit
+        var script = document.createElement("script");
+        script.src = "https://your-netlify-function-url/.netlify/functions/website-visitors";
+        script.async = true;
+        script.onload = function() {
+          // Logic to send tracking data
+          fetch(script.src, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              visitor_id: visitorId,
+              page: window.location.pathname,
+              time_on_page: 0, // You can update this based on actual time spent
+              visited_at: new Date().toISOString(),
+            }),
+          });
+        };
+        document.body.appendChild(script);
+      }
+      initTracking();
+    </script>
   `;
+
+  const handleCopyScript = () => {
+    navigator.clipboard.writeText(trackingScript);
+    alert('Tracking script copied to clipboard!');
+  };
+
+  useEffect(() => {
+    // Logic to get contact data from cookie and personalize the page if needed
+    const contactData = getContactCookie();
+    if (contactData) {
+      console.log('Personalized Data:', contactData);
+      // Use contactData to personalize the page
+    }
+  }, []);
 
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Website Visitors</h1>
-      
       <Card>
         <CardHeader>
-          <CardTitle>Visitor Analytics</CardTitle>
+          <CardTitle>Copy the Tracking Script</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="mb-4">
-            <Chart type="line" data={chartData} />
-          </div>
-          <Button onClick={toggleScript}>
-            {showScript ? "Hide Script" : "Show Tracking Script"}
-          </Button>
-          {showScript && (
-            <Card className="mt-4">
-              <CardHeader>
-                <CardTitle>Copy and Paste this Script</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="mb-4">Copy and paste this script into the <code>&lt;head&gt;</code> section of your website:</p>
-                <Input
-                  readOnly
-                  value={trackingScript.trim()}
-                  className="font-mono text-xs bg-gray-100 p-2 rounded"
-                />
-                <CopyToClipboard text={trackingScript.trim()} onCopy={() => toast.success('Script copied to clipboard!')}>
-                  <Button className="mt-2">Copy Script</Button>
-                </CopyToClipboard>
-              </CardContent>
-            </Card>
-          )}
+          <pre>{trackingScript}</pre>
+          <button onClick={handleCopyScript} className="button">
+            Copy Script
+          </button>
+          <p>Insert this script before the </code>&lt;/body&gt;</code> tag of your HTML.</p>
         </CardContent>
       </Card>
+      {/* Here you can add your data visualization components for visitor tracking */}
     </div>
   );
 };
