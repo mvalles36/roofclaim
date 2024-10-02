@@ -8,7 +8,7 @@ import { supabase } from '../integrations/supabase/supabase';
 import { SupplementList } from '../components/SupplementList';
 import ContactView from '../components/ContactView';
 
-const JobPortal = () => {
+const ClientPortal = () => {
   const { contactId } = useParams();
   const [jobDetails, setJobDetails] = useState(null);
   const [jobProgress, setJobProgress] = useState(0);
@@ -151,4 +151,4 @@ const JobPortal = () => {
   );
 };
 
-export default JobPortal;
+export default ClientPortal;
