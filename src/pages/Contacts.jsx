@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from 'sonner';
 import ContactsApi from '../services/ContactsApi';
-import JobsApi from '../services/JobsApi';  
+import { createJob, getJobByContactId } from '../services/JobsApi';
 import {
   ColumnDef,
   useReactTable,
