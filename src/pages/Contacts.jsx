@@ -11,7 +11,6 @@ import { toast } from 'sonner';
 import ContactsApi from '../services/ContactsApi';
 import { createJob, getJobByContactId } from '../services/JobsApi';
 import {
-  ColumnDef,
   useReactTable,
   getCoreRowModel,
   getPaginationRowModel,
