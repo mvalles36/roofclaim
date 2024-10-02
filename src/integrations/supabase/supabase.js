@@ -10,7 +10,6 @@ if (!supabaseUrl || !supabaseKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Log the API key (for debugging purposes only, remove in production)
 if (import.meta.env.MODE === 'development') {
   console.log('Supabase API Key:', supabaseKey);
 }
