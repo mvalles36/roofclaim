@@ -2,22 +2,15 @@ import { supabase } from '../integrations/supabase/supabase';
 
 export const getUserByRole = async (role) => {
   try {
-    const { data, error, status } = await supabase
-      .from('users')
-      .select('*')
-      .eq('role', role)
-      .limit(1); // Limit to one user
+    const { data, error } = await supabase
+  .from('users')
+  .select('*')
+  .eq('role', role)
+  .limit(1); // Ensures you get one row only
 
-    // Handle the error based on its status code
-    if (error) {
-      console.error(`Error fetching user by role: ${error.message} (Status: ${status})`);
-      throw new Error(`Unable to fetch user by role. Please try again later.`);
-    }
+if (error) {
+  console.error('Error fetching user role:', error);
+  throw error;
+}
 
-    // Check if data is an array and return the first item or null if no user is found
-    return data.length > 0 ? data[0] : null;
-  } catch (err) {
-    console.error('Unexpected error:', err);
-    throw new Error('An unexpected error occurred.'); // Return a generic error message for unexpected errors
-  }
-};
+return data.length > 0 ? data[0] : null; // Handle the case when no rows are returned
