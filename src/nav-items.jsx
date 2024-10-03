@@ -12,7 +12,6 @@ import Jobs from './pages/Jobs';
 import FindProspects from './pages/FindProspects';
 import DamageDetection from './pages/DamageDetection';
 import SalesGPT from './pages/SalesGPT';
-import AdminDashboard from './pages/AdminDashboard';
 import ProjectManagerDashboard from './pages/ProjectManagerDashboard';
 import CustomerSuccessDashboard from './pages/CustomerSuccessDashboard';
 import SalesDashboard from './pages/SalesDashboard';
