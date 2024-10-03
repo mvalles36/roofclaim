@@ -10,7 +10,7 @@ import { supabase } from '../integrations/supabase/supabase';
 import { FileUploader } from '../components/FileUploader';
 import axios from 'axios';
 
-const InspectionReports = () => {
+const Reports = () => {
   const [reports, setReports] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [selectedContact, setSelectedContact] = useState(null);
@@ -136,4 +136,4 @@ const InspectionReports = () => {
   );
 };
 
-export default InspectionReports;
+export default Reports;
