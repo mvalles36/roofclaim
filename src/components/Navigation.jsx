@@ -1,27 +1,42 @@
-import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink, NavigationMenuTrigger, NavigationMenuContent } from './path-to-your-nav-menu-file'; // Adjust path as necessary
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { Button } from "@/components/ui/button";
+import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuTrigger,
+  NavigationMenuContent,
+} from '../ui/navigation-menu'; 
+import { navItems } from '../navItems';
 
 const Navigation = () => {
-  const { signOut } = useSupabaseAuth();
+  const { userRole, signOut } = useSupabaseAuth();
 
+ 
   return (
-    <NavigationMenu>
-      <NavigationMenuList>
-        {navItems.map((item, index) => (
-          <NavigationMenuItem key={index}>
-            {item.label !== 'Log Out' ? (
-              <NavigationMenuLink to={`/${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
-                {item.icon && <item.icon className="w-4 h-4 mr-2" />}
-                {item.label}
-              </NavigationMenuLink>
-            ) : (
-              <Button onClick={signOut} variant="outline">
-                Log Out
-              </Button>
-            )}
-          </NavigationMenuItem>
+    <nav className="bg-gray-800 text-white w-64 min-h-screen p-4">
+      <div className="text-xl font-bold mb-6">RoofClaim AI</div>
+      <ul className="space-y-2">
+        {navItems.map((item) => (
+          (!item.roles || item.roles.includes(userRole)) && (
+            <li key={item.to}>
+              <Link to={item.to} className="flex items-center py-2 px-4 hover:bg-gray-700 rounded transition-colors duration-200">
+                {item.icon}
+                <span>{item.label}</span>
+              </Link>
+            </li>
+          )
         ))}
-      </NavigationMenuList>
-    </NavigationMenu>
+      </ul>
+      <div className="mt-auto pt-6">
+        <Button onClick={signOut} variant="outline" className="w-full text-white bg-[#4bd1a0] hover:bg-[#3ca880] transition-colors duration-200">
+          Log Out
+        </Button>
+      </div>
+    </nav>
   );
 };
 
