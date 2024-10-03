@@ -1,4 +1,4 @@
-import { Home, Users, FileText, Settings, Hammer, Mail, List, Bot, Search, Eye, MapPin, Globe, PieChart, IdCard } from 'lucide-react';
+import { Home, Users, FileText, Settings, Hammer, Mail, List, Bot, Search, Eye, MapPin, Globe, PieChart, UserCog } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import Contacts from './pages/Contacts';
 import DocumentHub from './pages/DocumentHub';
@@ -48,5 +48,5 @@ export const navItems = [
   { icon: PieChart, label: 'Reports', component: Reports },
   { icon: PieChart, label: 'Estimate', component: SmartSupplement },
   { icon: Settings, label: 'Settings', component: SettingsPage },
-  { icon: IdCard, label: 'Profile', component: Profile },
+  { icon: UserCog, label: 'Profile', component: Profile },
 ];
