@@ -2,7 +2,7 @@ import { Home, Users, FileText, Settings, Hammer, Mail, List, Robot, Search, Lin
 import Dashboard from './pages/Dashboard';
 import Contacts from './pages/Contacts';
 import DocumentHub from './pages/DocumentHub';
-import SettingsPage from './pages/Settings';
+import Settings from './pages/Settings';
 import Profile from './pages/Profile'; // Ensure the casing matches
 import SalesManagerDashboard from './pages/SalesManagerDashboard';
 import EmailInbox from './components/EmailInbox';
@@ -21,6 +21,11 @@ import Reports from './pages/Reports';
 import ClientPortal from './pages/ClientPortal';
 import ContractorPortal from './pages/ContractorPortal';
 import LogOut from './pages/LogOut';
+import Settings from './pages/Settings';
+import Index from './pages/Index';
+import UserManagement from './pages/UserManagement';
+import SmartSupplement from './pages/SmartSupplement';
+import ForgotPassword from './pages/ForgotPassword';
 
 export const navItems = [
   { icon: Home, label: 'Dashboard', component: Dashboard },
