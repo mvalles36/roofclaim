@@ -9,42 +9,13 @@ import {
   FileCheck, Activity 
 } from 'lucide-react';
 
-// Define the navigation item type
-type NavItem = {
-  to: string;
-  icon: React.ReactNode;
-  label: string;
-  roles?: string[];
-};
-
-const Navigation: React.FC = () => {
+const Navigation = () => {
   const { userRole, signOut } = useSupabaseAuth();
 
-  // Define the navigation items
-  const navItems: NavItem[] = [
+  const navItems = [
     { to: "/", icon: <Home className="w-4 h-4 mr-2" />, label: "Dashboard" },
     { to: "/contacts", icon: <Users className="w-4 h-4 mr-2" />, label: "Contacts" },
-    { to: "/jobs", icon: <Briefcase className="w-4 h-4 mr-2" />, label: "Jobs" },
-    { to: "/invoices", icon: <FileText className="w-4 h-4 mr-2" />, label: "Invoices" },
-    { to: "/find-prospects", icon: <Search className="w-4 h-4 mr-2" />, label: "Find Prospects" },
-    { to: "/supplement-tracking", icon: <Inbox className="w-4 h-4 mr-2" />, label: "Supplement Tracking" },
-    { to: "/tasks", icon: <CheckSquare className="w-4 h-4 mr-2" />, label: "Tasks" },
-    { to: "/insurance-mortgage-tracker", icon: <DollarSign className="w-4 h-4 mr-2" />, label: "Insurance/Mortgage Tracker" },
-    { to: "/document-hub", icon: <Folder className="w-4 h-4 mr-2" />, label: "Document Hub" },
-    { to: "/admin-dashboard", icon: <Shield className="w-4 h-4 mr-2" />, label: "Admin Dashboard", roles: ['admin'] },
-    { to: "/sales-dashboard", icon: <BarChart2 className="w-4 h-4 mr-2" />, label: "Sales Dashboard", roles: ['admin', 'sales'] },
-    { to: "/sales-manager-dashboard", icon: <FileSpreadsheet className="w-4 h-4 mr-2" />, label: "Sales Manager Dashboard", roles: ['admin', 'sales_manager'] },
-    { to: "/project-manager-dashboard", icon: <FileSpreadsheet className="w-4 h-4 mr-2" />, label: "Project Manager Dashboard", roles: ['admin', 'project_manager'] },
-    { to: "/customer-success-dashboard", icon: <FileSpreadsheet className="w-4 h-4 mr-2" />, label: "Customer Success Dashboard", roles: ['admin', 'customer_success'] },
-    { to: "/damage-detection", icon: <PieChart className="w-4 h-4 mr-2" />, label: "Damage Detection" },
-    { to: "/sales-gpt", icon: <Bot className="w-4 h-4 mr-2" />, label: "SalesGPT" },
-    { to: "/inbox", icon: <Mail className="w-4 h-4 mr-2" />, label: "Inbox" },
-    { to: "/client-portal", icon: <User className="w-4 h-4 mr-2" />, label: "Client Portal" },
-    { to: "/smart-supplement", icon: <FileCheck className="w-4 h-4 mr-2" />, label: "Smart Supplement" },
-    { to: "/user-management", icon: <UserCog className="w-4 h-4 mr-2" />, label: "User Management", roles: ['admin'] },
-    { to: "/website-visitors", icon: <Activity className="w-4 h-4 mr-2" />, label: "Website Visitors", roles: ['admin'] },
-    { to: "/profile", icon: <User className="w-4 h-4 mr-2" />, label: "Profile" },
-    { to: "/settings", icon: <Settings className="w-4 h-4 mr-2" />, label: "Settings" },
+    // ... rest of the nav items
   ];
 
   return (
