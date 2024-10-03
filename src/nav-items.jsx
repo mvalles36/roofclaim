@@ -1,4 +1,5 @@
 import { Home, Users, FileText, Settings, Hammer, Mail, List, Bot, Search, Eye, MapPin, Globe, PieChart, UserCog } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import Contacts from './pages/Contacts';
 import DocumentHub from './pages/DocumentHub';
