@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext, createContext } from 'react';
 import { supabase } from './supabase';
 
+// Create an Auth context to provide authentication state and functions
 const AuthContext = createContext();
 
 export const SupabaseAuthProvider = ({ children }) => {
@@ -29,7 +30,7 @@ export const SupabaseAuthProvider = ({ children }) => {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => subscription.unsubscribe(); // Clean up subscription on unmount
   }, []);
 
   const fetchUserRole = async (userId) => {
@@ -38,13 +39,16 @@ export const SupabaseAuthProvider = ({ children }) => {
       .from('users')
       .select('role')
       .eq('id', userId)
-      .single();
+      .single(); // Fetch the role for the current user
+
+    console.log('Fetched data:', data);
+    console.log('Error:', error);
 
     if (error) {
       console.error('Error fetching user role:', error.message);
-      setUserRole(null);
+      setUserRole(null); // Reset user role on error
     } else {
-      setUserRole(data.role);
+      setUserRole(data?.role || null); // Use optional chaining
     }
   };
 
@@ -66,6 +70,9 @@ export const SupabaseAuthProvider = ({ children }) => {
       const { error: roleError } = await supabase
         .from('users')
         .upsert({ id: user.id, role: 'sales' }); // Assign 'sales' role
+      if (roleError) {
+        console.error('Error assigning role:', roleError.message);
+      }
     }
 
     return { user };
@@ -94,6 +101,7 @@ export const SupabaseAuthProvider = ({ children }) => {
   );
 };
 
+// Custom hook to use the Auth context
 export const useSupabaseAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -102,7 +110,7 @@ export const useSupabaseAuth = () => {
   return context;
 };
 
+// Placeholder for a Supabase Auth UI component
 export const SupabaseAuthUI = () => {
-  // Implement your Supabase Auth UI component here
   return <div>Supabase Auth UI</div>;
 };
