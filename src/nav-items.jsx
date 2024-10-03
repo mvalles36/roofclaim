@@ -1,4 +1,4 @@
-import { Home, Users, FileText, Settings, Hammer, Mail, List, Robot, Search, Eye, MapPin, Globe, PieChart, IdCard } from 'lucide-react';
+import { Home, Users, FileText, Settings, Hammer, Mail, List, Bot, Search, Eye, MapPin, Globe, PieChart, IdCard } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import Contacts from './pages/Contacts';
 import DocumentHub from './pages/DocumentHub';
@@ -38,7 +38,7 @@ export const navItems = [
   { icon: Eye, label: 'Damage Detector', component: DamageDetection },
   { icon: Eye, label: 'Inspection Report', component: InspectionReport },
   { icon: Search, label: 'Prospect Finder', component: FindProspects },
-  { icon: Robot, label: 'Sales GPT', component: SalesGPT },
+  { icon: Bot, label: 'Sales GPT', component: SalesGPT },
   { icon: FileText, label: 'DocuHub', component: DocumentHub },
   { icon: MapPin, label: 'Tracker', component: Tracker },
   { icon: Globe, label: 'Website Visitors', component: WebsiteVisitors },
