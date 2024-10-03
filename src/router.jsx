@@ -53,11 +53,11 @@ const Router = () => {
         <Route path="/find-prospects" element={<FindProspects />} />
         <Route path="/document-hub" element={<DocumentHub />} />
         <Route path="/damage-detection" element={<DamageDetection />} />
-        <Route path="/knowledge-base" element={<KnowledgeBase />} />
         <Route path="/document-editor" element={<DocumentEditor />} />
         <Route path="/inspection-report" element={<InspectionReport />} />
         <Route path="/invoices" element={<Invoices />} />
         <Route path="/smart-supplement" element={<SmartSupplement />} />
+        <Route path="/contacts" element={<Contacts />} />
         
         {/* Protected Routes */}
         <Route
@@ -116,11 +116,11 @@ const Router = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/contacts"
+         <Route
+          path="/knowledge-base"
           element={
             <ProtectedRoute allowedRoles={['admin', 'sales_manager']}>
-              <Contacts />
+              <KnowledgeBase />
             </ProtectedRoute>
           }
         />
