@@ -8,12 +8,15 @@ export const SupabaseAuthProvider = ({ children }) => {
   const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
       if (session?.user) {
         fetchUserRole(session.user.id);
       }
-    });
+    };
+
+    getSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
@@ -28,6 +31,7 @@ export const SupabaseAuthProvider = ({ children }) => {
   }, []);
 
   const fetchUserRole = async (userId) => {
+    console.log('Fetching role for user ID:', userId);
     const { data, error } = await supabase
       .from('users')
       .select('role')
@@ -35,8 +39,8 @@ export const SupabaseAuthProvider = ({ children }) => {
       .single();
 
     if (error) {
-      console.error('Error fetching user role:', error);
-      setUserRole('sales'); // Default to 'customer' if there's an error
+      console.error('Error fetching user role:', error.message);
+      setUserRole(null); // Set to null instead of defaulting to 'sales'
     } else {
       setUserRole(data.role);
     }
