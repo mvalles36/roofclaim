@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'; // Ensure React is imported
 import { Link } from 'react-router-dom';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,6 @@ import { navItems } from '../navItems';
 const Navigation = () => {
   const { userRole, signOut } = useSupabaseAuth();
 
- 
   return (
     <nav className="bg-gray-800 text-white w-64 min-h-screen p-4">
       <div className="text-xl font-bold mb-6">RoofClaim AI</div>
@@ -16,7 +15,7 @@ const Navigation = () => {
           (!item.roles || item.roles.includes(userRole)) && (
             <li key={item.to}>
               <Link to={item.to} className="flex items-center py-2 px-4 hover:bg-gray-700 rounded transition-colors duration-200">
-                {item.icon}
+                {item.icon} {/* Ensure this renders correctly, you might want to wrap it with a component */}
                 <span>{item.label}</span>
               </Link>
             </li>
