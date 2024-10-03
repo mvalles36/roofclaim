@@ -26,6 +26,7 @@ import Index from './pages/Index';
 import UserManagement from './pages/UserManagement';
 import SmartSupplement from './pages/SmartSupplement';
 import ForgotPassword from './pages/ForgotPassword';
+import KnowledgeBase from './pages/KnowledgeBase';
 
 export const navItems = [
   { icon: Home, label: 'Dashboard', component: Dashboard },
@@ -37,7 +38,7 @@ export const navItems = [
   { icon: FileText, label: 'DocuHub', component: DocumentHub },
   { icon: Mail, label: 'Inbox', component: EmailInbox },
   { icon: PieChart, label: 'Reports', component: Reports },
-  { icon: null, label: 'Log Out', component: LogOut }, // Adjusted for readability
+  { icon: null, label: 'Log Out', component: LogOut }, 
   { icon: Globe, label: 'Website Visitors', component: WebsiteVisitors },
   { icon: List, label: 'Tasks', component: Tasks },
   { icon: Hammer, label: 'Jobs', component: Jobs },
@@ -46,7 +47,8 @@ export const navItems = [
   { icon: Robot, label: 'Sales GPT', component: SalesGPT },
   { icon: Link, label: 'Client Portal', component: ClientPortal },
   { icon: Link, label: 'Contractor Portal', component: ContractorPortal },
+  { icon: Link, label: 'Knowledge Base', component: KnowledgeBase },
   { icon: MapPin, label: 'Tracker', component: Tracker },
   { icon: Settings, label: 'Settings', component: SettingsPage },
-  { icon: IdCard, label: 'Profile', component: Profile }, // Ensure the casing matches
+  { icon: IdCard, label: 'Profile', component: Profile },
 ];
