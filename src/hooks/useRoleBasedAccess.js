@@ -22,7 +22,7 @@ const rolePermissions = {
     'Logout'
   ],
   sales_manager: [
-    'Dashboard', 
+    'SalesManagerDashboard', 
     'Inbox', 
     'Contacts', 
     'Tasks', 
@@ -39,7 +39,7 @@ const rolePermissions = {
     'Logout'
   ],
    sales: [
-    'Dashboard', 
+    'SalesDashboard', 
     'Inbox', 
     'Contacts', 
     'Tasks', 
@@ -56,7 +56,7 @@ const rolePermissions = {
     'Logout'
   ],
   project_manager: [
-    'Dashboard', 
+    'ProjectManagerDashboard', 
     'Inbox', 
     'Contacts', 
     'Tasks', 
@@ -72,7 +72,7 @@ const rolePermissions = {
     'Logout'
   ],
   customer_success: [
-    'Dashboard', 
+    'CustomerSuccessDashboard', 
     'Inbox', 
     'Contacts', 
     'Tasks', 
