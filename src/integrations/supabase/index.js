@@ -4,8 +4,8 @@ import { SupabaseAuthProvider, useSupabaseAuth, SupabaseAuthUI } from './auth.js
 
 // Export all the imported functions and objects from .auth and .hooks/
 export {
-  supabase,
-  SupabaseAuthProvider,
-  useSupabaseAuth,
-  SupabaseAuthUI,
+  supabase, // Supabase client instance for interacting with your database
+  SupabaseAuthProvider, // Provider component for managing authentication context
+  useSupabaseAuth, // Custom hook to access authentication context
+  SupabaseAuthUI, // Placeholder for authentication UI component
 };
