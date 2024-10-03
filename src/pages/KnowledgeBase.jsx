@@ -9,9 +9,10 @@ import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
 import { toast } from 'sonner';
 
-const AdminKnowledgeBase = () => {
+const KnowledgeBase = () => {
   const [knowledgeBase, setKnowledgeBase] = useState([]);
   const [newEntry, setNewEntry] = useState({ category: '', content: '' });
+  const [loading, setLoading] = useState(true);
   const { session } = useSupabaseAuth();
 
   useEffect(() => {
@@ -21,6 +22,7 @@ const AdminKnowledgeBase = () => {
   }, [session]);
 
   const fetchKnowledgeBase = async () => {
+    setLoading(true); // Start loading
     try {
       const { data: entries, error } = await supabase
         .from('knowledge_base')
@@ -28,10 +30,12 @@ const AdminKnowledgeBase = () => {
         .order('category', { ascending: true });
 
       if (error) throw error;
-      setKnowledgeBase(entries); // Using the data variable now named entries
+      setKnowledgeBase(entries);
     } catch (error) {
       console.error('Error fetching knowledge base:', error);
       toast.error('Failed to fetch knowledge base');
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
@@ -69,6 +73,9 @@ const AdminKnowledgeBase = () => {
   };
 
   const handleDeleteEntry = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this entry?")) {
+      return; // Exit if the user cancels the deletion
+    }
     try {
       const { error } = await supabase
         .from('knowledge_base')
@@ -122,7 +129,7 @@ const AdminKnowledgeBase = () => {
                 rows={5}
               />
             </div>
-            <Button type="submit">Add Entry</Button>
+            <Button type="submit" disabled={loading}>Add Entry</Button>
           </form>
         </CardContent>
       </Card>
@@ -131,38 +138,42 @@ const AdminKnowledgeBase = () => {
           <CardTitle>Knowledge Base Entries</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Category</TableHead>
-                <TableHead>Content</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {knowledgeBase.map((entry) => (
-                <TableRow key={entry.id}>
-                  <TableCell>{entry.category}</TableCell>
-                  <TableCell>
-                    <Textarea
-                      value={entry.content}
-                      onChange={(e) => handleUpdateEntry(entry.id, e.target.value)}
-                      rows={3}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Button onClick={() => handleDeleteEntry(entry.id)} variant="destructive">
-                      Delete
-                    </Button>
-                  </TableCell>
+          {loading ? (
+            <div>Loading...</div> // Display loading text while fetching data
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Content</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {knowledgeBase.map((entry) => (
+                  <TableRow key={entry.id}>
+                    <TableCell>{entry.category}</TableCell>
+                    <TableCell>
+                      <Textarea
+                        value={entry.content}
+                        onChange={(e) => handleUpdateEntry(entry.id, e.target.value)}
+                        rows={3}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Button onClick={() => handleDeleteEntry(entry.id)} variant="destructive">
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>
   );
 };
 
-export default AdminKnowledgeBase;
+export default KnowledgeBase;
