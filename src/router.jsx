@@ -1,4 +1,3 @@
-// src/router.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -8,8 +7,8 @@ import SalesManagerDashboard from './pages/SalesManagerDashboard';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
-import Tracker from './pages/Tracker'; 
-import Tasks from './pages/Tasks'; 
+import Tracker from './pages/Tracker';
+import Tasks from './pages/Tasks';
 import SalesGPT from './pages/SalesGPT';
 import Reports from './pages/Reports';
 import ProjectManagerDashboard from './pages/ProjectManagerDashboard';
@@ -24,20 +23,15 @@ import ContractorPortal from './pages/ContractorPortal';
 import Contacts from './pages/Contacts';
 import ClientPortal from './pages/ClientPortal';
 import KnowledgeBase from './pages/KnowledgeBase';
-import DocumentEditor from './pages/DocumentEditor';
-import InspectionReport from './pages/InspectionReport';
 import Invoices from './pages/Invoices';
-import SmartSupplement from './pages/SmartSupplement';
 import DocumentEditor from './pages/DocumentEditor';
-import InspectionReport from './pages/InspectionReport';
 import Settings from './pages/Settings';
-import SmartSupplement from './pages/SmartSupplement';
 
 // Placeholder for missing pages
 const LogOut = () => <div>Logging out...</div>;
 const Unauthorized = () => <div>You do not have permission to view this page.</div>;
 
-const Router = () => {
+const AppRouter = () => {
   return (
     <Router>
       <Routes>
@@ -58,15 +52,12 @@ const Router = () => {
         <Route path="/document-hub" element={<DocumentHub />} />
         <Route path="/damage-detection" element={<DamageDetection />} />
         <Route path="/document-editor" element={<DocumentEditor />} />
-        <Route path="/inspection-report" element={<InspectionReport />} />
         <Route path="/invoices" element={<Invoices />} />
         <Route path="/smart-supplement" element={<SmartSupplement />} />
         <Route path="/contacts" element={<Contacts />} />
-        <Route path="document-editor" element={<DocumentEditor />} />
-        <Route path="inspection-report" element={<InspectionReport />} />
-        <Route path="settings" element={<Settings />} />
-        <Route path="smart-supplement" element={<SmartSupplement />} />
-        
+        <Route path="/inspection-report" element={<InspectionReport />} />
+        <Route path="/settings" element={<Settings />} />
+
         {/* Protected Routes */}
         <Route
           path="/dashboard"
@@ -124,7 +115,7 @@ const Router = () => {
             </ProtectedRoute>
           }
         />
-         <Route
+        <Route
           path="/knowledge-base"
           element={
             <ProtectedRoute allowedRoles={['admin', 'sales_manager']}>
@@ -137,4 +128,4 @@ const Router = () => {
   );
 };
 
-export default Router;
+export default AppRouter;
