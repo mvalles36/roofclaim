@@ -1,28 +1,110 @@
+// src/hooks/useRoleBasedAccess.js
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const rolePermissions = {
-  admin: ['read:all', 'write:all'],
-  employee: ['read:contacts', 'write:contacts', 'read:invoices', 'write:invoices', 'read:jobs', 'write:jobs', 'read:inspections', 'write:inspections'],
-  customer: ['read:own_profile', 'read:own_jobs', 'read:own_invoices'],
+  admin: [
+    'Dashboard', 
+    'Inbox', 
+    'Contacts', 
+    'Tasks', 
+    'Jobs', 
+    'DocuHub', 
+    'ProspectFinder', 
+    'DamageDetector', 
+    'Tracker', 
+    'SalesGPT', 
+    'Reports', 
+    'WebsiteVisitors', 
+    'Profile', 
+    'Settings', 
+    'UserManagement', 
+    'AdminKnowledgeBase',
+    'Logout'
+  ],
+  sales_manager: [
+    'Dashboard', 
+    'Inbox', 
+    'Contacts', 
+    'Tasks', 
+    'Jobs', 
+    'DocuHub', 
+    'ProspectFinder', 
+    'DamageDetector', 
+    'Tracker', 
+    'SalesGPT', 
+    'Reports', 
+    'WebsiteVisitors', 
+    'Profile', 
+    'Settings', 
+    'Logout'
+  ],
+   sales: [
+    'Dashboard', 
+    'Inbox', 
+    'Contacts', 
+    'Tasks', 
+    'Jobs', 
+    'DocuHub', 
+    'ProspectFinder', 
+    'DamageDetector', 
+    'Tracker', 
+    'SalesGPT', 
+    'Reports', 
+    'WebsiteVisitors', 
+    'Profile', 
+    'Settings', 
+    'Logout'
+  ],
+  project_manager: [
+    'Dashboard', 
+    'Inbox', 
+    'Contacts', 
+    'Tasks', 
+    'Jobs', 
+    'DocuHub', 
+    'DamageDetector', 
+    'Tracker', 
+    'SalesGPT', 
+    'Reports', 
+    'WebsiteVisitors', 
+    'Profile', 
+    'Settings', 
+    'Logout'
+  ],
+  customer_success: [
+    'Dashboard', 
+    'Inbox', 
+    'Contacts', 
+    'Tasks', 
+    'Jobs', 
+    'DocuHub',
+    'DamageDetector',
+    'Tracker',
+    'Reports',
+    'WebsiteVisitors', 
+    'Profile', 
+    'Settings', 
+    'Logout'
+  ],
+  contractor: [
+    'ContractorPortal',
+    'Profile', 
+    'Logout'
+  ],
+  customer: [
+    'ClientPortal', 
+    'Profile', 
+    'Logout'
+  ],
 };
 
 export const useRoleBasedAccess = () => {
   const { userRole } = useSupabaseAuth();
 
-  const hasPermission = (permission) => {
-    const role = userRole || 'customer'; // Default to 'customer' if no role is set
-
-    if (!rolePermissions[role]) {
-      console.error(`Invalid role: ${role}. Defaulting to customer permissions.`);
-      return rolePermissions.customer.includes(permission);
-    }
-
-    if (role === 'admin' && rolePermissions[role].includes('read:all')) {
-      return true;
-    }
-
-    return rolePermissions[role].includes(permission);
+  const hasAccess = (page) => {
+    const role = userRole || 'sales'; // Default to 'customer'
+    return rolePermissions[role].includes(page);
   };
 
-  return { hasPermission };
+  return { hasAccess };
 };
