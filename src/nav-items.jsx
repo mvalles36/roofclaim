@@ -1,9 +1,9 @@
-import { Home, Users, FileText, Settings, Hammer, Mail, List, Robot, Search, Link, Eye, MapPin, Globe, PieChart, IdCard } from 'lucide-react';
+import { Home, Users, FileText, Settings, Hammer, Mail, List, Robot, Search, Eye, MapPin, Globe, PieChart, IdCard } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import Contacts from './pages/Contacts';
 import DocumentHub from './pages/DocumentHub';
-import Settings from './pages/Settings';
-import Profile from './pages/Profile'; // Ensure the casing matches
+import SettingsPage from './pages/Settings'; // Ensure the casing matches
+import Profile from './pages/Profile';
 import SalesManagerDashboard from './pages/SalesManagerDashboard';
 import EmailInbox from './components/EmailInbox';
 import WebsiteVisitors from './components/WebsiteVisitors';
@@ -20,9 +20,6 @@ import Tracker from './pages/Tracker';
 import Reports from './pages/Reports';
 import ClientPortal from './pages/ClientPortal';
 import ContractorPortal from './pages/ContractorPortal';
-import LogOut from './pages/LogOut';
-import Settings from './pages/Settings';
-import Index from './pages/Index';
 import UserManagement from './pages/UserManagement';
 import SmartSupplement from './pages/SmartSupplement';
 import ForgotPassword from './pages/ForgotPassword';
@@ -53,5 +50,5 @@ export const navItems = [
   { icon: PieChart, label: 'Estimate', component: SmartSupplement },
   { icon: Settings, label: 'Settings', component: SettingsPage },
   { icon: IdCard, label: 'Profile', component: Profile },
-  { icon: null, label: 'Log Out', component: LogOut }, 
+  // LogOut component is removed since it will be handled by a button
 ];
