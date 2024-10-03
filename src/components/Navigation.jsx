@@ -1,8 +1,8 @@
-import React from 'react'; // Ensure React is imported
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { Button } from "@/components/ui/button";
-import { navItems } from '../navItems';
+import { Button } from '@/components/ui/button'; // Ensure this path is correct
+import { navItems } from '../nav-items'; // Adjust this path according to your structure
 
 const Navigation = () => {
   const { userRole, signOut } = useSupabaseAuth();
@@ -13,9 +13,9 @@ const Navigation = () => {
       <ul className="space-y-2">
         {navItems.map((item) => (
           (!item.roles || item.roles.includes(userRole)) && (
-            <li key={item.to}>
-              <Link to={item.to} className="flex items-center py-2 px-4 hover:bg-gray-700 rounded transition-colors duration-200">
-                {item.icon} {/* Ensure this renders correctly, you might want to wrap it with a component */}
+            <li key={item.label}>
+              <Link to={`/${item.label.toLowerCase().replace(/\s+/g, '-')}`} className="flex items-center py-2 px-4 hover:bg-gray-700 rounded transition-colors duration-200">
+                {item.icon && <item.icon className="w-4 h-4 mr-2" />}
                 <span>{item.label}</span>
               </Link>
             </li>
