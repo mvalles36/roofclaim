@@ -27,6 +27,8 @@ import Invoices from './pages/Invoices';
 import DocumentEditor from './pages/DocumentEditor';
 import Settings from './pages/Settings';
 import SmartSupplement from './pages/SmartSupplement';
+import InspectionReport from './pages/InspectionReport';
+
 
 // Placeholder for missing pages
 const LogOut = () => <div>Logging out...</div>;
