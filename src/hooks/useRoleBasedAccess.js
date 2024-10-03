@@ -18,7 +18,7 @@ const rolePermissions = {
     'Profile', 
     'Settings', 
     'UserManagement', 
-    'AdminKnowledgeBase',
+    'AdminKnowledgeBase', 
     'Logout'
   ],
   sales_manager: [
@@ -38,7 +38,7 @@ const rolePermissions = {
     'Settings', 
     'Logout'
   ],
-   sales: [
+  sales: [
     'SalesDashboard', 
     'Inbox', 
     'Contacts', 
@@ -77,17 +77,17 @@ const rolePermissions = {
     'Contacts', 
     'Tasks', 
     'Jobs', 
-    'DocuHub',
-    'DamageDetector',
-    'Tracker',
-    'Reports',
+    'DocuHub', 
+    'DamageDetector', 
+    'Tracker', 
+    'Reports', 
     'WebsiteVisitors', 
     'Profile', 
     'Settings', 
     'Logout'
   ],
   contractor: [
-    'ContractorPortal',
+    'ContractorPortal', 
     'Profile', 
     'Logout'
   ],
@@ -102,8 +102,8 @@ export const useRoleBasedAccess = () => {
   const { userRole } = useSupabaseAuth();
 
   const hasAccess = (page) => {
-    const role = userRole || 'sales'; // Default to 'customer'
-    return rolePermissions[role].includes(page);
+    const role = userRole || 'sales'; 
+    return rolePermissions[role]?.includes(page) ?? false; // Use optional chaining and fallback to false
   };
 
   return { hasAccess };
