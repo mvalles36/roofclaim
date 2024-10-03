@@ -27,6 +27,7 @@ import UserManagement from './pages/UserManagement';
 import SmartSupplement from './pages/SmartSupplement';
 import ForgotPassword from './pages/ForgotPassword';
 import KnowledgeBase from './pages/KnowledgeBase';
+import InspectionReport from './pages/InspectionReport';
 
 export const navItems = [
   { icon: Home, label: 'Dashboard', component: Dashboard },
@@ -34,21 +35,23 @@ export const navItems = [
   { icon: Home, label: 'Sales Dashboard', component: SalesDashboard },
   { icon: Home, label: 'Project Manager Dashboard', component: ProjectManagerDashboard },
   { icon: Home, label: 'Customer Success Dashboard', component: CustomerSuccessDashboard },
-  { icon: Users, label: 'Contacts', component: Contacts },
-  { icon: FileText, label: 'DocuHub', component: DocumentHub },
   { icon: Mail, label: 'Inbox', component: EmailInbox },
-  { icon: PieChart, label: 'Reports', component: Reports },
-  { icon: null, label: 'Log Out', component: LogOut }, 
-  { icon: Globe, label: 'Website Visitors', component: WebsiteVisitors },
   { icon: List, label: 'Tasks', component: Tasks },
+  { icon: Users, label: 'Contacts', component: Contacts },
   { icon: Hammer, label: 'Jobs', component: Jobs },
-  { icon: Search, label: 'Prospect Finder', component: FindProspects }, // Corrected label
   { icon: Eye, label: 'Damage Detector', component: DamageDetection },
+  { icon: Eye, label: 'Inspection Report', component: InspectionReport },
+  { icon: Search, label: 'Prospect Finder', component: FindProspects },
   { icon: Robot, label: 'Sales GPT', component: SalesGPT },
+  { icon: FileText, label: 'DocuHub', component: DocumentHub },
+  { icon: MapPin, label: 'Tracker', component: Tracker },
+  { icon: Globe, label: 'Website Visitors', component: WebsiteVisitors },
   { icon: Link, label: 'Client Portal', component: ClientPortal },
   { icon: Link, label: 'Contractor Portal', component: ContractorPortal },
   { icon: Link, label: 'Knowledge Base', component: KnowledgeBase },
-  { icon: MapPin, label: 'Tracker', component: Tracker },
+  { icon: PieChart, label: 'Reports', component: Reports },
+  { icon: PieChart, label: 'Estimate', component: SmartSupplement },
   { icon: Settings, label: 'Settings', component: SettingsPage },
   { icon: IdCard, label: 'Profile', component: Profile },
+  { icon: null, label: 'Log Out', component: LogOut }, 
 ];
