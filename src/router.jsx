@@ -28,6 +28,10 @@ import DocumentEditor from './pages/DocumentEditor';
 import InspectionReport from './pages/InspectionReport';
 import Invoices from './pages/Invoices';
 import SmartSupplement from './pages/SmartSupplement';
+import DocumentEditor from './pages/DocumentEditor';
+import InspectionReport from './pages/InspectionReport';
+import Settings from './pages/Settings';
+import SmartSupplement from './pages/SmartSupplement';
 
 // Placeholder for missing pages
 const LogOut = () => <div>Logging out...</div>;
@@ -58,6 +62,10 @@ const Router = () => {
         <Route path="/invoices" element={<Invoices />} />
         <Route path="/smart-supplement" element={<SmartSupplement />} />
         <Route path="/contacts" element={<Contacts />} />
+        <Route path="document-editor" element={<DocumentEditor />} />
+        <Route path="inspection-report" element={<InspectionReport />} />
+        <Route path="settings" element={<Settings />} />
+        <Route path="smart-supplement" element={<SmartSupplement />} />
         
         {/* Protected Routes */}
         <Route
