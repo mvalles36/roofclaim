@@ -1,21 +1,21 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useSupabaseAuth } from '../integrations/supabase/auth'; // Adjust this path based on your folder structure
+import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { userRole, session } = useSupabaseAuth();
+  const { userRole, user } = useSupabaseAuth();
 
-  // If the user is not logged in, redirect them to the login page
-  if (!session) {
-    return <Navigate to="/login" replace />;
+  if (!user) {
+    // If the user is not authenticated, redirect to login
+    return <Navigate to="/login" />;
   }
 
-  // If the user's role is not allowed, redirect them to a "not authorized" page
-  if (allowedRoles && !allowedRoles.includes(userRole)) {
-    return <Navigate to="/not-authorized" replace />;
+  if (!allowedRoles.includes(userRole)) {
+    // If the user does not have the correct role, redirect to unauthorized page
+    return <Navigate to="/unauthorized" />;
   }
 
-  // If authenticated and authorized, render the children (protected component)
+  // If the user is authenticated and has the right role, render the children
   return children;
 };
 
