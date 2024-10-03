@@ -2,42 +2,33 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Button } from "@/components/ui/button";
-import { 
-  Home, Users, Briefcase, FileText, Search, Inbox, 
-  CheckSquare, DollarSign, User, Settings, FileSpreadsheet, 
-  BarChart2, PieChart, Folder, Bot, Shield, Mail, UserCog, 
-  FileCheck, Activity 
-} from 'lucide-react';
+import { Home, Users, FileText, Settings, Hammer, Mail, List, Robot, Search, Link, Eye, MapPin, Globe, PieChart, IdCard } from 'lucide-react';
+import { navItems } from './navItems'; // Adjust the import path as necessary
 
 const Navigation = () => {
-  const { userRole, signOut } = useSupabaseAuth();
-
-  const navItems = [
-    { to: "/", icon: <Home className="w-4 h-4 mr-2" />, label: "Dashboard" },
-    { to: "/contacts", icon: <Users className="w-4 h-4 mr-2" />, label: "Contacts" },
-    // ... rest of the nav items
-  ];
+  const { signOut } = useSupabaseAuth();
 
   return (
     <nav className="bg-gray-800 text-white w-64 min-h-screen p-4">
       <div className="text-xl font-bold mb-6">RoofClaim AI</div>
       <ul className="space-y-2">
-        {navItems.map((item) => 
-          (!item.roles || item.roles.includes(userRole)) && (
-            <li key={item.to}>
-              <Link to={item.to} className="flex items-center py-2 px-4 hover:bg-gray-700 rounded transition-colors duration-200">
-                {item.icon}
-                <span>{item.label}</span>
+        {navItems.map((item, index) => (
+          item.label !== 'Log Out' ? (
+            <li key={index}>
+              <Link to={`/${item.label.toLowerCase().replace(/\s+/g, '-')}`} className="flex items-center py-2 px-4 hover:bg-gray-700 rounded transition-colors duration-200">
+                {item.icon && <item.icon className="w-4 h-4 mr-2" />}
+                {item.label}
               </Link>
             </li>
+          ) : (
+            <li key={index}>
+              <Button onClick={signOut} variant="outline" className="w-full text-white bg-[#4bd1a0] hover:bg-[#3ca880] transition-colors duration-200">
+                Log Out
+              </Button>
+            </li>
           )
-        )}
+        ))}
       </ul>
-      <div className="mt-auto pt-6">
-        <Button onClick={signOut} variant="outline" className="w-full text-white bg-[#4bd1a0] hover:bg-[#3ca880] transition-colors duration-200">
-          Log Out
-        </Button>
-      </div>
     </nav>
   );
 };
