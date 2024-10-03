@@ -21,21 +21,27 @@ const Dashboard = () => {
   }, []);
 
   const fetchDashboardData = async () => {
-    const { data: metricsData, error: metricsError } = await supabase.rpc('get_dashboard_metrics');
-    if (metricsError) console.error('Error fetching metrics:', metricsError);
-    else setMetrics(metricsData);
-
-    const { data: activitiesData, error: activitiesError } = await supabase.rpc('get_recent_activities');
-    if (activitiesError) console.error('Error fetching activities:', activitiesError);
-    else setRecentActivities(activitiesData);
-
-    const { data: revenueData, error: revenueError } = await supabase.rpc('get_monthly_revenue');
-    if (revenueError) console.error('Error fetching revenue:', revenueError);
-    else setMonthlyRevenue(revenueData);
-
-    const { data: jobStatusData, error: jobStatusError } = await supabase.rpc('get_job_status_data');
-    if (jobStatusError) console.error('Error fetching job status data:', jobStatusError);
-    else setJobStatusData(jobStatusData);
+    try {
+      const { data: metricsData, error: metricsError } = await supabase.rpc('get_dashboard_metrics');
+      if (metricsError) throw new Error(metricsError.message);
+      setMetrics(metricsData);
+      
+      const { data: activitiesData, error: activitiesError } = await supabase.rpc('get_recent_activities');
+      if (activitiesError) throw new Error(activitiesError.message);
+      setRecentActivities(activitiesData);
+      
+      const { data: revenueData, error: revenueError } = await supabase.rpc('get_monthly_revenue');
+      if (revenueError) throw new Error(revenueError.message);
+      setMonthlyRevenue(revenueData);
+      
+      const { data: jobStatusData, error: jobStatusError } = await supabase.rpc('get_job_status_data');
+      if (jobStatusError) throw new Error(jobStatusError.message);
+      setJobStatusData(jobStatusData);
+      
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      // Optionally set an error state here to display to the user
+    }
   };
 
   return (
@@ -53,16 +59,20 @@ const Dashboard = () => {
             <CardTitle>Monthly Revenue</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={monthlyRevenue}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="revenue" fill="#8884d8" />
-              </BarChart>
-            </ResponsiveContainer>
+            {monthlyRevenue.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={monthlyRevenue}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="revenue" fill="#8884d8" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <p>No revenue data available.</p>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -70,16 +80,20 @@ const Dashboard = () => {
             <CardTitle>Job Status Distribution</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={jobStatusData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="status" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="count" stroke="#82ca9d" />
-              </LineChart>
-            </ResponsiveContainer>
+            {jobStatusData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={jobStatusData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="status" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="count" stroke="#82ca9d" />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <p>No job status data available.</p>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -89,11 +103,15 @@ const Dashboard = () => {
         </CardHeader>
         <CardContent>
           <ul className="space-y-2">
-            {recentActivities.map((activity, index) => (
-              <li key={index} className="text-sm">
-                {activity.description} - {new Date(activity.timestamp).toLocaleString()}
-              </li>
-            ))}
+            {recentActivities.length > 0 ? (
+              recentActivities.map((activity, index) => (
+                <li key={index} className="text-sm">
+                  {activity.description} - {new Date(activity.timestamp).toLocaleString()}
+                </li>
+              ))
+            ) : (
+              <p>No recent activities available.</p>
+            )}
           </ul>
         </CardContent>
       </Card>
