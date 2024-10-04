@@ -1,27 +1,20 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { fileURLToPath, URL } from 'url';
+import { resolve } from 'path';
 
 export default defineConfig({
-  server: {
-    host: 'localhost',
-    port: 8080,
-    hmr: {
-      // Enable HMR
-      clientPort: 3000, // Specify the port for HMR client (if different from server port)
-      overlay: true,    // Show error overlay in the browser
+  plugins: [react()],
+  build: {
+    rollupOptions: {
+      input: resolve(__dirname, 'src/main.jsx'), // Set the main entry point
     },
   },
-  plugins: [react()],
   resolve: {
-    alias: [
-      {
-        find: '@',
-        replacement: fileURLToPath(new URL('./src', import.meta.url)),
-      },
-    ],
+    alias: {
+      '@': resolve(__dirname, 'src'), // Optional alias
+    },
   },
-  build: {
-    sourcemap: true,
+  server: {
+    port: 8080, // Port configuration
   },
 });
