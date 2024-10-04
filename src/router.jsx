@@ -29,10 +29,10 @@ import Settings from './pages/Settings';
 import SmartSupplement from './pages/SmartSupplement';
 import InspectionReport from './pages/InspectionReport';
 
-
 // Placeholder for missing pages
 const LogOut = () => <div>Logging out...</div>;
 const Unauthorized = () => <div>You do not have permission to view this page.</div>;
+const NotFound = () => <div>404 Page Not Found</div>; // Added 404 component
 
 const AppRouter = () => {
   return (
@@ -126,6 +126,9 @@ const AppRouter = () => {
             </ProtectedRoute>
           }
         />
+
+        {/* Fallback Route */}
+        <Route path="*" element={<NotFound />} /> {/* Catch-all for undefined routes */}
       </Routes>
     </Router>
   );
