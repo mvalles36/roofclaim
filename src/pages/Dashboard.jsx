@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { supabase } from '../integrations/supabase/supabase';
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { DollarSign, Users, Briefcase, FileText } from 'lucide-react';
+import { useUser } from '../context/UserContext'; // Import the useUser hook
+import { supabase } from '../integrations/supabase/supabase';
+import {
+  BarChart, Bar,
+  LineChart, Line,
+  XAxis, YAxis,
+  CartesianGrid, Tooltip, Legend, ResponsiveContainer
+} from 'recharts';
 
 const Dashboard = () => {
+  const { uuid, role } = useUser(); // Access the user's UUID and role from the context
   const [metrics, setMetrics] = useState({
     totalRevenue: 0,
     totalContacts: 0,
@@ -18,23 +24,24 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [uuid]); // Update the data fetching when the uuid changes
 
   const fetchDashboardData = async () => {
     try {
-      const { data: metricsData, error: metricsError } = await supabase.rpc('get_dashboard_metrics');
+      // Use the user's UUID to fetch data specific to them
+      const { data: metricsData, error: metricsError } = await supabase.rpc('get_dashboard_metrics', { user_id: uuid });
       if (metricsError) throw new Error(metricsError.message);
       setMetrics(metricsData);
       
-      const { data: activitiesData, error: activitiesError } = await supabase.rpc('get_recent_activities');
+      const { data: activitiesData, error: activitiesError } = await supabase.rpc('get_recent_activities', { user_id: uuid });
       if (activitiesError) throw new Error(activitiesError.message);
       setRecentActivities(activitiesData);
       
-      const { data: revenueData, error: revenueError } = await supabase.rpc('get_monthly_revenue');
+      const { data: revenueData, error: revenueError } = await supabase.rpc('get_monthly_revenue', { user_id: uuid });
       if (revenueError) throw new Error(revenueError.message);
       setMonthlyRevenue(revenueData);
       
-      const { data: jobStatusData, error: jobStatusError } = await supabase.rpc('get_job_status_data');
+      const { data: jobStatusData, error: jobStatusError } = await supabase.rpc('get_job_status_data', { user_id: uuid });
       if (jobStatusError) throw new Error(jobStatusError.message);
       setJobStatusData(jobStatusData);
       
@@ -53,68 +60,47 @@ const Dashboard = () => {
         <MetricCard title="Total Jobs" value={metrics.totalJobs} icon={<Briefcase className="h-8 w-8 text-yellow-500" />} />
         <MetricCard title="Total Invoices" value={metrics.totalInvoices} icon={<FileText className="h-8 w-8 text-purple-500" />} />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Monthly Revenue</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {monthlyRevenue.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={monthlyRevenue}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="revenue" fill="#8884d8" />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <p>No revenue data available.</p>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Job Status Distribution</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {jobStatusData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={jobStatusData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="status" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="count" stroke="#82ca9d" />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <p>No job status data available.</p>
-            )}
-          </CardContent>
-        </Card>
+
+      {/* Render charts */}
+      <div className="mt-6">
+        <h2 className="text-2xl font-bold">Monthly Revenue</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={monthlyRevenue}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Line type="monotone" dataKey="revenue" stroke="#8884d8" activeDot={{ r: 8 }} />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activities</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2">
-            {recentActivities.length > 0 ? (
-              recentActivities.map((activity, index) => (
-                <li key={index} className="text-sm">
-                  {activity.description} - {new Date(activity.timestamp).toLocaleString()}
-                </li>
-              ))
-            ) : (
-              <p>No recent activities available.</p>
-            )}
-          </ul>
-        </CardContent>
-      </Card>
+
+      <div className="mt-6">
+        <h2 className="text-2xl font-bold">Job Status Overview</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={jobStatusData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="status" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="count" fill="#82ca9d" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Recent Activities */}
+      <div className="mt-6">
+        <h2 className="text-2xl font-bold">Recent Activities</h2>
+        <ul className="space-y-2">
+          {recentActivities.map((activity, index) => (
+            <li key={index} className="border p-2 rounded-md">
+              <span>{activity.description}</span> - <span className="text-gray-500">{new Date(activity.date).toLocaleDateString()}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
