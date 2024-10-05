@@ -29,14 +29,13 @@ const SignUp = () => {
     }
 
     try {
-      // Check if the email already exists
       const { data: existingUser, error: userError } = await supabase
-        .from('users') // Ensure this is the correct table
+        .from('users')
         .select('*')
         .eq('email', email)
         .single();
 
-      if (userError && userError.code !== 'PGRST116') { // Handle other errors
+      if (userError && userError.code !== 'PGRST116') {
         throw userError;
       }
 
@@ -53,7 +52,7 @@ const SignUp = () => {
           data: {
             first_name: firstName,
             last_name: lastName,
-            role: 'user.role.sales', // Set the default role here if applicable
+            role: 'user.role.sales',
           },
         },
       });
@@ -61,6 +60,18 @@ const SignUp = () => {
       if (error) throw error;
 
       if (data.user) {
+        const { error: insertError } = await supabase
+          .from('users')
+          .insert({
+            id: data.user.id,
+            email: email,
+            first_name: firstName,
+            last_name: lastName,
+            role: 'user.role.sales',
+          });
+
+        if (insertError) throw insertError;
+
         toast.success('Sign up successful! Please check your email to confirm your account.');
         navigate('/login');
       }
