@@ -26,81 +26,83 @@ const Login = () => {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase login error:', error);
+        throw error;
+      }
 
       if (data.user) {
+        console.log('Login successful:', data.user);
         toast.success('Login successful!');
         navigate('/', { replace: true });
+      } else {
+        throw new Error('Login successful but no user data returned');
       }
     } catch (error) {
       console.error('Login error:', error);
-      setError(error.message || 'Login failed. Please try again.');
+      setError(error.message || 'Login failed. Please check your credentials and try again.');
+      toast.error(error.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <>
-      <div className="container mx-auto flex flex-col items-center justify-center h-screen">
-        <Card className="max-w-md w-full shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Login to RoofClaim</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {error && (
-              <Alert variant="destructive" className="mb-4">
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            <div className="flex justify-center mb-4">
-              <img src="/path/to/your/logo.png" alt="RoofClaim Logo" className="h-16 w-16" />
+    <div className="container mx-auto flex flex-col items-center justify-center h-screen">
+      <Card className="max-w-md w-full shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">Login to RoofClaim</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
+                className="w-full"
+              />
             </div>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  disabled={loading}
-                  className="w-full"
-                />
-              </div>
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={loading}
-                  className="w-full"
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Logging in...' : 'Login'}
-              </Button>
-            </form>
-            <p className="mt-4 text-center text-sm">
-              Don't have an account?{' '}
-              <Link to="/signup" className="text-blue-600 hover:underline">
-                Sign Up
-              </Link>
-            </p>
-            <p className="mt-2 text-center text-sm">
-              <Link to="/forgot-password" className="text-blue-600 hover:underline">
-                Forgot Password?
-              </Link>
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    </>
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+                className="w-full"
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Logging in...' : 'Login'}
+            </Button>
+          </form>
+          <p className="mt-4 text-center text-sm">
+            Don't have an account?{' '}
+            <Link to="/signup" className="text-blue-600 hover:underline">
+              Sign Up
+            </Link>
+          </p>
+          <p className="mt-2 text-center text-sm">
+            <Link to="/forgot-password" className="text-blue-600 hover:underline">
+              Forgot Password?
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
