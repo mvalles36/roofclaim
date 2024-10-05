@@ -41,7 +41,12 @@ const SignUp = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('cannot be used as it is not authorized')) {
+          throw new Error('This email address is not authorized for signup. Please contact the administrator.');
+        }
+        throw error;
+      }
 
       if (data.user) {
         const { error: insertError } = await supabase

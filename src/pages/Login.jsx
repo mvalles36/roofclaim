@@ -26,10 +26,7 @@ const Login = () => {
         password,
       });
 
-      if (error) {
-        console.error('Supabase login error:', error);
-        throw error;
-      }
+      if (error) throw error;
 
       if (data.user) {
         console.log('Login successful:', data.user);
@@ -40,7 +37,7 @@ const Login = () => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      setError(error.message || 'Login failed. Please check your credentials and try again.');
+      setError(error.message || 'Invalid login credentials. Please check your email and password.');
       toast.error(error.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
