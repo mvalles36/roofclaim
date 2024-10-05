@@ -29,22 +29,6 @@ const SignUp = () => {
     }
 
     try {
-      const { data: existingUser, error: userError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .single();
-
-      if (userError && userError.code !== 'PGRST116') {
-        throw userError;
-      }
-
-      if (existingUser) {
-        setError('This email address is already in use. Please log in or use a different email.');
-        setLoading(false);
-        return;
-      }
-
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
