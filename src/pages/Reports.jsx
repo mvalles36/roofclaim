@@ -4,10 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { supabase } from '../integrations/supabase/supabase';
-import { FileUploader } from '../components/FileUploader';
+import FileUploader from '../components/FileUploader'; // Ensure correct import
 import axios from 'axios';
 
 const Reports = () => {
@@ -131,6 +130,7 @@ const Reports = () => {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Inspection Reports</h1>
+      <FileUploader /> {/* Include the FileUploader component here */}
       {/* Add your UI components here */}
     </div>
   );
