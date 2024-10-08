@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import HTMLEditor from '../components/HTMLEditor';
 import VariableManager from '../components/VariableManager';
-import ImageUploader from '../components/ImageUploadComponent';
-import EmailSender from '../components/ComposeEmail';
+import ImageUploadComponent from '../components/ImageUploadComponent';
+import ComposeEmail from '../components/ComposeEmail';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
@@ -127,7 +127,7 @@ const SmartDocs = () => {
           />
         </TabsContent>
         <TabsContent value="images" className="border p-4 rounded-lg">
-          <ImageUploader onImageUpload={handleImageUpload} />
+          <ImageUploadComponent onImageUpload={handleImageUpload} />
         </TabsContent>
       </Tabs>
       
@@ -139,7 +139,7 @@ const SmartDocs = () => {
           <Button onClick={generateDocument} className="mr-2">
             Generate PDF
           </Button>
-          <EmailSender onSend={sendEmail} />
+          <ComposeEmail onSend={sendEmail} />
         </div>
       </div>
     </div>
