@@ -4,22 +4,15 @@ import HTMLEditor from '../components/HTMLEditor';
 import { Button } from "@/components/ui/button";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import Contacts from './Contacts'; // Import the Contacts component
 
 const documentTypes = {
-  1: { title: 'Inspection Report', template: '<h1>Inspection Report</h1><p>Client: {{name}}</p><p>Company: {{company}}</p><p>Email: {{email}}</p><p>Phone: {{phone}}</p><p>Inspection details go here...</p>' },
-  2: { title: 'Invoice', template: '<h1>Invoice</h1><p>Bill To: {{name}}</p><p>Company: {{company}}</p><p>Email: {{email}}</p><p>Phone: {{phone}}</p><p>Invoice details go here...</p>' },
-  3: { title: 'Scope of Work', template: '<h1>Scope of Work</h1><p>Client: {{name}}</p><p>Company: {{company}}</p><p>Email: {{email}}</p><p>Phone: {{phone}}</p><p>Scope details go here...</p>' },
-  4: { title: 'Material Order Form', template: '<h1>Material Order Form</h1><p>Customer: {{name}}</p><p>Company: {{company}}</p><p>Email: {{email}}</p><p>Phone: {{phone}}</p><p>Order details go here...</p>' },
-  5: { title: 'Job Completion Certificate', template: '<h1>Job Completion Certificate</h1><p>Client: {{name}}</p><p>Company: {{company}}</p><p>Email: {{email}}</p><p>Phone: {{phone}}</p><p>This is to certify that the job has been completed...</p>' },
+  1: { title: 'Inspection Report', template: '<h1>Inspection Report</h1><p>Client: {{first_name}} {{last_name}}</p><p>Email: {{email}}</p><p>Phone: {{phone}}</p><p>Inspection details go here...</p>' },
+  2: { title: 'Invoice', template: '<h1>Invoice</h1><p>Bill To: {{first_name}} {{last_name}}</p><p>Email: {{email}}</p><p>Phone: {{phone}}</p><p>Invoice details go here...</p>' },
+  3: { title: 'Scope of Work', template: '<h1>Scope of Work</h1><p>Client: {{first_name}} {{last_name}}</p><p>Email: {{email}}</p><p>Phone: {{phone}}</p><p>Scope details go here...</p>' },
+  4: { title: 'Material Order Form', template: '<h1>Material Order Form</h1><p>Customer: {{first_name}} {{last_name}}</p><p>Email: {{email}}</p><p>Phone: {{phone}}</p><p>Order details go here...</p>' },
+  5: { title: 'Job Completion Certificate', template: '<h1>Job Completion Certificate</h1><p>Client: {{first_name}} {{last_name}}</p><p>Email: {{email}}</p><p>Phone: {{phone}}</p><p>This is to certify that the job has been completed...</p>' },
 };
-
-const contacts = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', phone: '123-456-7890', company: 'ABC Corp' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', phone: '234-567-8901', company: 'XYZ Inc' },
-  { id: 3, name: 'Bob Johnson', email: 'bob@example.com', phone: '345-678-9012', company: '123 LLC' },
-  { id: 4, name: 'Alice Brown', email: 'alice@example.com', phone: '456-789-0123', company: 'DEF Co' },
-  { id: 5, name: 'Charlie Wilson', email: 'charlie@example.com', phone: '567-890-1234', company: 'GHI Ltd' },
-];
 
 const DocumentEditor = () => {
   const { templateId, contactId } = useParams();
@@ -27,17 +20,21 @@ const DocumentEditor = () => {
   const [content, setContent] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
+  // Dummy state for selected contact from the Contacts component
+  const [selectedContact, setSelectedContact] = useState(null);
+
   useEffect(() => {
-    const template = documentTypes[templateId];
-    const contact = contacts.find(c => c.id === parseInt(contactId));
-    if (template && contact) {
-      let mergedContent = template.template;
-      Object.entries(contact).forEach(([key, value]) => {
-        mergedContent = mergedContent.replace(new RegExp(`{{${key}}}`, 'g'), value);
-      });
-      setContent(mergedContent);
+    if (selectedContact) {
+      const template = documentTypes[templateId];
+      if (template) {
+        let mergedContent = template.template;
+        Object.entries(selectedContact).forEach(([key, value]) => {
+          mergedContent = mergedContent.replace(new RegExp(`{{${key}}}`, 'g'), value);
+        });
+        setContent(mergedContent);
+      }
     }
-  }, [templateId, contactId]);
+  }, [templateId, selectedContact]);
 
   const handleSave = (updatedContent) => {
     setContent(updatedContent);
@@ -56,7 +53,6 @@ const DocumentEditor = () => {
   };
 
   const sendEmail = () => {
-    // Implement email sending logic here
     console.log('Sending email with content:', content);
     alert('Email sent successfully!');
   };
@@ -64,6 +60,10 @@ const DocumentEditor = () => {
   return (
     <div className="container mx-auto">
       <h1 className="text-3xl font-bold mb-6">{documentTypes[templateId].title}</h1>
+
+      {/* Insert the Contacts component to dynamically fetch contacts */}
+      <Contacts onSelectContact={(contact) => setSelectedContact(contact)} />
+
       {isEditing ? (
         <HTMLEditor initialContent={content} onSave={handleSave} />
       ) : (
