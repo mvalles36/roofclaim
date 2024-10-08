@@ -22,7 +22,10 @@ import UserManagement from './pages/UserManagement';
 import SmartSupplement from './pages/SmartSupplement';
 import KnowledgeBase from './pages/KnowledgeBase';
 import InspectionReport from './pages/InspectionReport';
-import Settings from './pages/Settings';
+import DocuHubSettings from './pages/DocuHubSettings';
+import DocumentEditor from './pages/DocumentEditor';
+import TemplateLibrary from './pages/TemplateLibrary';
+
 
 export const navItems = [
   { icon: Home, label: 'Dashboard', component: Dashboard, roles: ['admin', 'sales_manager', 'sales', 'project_manager', 'customer_success'] },
