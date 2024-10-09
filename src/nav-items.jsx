@@ -1,4 +1,4 @@
-import { Home, Users, FileText, Settings as SettingsIcon, Hammer, Mail, List, Bot, Search, Eye, MapPin, Globe, PieChart, UserCog } from 'lucide-react';
+import { Home, Users, FileText, Settings, Hammer, Mail, List, Bot, Search, Eye, MapPin, Globe, PieChart, UserCog } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import Contacts from './pages/Contacts';
 import DocumentHub from './pages/DocumentHub';
@@ -16,16 +16,10 @@ import CustomerSuccessDashboard from './pages/CustomerSuccessDashboard';
 import SalesDashboard from './pages/SalesDashboard';
 import Tracker from './pages/Tracker';
 import Reports from './pages/Reports';
-import ClientPortal from './pages/ClientPortal';
-import ContractorPortal from './pages/ContractorPortal';
 import UserManagement from './pages/UserManagement';
 import SmartSupplement from './pages/SmartSupplement';
 import KnowledgeBase from './pages/KnowledgeBase';
 import InspectionReport from './pages/InspectionReport';
-import DocuHubSettings from './pages/DocuHubSettings';
-import DocumentEditor from './pages/DocumentEditor';
-import TemplateLibrary from './pages/TemplateLibrary';
-
 
 export const navItems = [
   { icon: Home, label: 'Dashboard', component: Dashboard, roles: ['admin', 'sales_manager', 'sales', 'project_manager', 'customer_success'] },
@@ -46,8 +40,7 @@ export const navItems = [
   { icon: Globe, label: 'Website Visitors', component: WebsiteVisitors, roles: ['admin', 'sales_manager', 'sales'] },
   { icon: PieChart, label: 'Reports', component: Reports, roles: ['admin', 'sales_manager', 'project_manager', 'customer_success'] },
   { icon: PieChart, label: 'Smart Supplement', component: SmartSupplement, roles: ['admin', 'sales_manager', 'sales', 'project_manager'] },
-  { icon: SettingsIcon, label: 'Settings', component: Settings, roles: ['admin', 'sales_manager', 'sales', 'project_manager', 'customer_success'] },
-  { icon: UserCog, label: 'Profile', component: Profile, roles: ['admin', 'sales_manager', 'sales', 'project_manager', 'customer_success'] },
+  { icon: Settings, label: 'Settings', component: Profile, roles: ['admin', 'sales_manager', 'sales', 'project_manager', 'customer_success'] },
   { icon: UserCog, label: 'User Management', component: UserManagement, roles: ['admin'] },
   { icon: FileText, label: 'Knowledge Base', component: KnowledgeBase, roles: ['admin', 'sales_manager', 'sales', 'project_manager', 'customer_success'] },
 ];
