@@ -1,11 +1,14 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { useUser, useClerk } from '@clerk/clerk-react';
 import { Button } from '@/components/ui/button'; 
 import { navItems } from '../nav-items'; 
 
 const Navigation = () => {
-  const { userRole, signOut } = useSupabaseAuth();
+  const { user } = useUser();
+  const { signOut } = useClerk();
+
+  const userRole = user?.publicMetadata?.role || 'user';
 
   return (
     <nav className="bg-gray-800 text-white w-64 min-h-screen p-4">
@@ -31,7 +34,7 @@ const Navigation = () => {
       </ul>
       <div className="mt-auto pt-6">
         <Button
-          onClick={signOut}
+          onClick={() => signOut()}
           variant="outline"
           className="w-full text-white bg-[#4bd1a0] hover:bg-[#3ca880] transition-colors duration-200"
         >
