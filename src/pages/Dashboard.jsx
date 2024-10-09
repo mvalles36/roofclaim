@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, Users, Briefcase, FileText } from 'lucide-react';
-import { useUser } from '../context/UserContext'; // Import the useUser hook
+import { useUser } from '../context/UserContext'; // This import is now correct
 import { supabase } from '../integrations/supabase/supabase';
 import {
   BarChart, Bar,
@@ -11,7 +11,7 @@ import {
 } from 'recharts';
 
 const Dashboard = () => {
-  const { uuid, role } = useUser(); // Access the user's UUID and role from the context
+  const user = useUser(); // Use the custom hook
   const [metrics, setMetrics] = useState({
     totalRevenue: 0,
     totalContacts: 0,
@@ -23,25 +23,27 @@ const Dashboard = () => {
   const [jobStatusData, setJobStatusData] = useState([]);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, [uuid]); // Update the data fetching when the uuid changes
+    if (user) {
+      fetchDashboardData();
+    }
+  }, [user]); // Update the dependency to user
 
   const fetchDashboardData = async () => {
     try {
       // Use the user's UUID to fetch data specific to them
-      const { data: metricsData, error: metricsError } = await supabase.rpc('get_dashboard_metrics', { user_id: uuid });
+      const { data: metricsData, error: metricsError } = await supabase.rpc('get_dashboard_metrics', { user_id: user.id });
       if (metricsError) throw new Error(metricsError.message);
       setMetrics(metricsData);
       
-      const { data: activitiesData, error: activitiesError } = await supabase.rpc('get_recent_activities', { user_id: uuid });
+      const { data: activitiesData, error: activitiesError } = await supabase.rpc('get_recent_activities', { user_id: user.id });
       if (activitiesError) throw new Error(activitiesError.message);
       setRecentActivities(activitiesData);
       
-      const { data: revenueData, error: revenueError } = await supabase.rpc('get_monthly_revenue', { user_id: uuid });
+      const { data: revenueData, error: revenueError } = await supabase.rpc('get_monthly_revenue', { user_id: user.id });
       if (revenueError) throw new Error(revenueError.message);
       setMonthlyRevenue(revenueData);
       
-      const { data: jobStatusData, error: jobStatusError } = await supabase.rpc('get_job_status_data', { user_id: uuid });
+      const { data: jobStatusData, error: jobStatusError } = await supabase.rpc('get_job_status_data', { user_id: user.id });
       if (jobStatusError) throw new Error(jobStatusError.message);
       setJobStatusData(jobStatusData);
       

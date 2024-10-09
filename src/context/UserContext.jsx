@@ -1,10 +1,10 @@
 import React, { createContext, useContext } from 'react';
-import { useUser } from '@clerk/clerk-react';
+import { useUser as useClerkUser } from '@clerk/clerk-react';
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded } = useClerkUser();
 
   const userWithRole = isLoaded && user ? {
     ...user,
@@ -18,4 +18,10 @@ export const UserProvider = ({ children }) => {
   );
 };
 
-export const useUserContext = () => useContext(UserContext);
+export const useUser = () => {
+  const context = useContext(UserContext);
+  if (context === undefined) {
+    throw new Error('useUser must be used within a UserProvider');
+  }
+  return context;
+};
