@@ -3,15 +3,20 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { useSupabaseAuth } from './integrations/supabase/auth';
 import Navigation from './components/Navigation';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 import ProtectedRoute from './components/ProtectedRoute';
 import { navItems } from './nav-items';
 
 const AppRouter = () => {
-  const { user } = useSupabaseAuth();
+  const { session, loading } = useSupabaseAuth();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Router>
-      {user ? (
+      {session ? (
         <div className="flex">
           <Navigation />
           <main className="flex-1 p-6">
@@ -23,7 +28,7 @@ const AppRouter = () => {
                   path={`/${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                   element={
                     <ProtectedRoute allowedRoles={item.roles || ['admin', 'sales_manager', 'sales', 'project_manager', 'customer_success']}>
-                      {React.createElement(item.component)}
+                      <item.component />
                     </ProtectedRoute>
                   }
                 />
@@ -35,6 +40,7 @@ const AppRouter = () => {
       ) : (
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       )}
