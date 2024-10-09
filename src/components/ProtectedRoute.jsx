@@ -1,21 +1,24 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { useUser } from '@clerk/clerk-react';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { userRole, user } = useSupabaseAuth();
+  const { user, isLoaded } = useUser();
 
-  if (!user) {
-    // If the user is not authenticated, redirect to login
-    return <Navigate to="/login" />;
+  if (!isLoaded) {
+    return <div>Loading...</div>;
   }
 
+  if (!user) {
+    return <Navigate to="/sign-in" />;
+  }
+
+  const userRole = user.publicMetadata.role;
+
   if (!allowedRoles.includes(userRole)) {
-    // If the user does not have the correct role, redirect to unauthorized page
     return <Navigate to="/unauthorized" />;
   }
 
-  // If the user is authenticated and has the right role, render the children
   return children;
 };
 

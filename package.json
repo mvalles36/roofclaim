@@ -26,6 +26,8 @@
 
   "dependencies": {
 
+    "@clerk/clerk-react": "^5.11.0",
+
     "@google-cloud/documentai": "^8.9.0",
 
     "@hookform/resolvers": "^3.6.0",
@@ -120,11 +122,11 @@
 
     "framer-motion": "^11.3.9",
 
-    "html2pdf.js": "^0.10.2",
+    "handlebars": "^4.7.8",
 
     "html-to-image": "^1.11.11",
 
-    "handlebars": "^4.7.8",
+    "html2pdf.js": "^0.10.2",
 
     "input-otp": "^1.2.4",
 
@@ -160,13 +162,13 @@
 
     "react-konva": "^18.2.10",
 
+    "react-quill": "^2.0.0",
+
     "react-resizable-panels": "^2.0.19",
 
     "react-router-dom": "^6.26.2",
 
     "react-table": "^7.8.0",
-
-    "react-quill": "^2.0.0",
 
     "recharts": "^2.12.7",
 

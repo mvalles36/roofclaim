@@ -1,22 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import { useSupabaseAuth } from './integrations/supabase/auth';
+import { SignedIn, SignedOut, RedirectToSignIn, SignIn, SignUp } from '@clerk/clerk-react';
 import Navigation from './components/Navigation';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import ProtectedRoute from './components/ProtectedRoute';
 import { navItems } from './nav-items';
 
 const AppRouter = () => {
-  const { session, loading } = useSupabaseAuth();
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <Router>
-      {session ? (
+      <SignedIn>
         <div className="flex">
           <Navigation />
           <main className="flex-1 p-6">
@@ -26,24 +17,21 @@ const AppRouter = () => {
                 <Route
                   key={item.label}
                   path={`/${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                  element={
-                    <ProtectedRoute allowedRoles={item.roles || ['admin', 'sales_manager', 'sales', 'project_manager', 'customer_success']}>
-                      <item.component />
-                    </ProtectedRoute>
-                  }
+                  element={<item.component />}
                 />
               ))}
               <Route path="*" element={<div>404 - Page Not Found</div>} />
             </Routes>
           </main>
         </div>
-      ) : (
+      </SignedIn>
+      <SignedOut>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="/sign-in/*" element={<SignIn routing="path" path="/sign-in" />} />
+          <Route path="/sign-up/*" element={<SignUp routing="path" path="/sign-up" />} />
+          <Route path="*" element={<RedirectToSignIn />} />
         </Routes>
-      )}
+      </SignedOut>
     </Router>
   );
 };
