@@ -11,5 +11,5 @@ export const createSupabaseClient = async (clerkToken) => {
       },
     },
   });
-}
-export default SupaBase;
+};
+export default supabase;
