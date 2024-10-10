@@ -13,3 +13,4 @@ export const navItems = [
   { icon: Axe, label: 'Virtual Gong', path: '/index' },
   { icon: ChartPie, label: 'Reports', path: '/reports' },
   { icon: Settings, label: 'Settings', path: '/settings' },
+];
