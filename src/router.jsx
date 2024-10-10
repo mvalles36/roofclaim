@@ -2,7 +2,11 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { SignedIn, SignedOut, RedirectToSignIn, SignIn, SignUp } from '@clerk/clerk-react';
 import Navigation from './components/Navigation';
-import { navItems } from './nav-items';
+import Dashboard from './pages/Dashboard';
+import Contacts from './pages/Contacts';
+import Tasks from './pages/Tasks';
+import UserManagement from './pages/UserManagement';
+import Settings from './pages/Settings';
 
 const AppRouter = () => {
   return (
@@ -13,13 +17,11 @@ const AppRouter = () => {
           <main className="flex-1 p-6">
             <Routes>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              {navItems.map((item) => (
-                <Route
-                  key={item.label}
-                  path={`/${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                  element={<item.component />}
-                />
-              ))}
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/contacts" element={<Contacts />} />
+              <Route path="/tasks" element={<Tasks />} />
+              <Route path="/user-management" element={<UserManagement />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<div>404 - Page Not Found</div>} />
             </Routes>
           </main>
