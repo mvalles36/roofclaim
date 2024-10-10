@@ -1,20 +1,24 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
+import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  build: {
-    rollupOptions: {
-      input: resolve(__dirname, 'src/main.jsx'), // Set the main entry point
-    },
-  },
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'), // Optional alias
+      '@': path.resolve(__dirname, './src'),
     },
   },
-  server: {
-    port: 8080, // Port configuration
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          clerk: ['@clerk/clerk-react'],
+          ui: ['@/components/ui'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
   },
 });
