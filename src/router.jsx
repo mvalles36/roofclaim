@@ -1,12 +1,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import { SignedIn, SignedOut, RedirectToSignIn, SignIn, SignUp } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
 import Navigation from './components/Navigation';
 import Dashboard from './pages/Dashboard';
 import Contacts from './pages/Contacts';
 import Tasks from './pages/Tasks';
 import UserManagement from './pages/UserManagement';
 import Settings from './pages/Settings';
+import SignIn from './pages/SignIn';
+import SignUp from './pages/SignUp';
+import ForgotPassword from './pages/ForgotPassword';
 
 const AppRouter = () => {
   return (
@@ -29,8 +32,9 @@ const AppRouter = () => {
       </SignedIn>
       <SignedOut>
         <Routes>
-          <Route path="/sign-in/*" element={<SignIn routing="path" path="/sign-in" />} />
-          <Route path="/sign-up/*" element={<SignUp routing="path" path="/sign-up" />} />
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="*" element={<RedirectToSignIn />} />
         </Routes>
       </SignedOut>
