@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { SignedIn, SignedOut, RedirectToSignIn, useUser } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
 import Navigation from './components/Navigation';
 import Dashboard from './pages/Dashboard';
 import Contacts from './pages/Contacts';
@@ -12,22 +12,7 @@ import SignUp from './pages/SignUp';
 import ForgotPassword from './pages/ForgotPassword';
 import Index from './pages/Index';
 
-const ProtectedRoute = ({ children, allowedRoles = [] }) => {
-  const { user } = useUser();
-  const userRole = user?.publicMetadata?.role || 'user';
-
-  if (!user) {
-    return <Navigate to="/sign-in" replace />;
-  }
-
-  if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
-    return <Navigate to="/unauthorized" replace />;
-  }
-
-  return children;
-};
-
-const AppRouter = () => {
+const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/sign-in" element={<SignIn />} />
@@ -45,16 +30,8 @@ const AppRouter = () => {
                   <Route path="dashboard" element={<Dashboard />} />
                   <Route path="contacts" element={<Contacts />} />
                   <Route path="tasks" element={<Tasks />} />
-                  <Route
-                    path="user-management"
-                    element={
-                      <ProtectedRoute allowedRoles={['admin']}>
-                        <UserManagement />
-                      </ProtectedRoute>
-                    }
-                  />
+                  <Route path="user-management" element={<UserManagement />} />
                   <Route path="settings" element={<Settings />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </main>
             </div>
@@ -66,4 +43,4 @@ const AppRouter = () => {
   );
 };
 
-export default AppRouter;
+export default AppRoutes;
