@@ -5,7 +5,7 @@ import Navigation from './components/Navigation';
 import Dashboard from './pages/Dashboard';
 import Contacts from './pages/Contacts';
 import Tasks from './pages/Tasks';
-import UserManagement from './pages/UserManagement';
+import UserManagement from './components/UserManagement';
 import Settings from './pages/Settings';
 import Index from './pages/Index';
 
