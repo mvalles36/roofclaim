@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { supabase } from '../integrations/supabase/supabase';
+import { supabase } from '../integrations/supabase'; // Updated import path
 import { toast } from 'sonner';
 
 const KnowledgeBase = () => {
@@ -22,7 +22,7 @@ const KnowledgeBase = () => {
   }, [session]);
 
   const fetchKnowledgeBase = async () => {
-    setLoading(true); // Start loading
+    setLoading(true);
     try {
       const { data: entries, error } = await supabase
         .from('knowledge_base')
@@ -35,7 +35,7 @@ const KnowledgeBase = () => {
       console.error('Error fetching knowledge base:', error);
       toast.error('Failed to fetch knowledge base');
     } finally {
-      setLoading(false); // End loading
+      setLoading(false);
     }
   };
 
@@ -74,7 +74,7 @@ const KnowledgeBase = () => {
 
   const handleDeleteEntry = async (id) => {
     if (!window.confirm("Are you sure you want to delete this entry?")) {
-      return; // Exit if the user cancels the deletion
+      return;
     }
     try {
       const { error } = await supabase
@@ -139,7 +139,7 @@ const KnowledgeBase = () => {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div>Loading...</div> // Display loading text while fetching data
+            <div>Loading...</div>
           ) : (
             <Table>
               <TableHeader>
