@@ -10,6 +10,12 @@ import Settings from './pages/Settings';
 import Index from './pages/Index';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
+import DocumentHub from './pages/DocumentHub';
+import FindProspects from './pages/FindProspects';
+import DamageDetection from './pages/DamageDetection';
+import Reports from './pages/Reports';
+import KnowledgeBase from './pages/KnowledgeBase';
+import ContractorPortal from './pages/ContractorPortal';
 
 const AppRoutes = () => {
   return (
@@ -29,6 +35,12 @@ const AppRoutes = () => {
                 <Route path="/tasks" element={<Tasks />} />
                 <Route path="/user-management" element={<UserManagement />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/document-hub" element={<DocumentHub />} />
+                <Route path="/find-prospects" element={<FindProspects />} />
+                <Route path="/damage-detection" element={<DamageDetection />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/knowledge-base" element={<KnowledgeBase />} />
+                <Route path="/contractor-portal" element={<ContractorPortal />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </SignedIn>
