@@ -7,6 +7,10 @@ import DocumentHub from './pages/DocumentHub';
 import EmailInbox from './pages/EmailInbox';
 import Jobs from './pages/Jobs';
 import SalesGPT from './pages/SalesGPT';
+import Tasks from './pages/Tasks';
+import KnowledgeBase from './pages/KnowledgeBase';
+import FindProspects from './pages/FindProspects';
+import Settings from './pages/Settings';
 
 const router = createBrowserRouter([
   {
@@ -19,6 +23,10 @@ const router = createBrowserRouter([
       { path: 'email-inbox', element: <EmailInbox /> },
       { path: 'jobs', element: <Jobs /> },
       { path: 'sales-gpt', element: <SalesGPT /> },
+      { path: 'tasks', element: <Tasks /> },
+      { path: 'knowledge-base', element: <KnowledgeBase /> },
+      { path: 'find-prospects', element: <FindProspects /> },
+      { path: 'settings', element: <Settings /> },
     ],
   },
 ]);
