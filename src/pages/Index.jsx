@@ -6,11 +6,32 @@ import { useUser } from '@clerk/clerk-react';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
+
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-3xl font-bold mb-4">Welcome to RoofClaim AI</h1>
+        <Card>
+          <CardHeader>
+            <CardTitle>Get Started</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4">Please sign in to access the platform.</p>
+            <Button onClick={() => navigate('/sign-in')} className="w-full">Sign In</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Welcome to RoofClaim AI, {user?.firstName || 'User'}!</h1>
+      <h1 className="text-3xl font-bold mb-4">Welcome to RoofClaim AI, {user.firstName || 'User'}!</h1>
       <Card>
         <CardHeader>
           <CardTitle>Get Started</CardTitle>

@@ -1,8 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { navItems } from '../nav-items'; // Corrected import
+import { navItems } from '../nav-items';
+import { useUser } from '@clerk/clerk-react';
 
 const Navigation = () => {
+  const { user, isLoaded } = useUser();
+
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (!user) {
+    return null; // Don't show navigation for unauthenticated users
+  }
+
   return (
     <nav className="bg-gray-800 text-white p-4">
       <ul className="flex space-x-4">
