@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,10 +8,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from 'sonner';
 import { supabase } from '../integrations/supabase/supabase';
+import SalesCelebrationModal from '../components/SalesCelebrationModal';
 
 const Jobs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [newJob, setNewJob] = useState({ title: '', client: '', status: 'Pending' });
+  const [isCelebrationModalOpen, setIsCelebrationModalOpen] = useState(false);
+  const [celebratingSalesperson, setCelebratingSalesperson] = useState('');
   const queryClient = useQueryClient();
 
   const { data: jobs, isLoading, error } = useQuery({
@@ -29,9 +32,11 @@ const Jobs = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries('jobs');
       toast.success('Job created successfully');
+      setIsCelebrationModalOpen(true);
+      setCelebratingSalesperson('New Salesperson'); // Replace with actual salesperson name
     },
     onError: (error) => {
       toast.error(`Failed to create job: ${error.message}`);
@@ -67,6 +72,24 @@ const Jobs = () => {
     job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     job.client.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('job-created')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'jobs',
+      }, (payload) => {
+        setIsCelebrationModalOpen(true);
+        setCelebratingSalesperson('New Salesperson'); // Replace with actual salesperson name
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   if (isLoading) return <div>Loading jobs...</div>;
   if (error) return <div>Error loading jobs: {error.message}</div>;
@@ -161,6 +184,11 @@ const Jobs = () => {
           </Table>
         </CardContent>
       </Card>
+      <SalesCelebrationModal
+        isOpen={isCelebrationModalOpen}
+        onClose={() => setIsCelebrationModalOpen(false)}
+        salesperson={celebratingSalesperson}
+      />
     </div>
   );
 };
