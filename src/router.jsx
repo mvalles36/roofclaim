@@ -11,6 +11,7 @@ import Tasks from './pages/Tasks';
 import KnowledgeBase from './pages/KnowledgeBase';
 import FindProspects from './pages/FindProspects';
 import Settings from './pages/Settings';
+import DocumentEditor from './pages/DocumentEditor';
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,7 @@ const router = createBrowserRouter([
       { index: true, element: <Dashboard /> },
       { path: 'contacts', element: <Contacts /> },
       { path: 'documents', element: <DocumentHub /> },
+      { path: 'document-editor/:type', element: <DocumentEditor /> },
       { path: 'email-inbox', element: <EmailInbox /> },
       { path: 'jobs', element: <Jobs /> },
       { path: 'sales-gpt', element: <SalesGPT /> },
