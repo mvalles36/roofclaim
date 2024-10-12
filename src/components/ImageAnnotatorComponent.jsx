@@ -1,44 +1,36 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 
-const ImageAnnotatorComponent = ({ image, annotations, onSave, labels, onLabelAssign }) => {
-  const handleLabelAssign = (labelId) => {
-    onLabelAssign(image.id, labelId);
+const ImageAnnotatorComponent = ({ imageUrl, annotations }) => {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const image = new Image();
+    image.src = imageUrl;
+    image.onload = () => {
+      canvas.width = image.width;
+      canvas.height = image.height;
+      ctx.drawImage(image, 0, 0, image.width, image.height);
+      drawAnnotations(ctx, annotations, image.width, image.height);
+    };
+  }, [imageUrl, annotations]);
+
+  const drawAnnotations = (ctx, annotations, width, height) => {
+    annotations.forEach(annotation => {
+      const { x, y, width: boxWidth, height: boxHeight } = annotation;
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x * width, y * height, boxWidth * width, boxHeight * height);
+      ctx.fillStyle = 'red';
+      ctx.font = '12px Arial';
+      ctx.fillText(annotation.class, x * width, (y * height) - 5);
+    });
   };
 
   return (
     <div className="relative">
-      <img src={image.url} alt="Annotated Damage" className="w-full h-auto" />
-      {annotations.map((annotation, index) => (
-        <div
-          key={index}
-          style={{
-            position: 'absolute',
-            top: annotation.y,
-            left: annotation.x,
-            width: annotation.width,
-            height: annotation.height,
-            border: '2px solid red',
-            borderRadius: '2px',
-          }}
-          className="bg-red-500 opacity-50"
-        >
-          <span className="absolute text-white text-xs">{annotation.class}</span>
-        </div>
-      ))}
-      <div className="absolute bottom-0 left-0 flex space-x-2 p-2">
-        {labels.map((label) => (
-          <button
-            key={label.id}
-            onClick={() => handleLabelAssign(label.id)}
-            className="p-2 bg-blue-500 text-white rounded"
-          >
-            {label.name}
-          </button>
-        ))}
-      </div>
-      <button onClick={() => onSave(annotations)} className="absolute top-0 right-0 m-2 p-2 bg-green-500 text-white rounded">
-        Save Annotations
-      </button>
+      <canvas ref={canvasRef} className="max-w-full h-auto" />
     </div>
   );
 };
