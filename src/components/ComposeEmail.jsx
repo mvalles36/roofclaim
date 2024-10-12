@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Send } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase } from '../integrations/supabase/supabase';
+import { supabase } from '../integrations/supabase'; // Updated import path
 
 const ComposeEmail = ({ onSend }) => {
   const [newEmail, setNewEmail] = useState({ to: '', subject: '', body: '' });
