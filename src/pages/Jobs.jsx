@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from 'sonner';
-import { supabase } from '../integrations/supabase/supabase';
+import { supabase } from '../integrations/supabase'; // Updated import path
 import SalesCelebrationModal from '../components/SalesCelebrationModal';
 
 const Jobs = () => {
