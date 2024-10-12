@@ -1,7 +1,7 @@
 // src/components/ImageUploadComponent.jsx
 import React from 'react';
 import { useDropzone } from 'react-dropzone';
-import { supabase } from '../integrations/supabase/supabase';
+import { supabase } from '../integrations/supabase'; // Updated import path
 import axios from 'axios';
 
 const ImageUploadComponent = ({ onUpload }) => {
