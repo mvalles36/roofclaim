@@ -1,7 +1,7 @@
 // hooks/useContacts.js
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../supabase';
+import { supabase } from '../../supabase'; // Updated import path
 
 const fromSupabase = async (query) => {
   const { data, error } = await query;
