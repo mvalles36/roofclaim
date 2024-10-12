@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { supabase } from '../integrations/supabase/supabase';
+import { supabase } from '../integrations/supabase'; // Updated import path
 import axios from 'axios';
 
 const FileUploader = () => {
