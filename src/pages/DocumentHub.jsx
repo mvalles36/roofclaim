@@ -8,17 +8,17 @@ import VariableManager from '../components/VariableManager';
 import ImageUploadComponent from '../components/ImageUploadComponent';
 import ComposeEmail from '../components/ComposeEmail';
 import DocumentViewer from '../components/DocumentViewer';
-import DocumentUploader from '../components/DocumentUploader';
+import DocumentUploaderComponent from '../components/DocumentUploaderComponent';
 
 const documentTypes = {
   1: { title: 'Inspection Report', type: 'report' },
   2: { title: 'Invoice', type: 'invoice' },
   3: { title: 'Scope of Work', type: 'scope' },
   4: { title: 'Contingency Agreement', type: 'agreement' },
-  5: { title: 'Material Order Form', type: 'order' },
+  5: { title: 'Materials Order Form', type: 'order' },
   6: { title: 'Job Completion Certificate', type: 'certificate' },
-  7: { title: 'Warranty Document', type: 'warranty' },
-  8: { title: 'Safety Inspection Checklist', type: 'checklist' },
+  7: { title: 'Warranty Certificate', type: 'warranty' },
+  8: { title: 'Estimate', type: 'checklist' },
 };
 
 const DocumentHub = () => {
@@ -36,7 +36,7 @@ const DocumentHub = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Document Hub</h1>
+      <h1 className="text-2xl font-bold mb-4">DocuHub</h1>
       
       <Card className="mb-4">
         <CardHeader>
@@ -66,7 +66,7 @@ const DocumentHub = () => {
           <CardTitle>Upload Document</CardTitle>
         </CardHeader>
         <CardContent>
-          <DocumentUploader onUpload={handleDocumentUpload} />
+          <DocumentUploaderComponent onUpload={handleDocumentUpload} />
         </CardContent>
       </Card>
 
