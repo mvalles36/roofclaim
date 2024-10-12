@@ -40,8 +40,8 @@ const Index = () => {
           <p className="mb-4">Welcome to your insurance restoration roofing platform. Choose an option to get started:</p>
           <div className="space-y-2">
             <Button onClick={() => navigate('/dashboard')} className="w-full">Go to Dashboard</Button>
-            <Button onClick={() => navigate('/find-prospects')} className="w-full">Find Prospects</Button>
-            <Button onClick={() => navigate('/damage-detection')} className="w-full">Damage Detection</Button>
+            <Button onClick={() => navigate('/contacts')} className="w-full">Manage Contacts</Button>
+            <Button onClick={() => navigate('/tasks')} className="w-full">View Tasks</Button>
           </div>
         </CardContent>
       </Card>
