@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { supabase } from '../integrations/supabase/supabase';
-import FileUploader from '../components/FileUploader'; // Ensure correct import
+import { supabase } from '../integrations/supabase'; // Updated import path
+import FileUploader from '../components/FileUploader';
 import axios from 'axios';
 
 const Reports = () => {
@@ -94,9 +94,6 @@ const Reports = () => {
       console.error('Error updating report status:', error);
     } else {
       fetchReports();
-      if (newStatus === 'Completed') {
-        triggerNPSSurvey(reportId);
-      }
     }
   };
 
@@ -130,7 +127,7 @@ const Reports = () => {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Inspection Reports</h1>
-      <FileUploader /> {/* Include the FileUploader component here */}
+      <FileUploader onUpload={handleFileUpload} />
       {/* Add your UI components here */}
     </div>
   );
