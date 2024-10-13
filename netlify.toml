@@ -18,3 +18,7 @@
   [headers.values]
     Content-Type = "text/css; charset=utf-8"
 
+ [build]
+   publish = "dist"
+
+
