@@ -12,8 +12,9 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     rollupOptions: {
-      input: './index.html', // Ensure the entry point is specified
-    },
-  },
+      input: './index.html',  // Ensures Rollup knows where the entry point is
+      external: [],           // Add external dependencies if needed (empty for now)
+     },
+   },
   base: './', // This helps in resolving asset paths
 });
