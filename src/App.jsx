@@ -4,18 +4,17 @@ import { ClerkProvider } from '@clerk/clerk-react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AppRoutes from './router';
 import { Toaster } from "@/components/ui/sonner";
+import { CLERK_PUBLISHABLE_KEY } from './config/env';
 
 const queryClient = new QueryClient();
 
-const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-
-if (!clerkPubKey) {
-  throw new Error("Missing Clerk Publishable Key");
+if (!CLERK_PUBLISHABLE_KEY) {
+  console.error("Missing Clerk Publishable Key");
 }
 
 const App = () => {
   return (
-    <ClerkProvider publishableKey={clerkPubKey}>
+    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
       <QueryClientProvider client={queryClient}>
         <Router>
           <AppRoutes />
