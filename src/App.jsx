@@ -13,6 +13,10 @@ if (!CLERK_PUBLISHABLE_KEY) {
 }
 
 const App = () => {
+  if (!CLERK_PUBLISHABLE_KEY) {
+    return <div>Error: Clerk Publishable Key is missing. Please check your environment variables.</div>;
+  }
+
   return (
     <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
       <QueryClientProvider client={queryClient}>
