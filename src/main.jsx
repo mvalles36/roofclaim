@@ -1,7 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App.jsx";
+import { RouterProvider } from 'react-router-dom';
 import "./index.css";
+import router from './router';
 import { CLERK_PUBLISHABLE_KEY } from "./config/env.js";
 
 class ErrorBoundary extends React.Component {
@@ -42,7 +43,7 @@ const Root = () => {
   return (
     <React.StrictMode>
       <ErrorBoundary>
-        <App />
+        <RouterProvider router={router} />
       </ErrorBoundary>
     </React.StrictMode>
   );

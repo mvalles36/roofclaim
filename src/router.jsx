@@ -12,6 +12,9 @@ import KnowledgeBase from './pages/KnowledgeBase';
 import FindProspects from './pages/FindProspects';
 import Settings from './pages/Settings';
 import DocumentEditor from './pages/DocumentEditor';
+import SignIn from './pages/SignIn';
+import SignUp from './pages/SignUp';
+import ForgotPassword from './pages/ForgotPassword';
 
 const router = createBrowserRouter([
   {
@@ -31,6 +34,9 @@ const router = createBrowserRouter([
       { path: 'settings', element: <Settings /> },
     ],
   },
+  { path: '/sign-in', element: <SignIn /> },
+  { path: '/sign-up', element: <SignUp /> },
+  { path: '/forgot-password', element: <ForgotPassword /> },
 ]);
 
 export default router;
