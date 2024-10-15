@@ -1,56 +1,48 @@
-import React, { useCallback, useRef } from 'react';
-import { GoogleMap, DrawingManager } from "@react-google-maps/api";
+import React, { useEffect, useRef } from 'react';
+import { useGoogleMap } from '../hooks/useGoogleMap';
 
-const MapComponent = ({ onAreaSelected, center }) => {
+const MapComponent = ({ center, setCenter, radius, setRadius }) => {
   const mapRef = useRef(null);
-  const drawingManagerRef = useRef(null);
+  const { isLoaded, loadError } = useGoogleMap();
 
-  const onMapLoad = useCallback((map) => {
-    mapRef.current = map;
-    map.setZoom(14);
-  }, []);
+  useEffect(() => {
+    if (isLoaded && !loadError) {
+      const map = new window.google.maps.Map(mapRef.current, {
+        center: center,
+        zoom: 12,
+      });
 
-  const onDrawingManagerLoad = useCallback((drawingManager) => {
-    drawingManagerRef.current = drawingManager;
-  }, []);
+      const circle = new window.google.maps.Circle({
+        strokeColor: '#FF0000',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: '#FF0000',
+        fillOpacity: 0.35,
+        map,
+        center: center,
+        radius: radius * 1609.34, // Convert miles to meters
+      });
 
-  const onRectangleComplete = useCallback((rectangle) => {
-    if (onAreaSelected) {
-      onAreaSelected(rectangle);
+      map.addListener('center_changed', () => {
+        const newCenter = map.getCenter();
+        setCenter({ lat: newCenter.lat(), lng: newCenter.lng() });
+      });
+
+      circle.addListener('radius_changed', () => {
+        setRadius(circle.getRadius() / 1609.34); // Convert meters to miles
+      });
     }
-    drawingManagerRef.current.setDrawingMode(null);
-  }, [onAreaSelected]);
+  }, [isLoaded, loadError, center, setCenter, radius, setRadius]);
 
-  return (
-    <GoogleMap
-      mapContainerStyle={{ width: "100%", height: "400px" }}
-      center={center || { lat: 32.7555, lng: -97.3308 }}
-      zoom={14}
-      onLoad={onMapLoad}
-    >
-      <DrawingManager
-        onLoad={onDrawingManagerLoad}
-        onRectangleComplete={onRectangleComplete}
-        options={{
-          drawingMode: window.google?.maps?.drawing?.OverlayType?.RECTANGLE,
-          drawingControl: true,
-          drawingControlOptions: {
-            position: window.google?.maps?.ControlPosition?.TOP_CENTER,
-            drawingModes: [window.google?.maps?.drawing?.OverlayType?.RECTANGLE]
-          },
-          rectangleOptions: {
-            fillColor: "#4bd1a0",
-            fillOpacity: 0.3,
-            strokeWeight: 2,
-            strokeColor: "#4bd1a0",
-            clickable: false,
-            editable: true,
-            zIndex: 1
-          }
-        }}
-      />
-    </GoogleMap>
-  );
+  if (loadError) {
+    return <div>Error loading maps</div>;
+  }
+
+  if (!isLoaded) {
+    return <div>Loading maps</div>;
+  }
+
+  return <div ref={mapRef} style={{ width: '100%', height: '400px' }} />;
 };
 
 export default MapComponent;
