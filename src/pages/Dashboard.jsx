@@ -1,16 +1,13 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Users, Briefcase, FileText } from 'lucide-react';
 import { useUser } from '@clerk/clerk-react';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
-} from 'recharts';
+import { DollarSign, Users, Briefcase, FileText } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Navigation from '../components/Navigation';
 
 const Dashboard = () => {
   const { user } = useUser();
 
-  // Placeholder data - replace with actual data fetching logic
   const data = [
     { name: 'Jan', value: 400 },
     { name: 'Feb', value: 300 },
@@ -20,11 +17,11 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="flex">
+    <div className="flex h-screen">
       <Navigation />
-      <div className="flex-1 p-6 space-y-6">
-        <h1 className="text-3xl font-bold">Welcome, {user?.firstName || 'User'}</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="flex-1 overflow-auto p-6 bg-gray-100">
+        <h1 className="text-3xl font-bold mb-6">Welcome, {user?.firstName || 'User'}</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <DashboardCard title="Total Revenue" value="$50,000" icon={<DollarSign />} />
           <DashboardCard title="New Leads" value="120" icon={<Users />} />
           <DashboardCard title="Active Projects" value="25" icon={<Briefcase />} />
