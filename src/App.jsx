@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Outlet, useNavigate } from 'react-router-dom';
 import { Toaster } from "@/components/ui/sonner";
 import { CLERK_PUBLISHABLE_KEY } from './config/env';
+import Navigation from './components/Navigation';
 
 const queryClient = new QueryClient();
 
@@ -22,7 +23,12 @@ const App = () => {
     >
       <QueryClientProvider client={queryClient}>
         <SignedIn>
-          <Outlet />
+          <div className="flex h-screen">
+            <Navigation />
+            <div className="flex-1 overflow-auto">
+              <Outlet />
+            </div>
+          </div>
         </SignedIn>
         <SignedOut>
           <RedirectToSignIn />
