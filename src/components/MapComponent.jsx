@@ -3,15 +3,10 @@ import { useGoogleMap } from '../hooks/useGoogleMap';
 
 const MapComponent = ({ center, setCenter, radius, setRadius }) => {
   const mapRef = useRef(null);
-  const { isLoaded, loadError } = useGoogleMap();
+  const { map, isLoaded, loadError } = useGoogleMap(mapRef, center);
 
   useEffect(() => {
-    if (isLoaded && !loadError) {
-      const map = new window.google.maps.Map(mapRef.current, {
-        center: center,
-        zoom: 12,
-      });
-
+    if (isLoaded && map) {
       const circle = new window.google.maps.Circle({
         strokeColor: '#FF0000',
         strokeOpacity: 0.8,
@@ -31,8 +26,14 @@ const MapComponent = ({ center, setCenter, radius, setRadius }) => {
       circle.addListener('radius_changed', () => {
         setRadius(circle.getRadius() / 1609.34); // Convert meters to miles
       });
+
+      return () => {
+        window.google.maps.event.clearListeners(map, 'center_changed');
+        window.google.maps.event.clearListeners(circle, 'radius_changed');
+        circle.setMap(null);
+      };
     }
-  }, [isLoaded, loadError, center, setCenter, radius, setRadius]);
+  }, [isLoaded, map, center, setCenter, radius, setRadius]);
 
   if (loadError) {
     return <div>Error loading maps</div>;
