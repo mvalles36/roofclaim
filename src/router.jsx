@@ -15,6 +15,7 @@ import DocumentEditor from './pages/DocumentEditor';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import ForgotPassword from './pages/ForgotPassword';
+import DamageDetection from './pages/DamageDetection';
 
 const router = createBrowserRouter([
   {
@@ -31,6 +32,7 @@ const router = createBrowserRouter([
       { path: 'tasks', element: <Tasks /> },
       { path: 'knowledge-base', element: <KnowledgeBase /> },
       { path: 'find-prospects', element: <FindProspects /> },
+      { path: 'damage-detection', element: <DamageDetection /> },
       { path: 'settings', element: <Settings /> },
     ],
   },

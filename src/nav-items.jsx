@@ -1,4 +1,4 @@
-import { Home, Users, FileText, Mail, Briefcase, Bot, Settings, Book, ListTodo, Search } from 'lucide-react';
+import { Home, Users, FileText, Mail, Briefcase, Bot, Settings, Book, ListTodo, Search, Camera } from 'lucide-react';
 
 export const navItems = [
   { name: 'Dashboard', href: '/', icon: Home },
@@ -10,5 +10,6 @@ export const navItems = [
   { name: 'Tasks', href: '/tasks', icon: ListTodo },
   { name: 'Knowledge Base', href: '/knowledge-base', icon: Book },
   { name: 'Find Prospects', href: '/find-prospects', icon: Search },
+  { name: 'Damage Detection', href: '/damage-detection', icon: Camera },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
