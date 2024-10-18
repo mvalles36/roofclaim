@@ -3,13 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectItem } from "@/components/ui/select"; // Removed unused imports
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateAIResponse } from '../utils/openAIClient';
+import { EmailService } from '../services/EmailService';
 
-const EmailSequenceBuilder = ({ sequences, contacts, onSaveSequence, onStartSequence }) => {
+const EmailSequenceBuilder = ({ onSaveSequence, onStartSequence }) => {
   const [newSequence, setNewSequence] = useState({ name: '', steps: [] });
   const [selectedContacts, setSelectedContacts] = useState([]);
 
@@ -50,6 +51,29 @@ const EmailSequenceBuilder = ({ sequences, contacts, onSaveSequence, onStartSequ
     }
   };
 
+  const handleSaveSequence = async () => {
+    try {
+      await EmailService.saveSequence(newSequence);
+      onSaveSequence(newSequence);
+      setNewSequence({ name: '', steps: [] });
+      toast.success('Sequence saved successfully');
+    } catch (error) {
+      console.error('Error saving sequence:', error);
+      toast.error('Failed to save sequence');
+    }
+  };
+
+  const handleStartSequence = async () => {
+    try {
+      await EmailService.startSequence(newSequence.id, selectedContacts);
+      onStartSequence(newSequence.id, selectedContacts);
+      toast.success('Sequence started successfully');
+    } catch (error) {
+      console.error('Error starting sequence:', error);
+      toast.error('Failed to start sequence');
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -75,13 +99,6 @@ const EmailSequenceBuilder = ({ sequences, contacts, onSaveSequence, onStartSequ
               />
               {newSequence.steps.map((step, index) => (
                 <div key={index} className="border p-4 rounded">
-                  <Select
-                    value={step.email.type}
-                    onValueChange={(value) => handleUpdateSequenceStep(index, 'email.type', value)}
-                  >
-                    <SelectItem value="follow-up">Follow-up</SelectItem>
-                    <SelectItem value="introduction">Introduction</SelectItem>
-                  </Select>
                   <Input
                     placeholder="Email Subject"
                     value={step.email.subject}
@@ -92,23 +109,24 @@ const EmailSequenceBuilder = ({ sequences, contacts, onSaveSequence, onStartSequ
                     value={step.email.body}
                     onChange={(e) => handleUpdateSequenceStep(index, 'email.body', e.target.value)}
                   />
-                  <div className="flex items-center">
+                  <div className="flex items-center mt-2">
                     <Input
                       type="number"
                       min="0"
                       placeholder="Wait Days"
                       value={step.waitDays}
-                      onChange={(e) => handleUpdateSequenceStep(index, 'waitDays', e.target.value)}
+                      onChange={(e) => handleUpdateSequenceStep(index, 'waitDays', parseInt(e.target.value))}
                     />
-                    <Button onClick={() => handleAIWriteEmail(index)}>Generate Email</Button>
+                    <Button onClick={() => handleAIWriteEmail(index)} className="ml-2">Generate Email</Button>
                   </div>
                 </div>
               ))}
               <Button onClick={handleAddSequenceStep}>Add Step</Button>
             </div>
-            <Button onClick={() => { onSaveSequence(newSequence); setNewSequence({ name: '', steps: [] }); }}>Save Sequence</Button>
+            <Button onClick={handleSaveSequence}>Save Sequence</Button>
           </DialogContent>
         </Dialog>
+        <Button onClick={handleStartSequence} className="mt-4">Start Sequence</Button>
       </CardContent>
     </Card>
   );

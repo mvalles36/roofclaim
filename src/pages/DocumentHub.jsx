@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import HTMLEditor from '../components/HTMLEditor';
 import TemplateLibrary from '../components/TemplateLibrary';
+import EmailSequenceBuilder from '../components/EmailSequenceBuilder';
 import { useContacts } from '../integrations/supabase/hooks/useContacts';
 import { toast } from 'sonner';
 
@@ -51,6 +52,18 @@ const DocumentHub = () => {
     toast.success('Document saved successfully');
   };
 
+  const handleSaveSequence = (sequence) => {
+    // Handle saving the sequence (e.g., update state, send to backend)
+    console.log('Sequence saved:', sequence);
+    toast.success('Sequence saved successfully');
+  };
+
+  const handleStartSequence = (sequenceId, contactIds) => {
+    // Handle starting the sequence (e.g., trigger emails, update backend)
+    console.log('Starting sequence:', sequenceId, 'for contacts:', contactIds);
+    toast.success('Sequence started successfully');
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">DocuHub</h1>
@@ -58,6 +71,10 @@ const DocumentHub = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-1">
           <TemplateLibrary onSelectTemplate={handleTemplateSelect} />
+          <EmailSequenceBuilder
+            onSaveSequence={handleSaveSequence}
+            onStartSequence={handleStartSequence}
+          />
         </div>
         
         <div className="md:col-span-2">
