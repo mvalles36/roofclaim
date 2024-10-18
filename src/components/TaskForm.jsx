@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export const TaskForm = ({ onTaskCreated }) => {
+export const TaskForm = ({ onTaskCreated, onClose }) => {
   const [task, setTask] = useState({
     title: '',
     description: '',
@@ -17,7 +17,7 @@ export const TaskForm = ({ onTaskCreated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    onTaskCreated(task);
+    await onTaskCreated(task);
     setTask({
       title: '',
       description: '',
@@ -26,6 +26,7 @@ export const TaskForm = ({ onTaskCreated }) => {
       assignee_role: '',
       status: 'To-Do'
     });
+    onClose(); // Close the modal after submission
   };
 
   const handleChange = (e) => {
