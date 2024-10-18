@@ -72,3 +72,14 @@ class SalesGPTService {
 }
 
 export const salesGPTService = new SalesGPTService();
+
+// Add this new function to export fetchSalesGPTResponse
+export const fetchSalesGPTResponse = async (prompt) => {
+  try {
+    const response = await salesGPTService.generateResponse(prompt, 'default', 'user@example.com', null);
+    return response;
+  } catch (error) {
+    console.error('Error fetching SalesGPT response:', error);
+    throw error;
+  }
+};
