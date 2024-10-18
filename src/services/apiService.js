@@ -113,6 +113,19 @@ export const createActivity = async (activityData) => {
   return data;
 };
 
+
+export const fetchContactTasks = async (contactId) => {
+  const { data, error } = await supabase
+    .from('tasks')
+    .select('*')
+    .eq('contact_id', contactId)
+    .order('priority', { ascending: false })
+    .order('due_date', { ascending: true });
+  
+  if (error) throw error;
+  return data;
+};
+
 export const fetchTasks = async () => {
   const { data, error } = await supabase
     .from('tasks')
