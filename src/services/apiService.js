@@ -1,14 +1,6 @@
-import { createSupabaseClient } from '../integrations/supabase/supabase';
-import { getAuth } from '@clerk/clerk-react';
-
-const getSupabaseClient = async () => {
-  const { getToken } = getAuth();
-  const token = await getToken({ template: 'supabase' });
-  return createSupabaseClient(token);
-};
+import { supabase } from '../integrations/supabase/supabase';
 
 export const fetchContacts = async () => {
-  const supabase = await getSupabaseClient();
   const { data, error } = await supabase
     .from('contacts')
     .select('*, users(name)')
@@ -19,7 +11,6 @@ export const fetchContacts = async () => {
 };
 
 export const fetchJobs = async () => {
-  const supabase = await getSupabaseClient();
   const { data, error } = await supabase
     .from('jobs')
     .select('*, contacts(name, email)')
@@ -30,7 +21,6 @@ export const fetchJobs = async () => {
 };
 
 export const fetchDocuments = async () => {
-  const supabase = await getSupabaseClient();
   const { data, error } = await supabase
     .from('documents')
     .select('*, contacts(name)')
@@ -41,7 +31,6 @@ export const fetchDocuments = async () => {
 };
 
 export const fetchInvoices = async () => {
-  const supabase = await getSupabaseClient();
   const { data, error } = await supabase
     .from('invoices')
     .select('*, contacts(full_name), jobs(job_type)')
@@ -52,7 +41,6 @@ export const fetchInvoices = async () => {
 };
 
 export const fetchStages = async () => {
-  const supabase = await getSupabaseClient();
   const { data, error } = await supabase
     .from('stages')
     .select('*, steps(*)')
@@ -63,7 +51,6 @@ export const fetchStages = async () => {
 };
 
 export const fetchActivities = async (contactId) => {
-  const supabase = await getSupabaseClient();
   const { data, error } = await supabase
     .from('activities')
     .select('*, steps(name, stages(name))')
@@ -75,7 +62,6 @@ export const fetchActivities = async (contactId) => {
 };
 
 export const createContact = async (contactData) => {
-  const supabase = await getSupabaseClient();
   const { data, error } = await supabase
     .from('contacts')
     .insert([contactData])
@@ -86,7 +72,6 @@ export const createContact = async (contactData) => {
 };
 
 export const updateContact = async (id, contactData) => {
-  const supabase = await getSupabaseClient();
   const { data, error } = await supabase
     .from('contacts')
     .update(contactData)
@@ -98,7 +83,6 @@ export const updateContact = async (id, contactData) => {
 };
 
 export const createJob = async (jobData) => {
-  const supabase = await getSupabaseClient();
   const { data, error } = await supabase
     .from('jobs')
     .insert([jobData])
@@ -109,7 +93,6 @@ export const createJob = async (jobData) => {
 };
 
 export const updateJob = async (id, jobData) => {
-  const supabase = await getSupabaseClient();
   const { data, error } = await supabase
     .from('jobs')
     .update(jobData)
@@ -121,7 +104,6 @@ export const updateJob = async (id, jobData) => {
 };
 
 export const createActivity = async (activityData) => {
-  const supabase = await getSupabaseClient();
   const { data, error } = await supabase
     .from('activities')
     .insert([activityData])
@@ -131,19 +113,10 @@ export const createActivity = async (activityData) => {
   return data;
 };
 
-export const fetchTasks = async (userId) => {
-  const supabase = await getSupabaseClient();
-  const { data, error } = await supabase.rpc('get_user_tasks', { p_user_id: userId });
-  if (error) throw error;
-  return data;
-};
-
-export const fetchContactTasks = async (contactId) => {
-  const supabase = await getSupabaseClient();
+export const fetchTasks = async () => {
   const { data, error } = await supabase
     .from('tasks')
     .select('*')
-    .eq('contact_id', contactId)
     .order('priority', { ascending: false })
     .order('due_date', { ascending: true });
   
@@ -152,7 +125,6 @@ export const fetchContactTasks = async (contactId) => {
 };
 
 export const createTask = async (taskData) => {
-  const supabase = await getSupabaseClient();
   const { data, error } = await supabase
     .from('tasks')
     .insert([taskData])
@@ -163,7 +135,6 @@ export const createTask = async (taskData) => {
 };
 
 export const updateTask = async ({ taskId, updates }) => {
-  const supabase = await getSupabaseClient();
   const { data, error } = await supabase
     .from('tasks')
     .update(updates)
@@ -174,59 +145,11 @@ export const updateTask = async ({ taskId, updates }) => {
   return data;
 };
 
-export const fetchTaskStatistics = async (userId, isManager) => {
-  const supabase = await getSupabaseClient();
-  const { data, error } = await supabase.rpc('get_task_statistics', {
-    p_user_id: userId,
-    p_is_manager: isManager
-  });
+export const deleteTask = async (taskId) => {
+  const { error } = await supabase
+    .from('tasks')
+    .delete()
+    .eq('id', taskId);
 
   if (error) throw error;
-  return data;
-};
-
-export const fetchSalesKPIs = async () => {
-  const supabase = await getSupabaseClient();
-  const { data, error } = await supabase.rpc('get_sales_kpis');
-  if (error) throw error;
-  return data;
-};
-
-export const fetchLeadFunnelData = async () => {
-  const supabase = await getSupabaseClient();
-  const { data, error } = await supabase.rpc('get_lead_funnel_data');
-  if (error) throw error;
-  return data;
-};
-
-export const fetchRecentSalesActivities = async () => {
-  const supabase = await getSupabaseClient();
-  const { data, error } = await supabase.rpc('get_recent_sales_activities');
-  if (error) throw error;
-  return data;
-};
-
-export const fetchSalesPerformance = async () => {
-  const supabase = await getSupabaseClient();
-  const { data, error } = await supabase.rpc('get_sales_performance');
-  if (error) throw error;
-  return data;
-};
-
-export const fetchLeadSourceDistribution = async () => {
-  const supabase = await getSupabaseClient();
-  const { data, error } = await supabase.rpc('get_lead_source_distribution');
-  if (error) throw error;
-  return data;
-};
-
-export const fetchSalesProcess = async () => {
-  const supabase = await getSupabaseClient();
-  const { data, error } = await supabase
-    .from('stages')
-    .select('*, steps(*)')
-    .order('created_at', { ascending: true });
-  
-  if (error) throw error;
-  return data;
 };

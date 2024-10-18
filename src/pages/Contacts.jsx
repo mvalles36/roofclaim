@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { useUser } from '@clerk/clerk-react';
 import ContactsTable from '../components/ContactsTable';
 import ContactForm from '../components/ContactForm';
+import ContactView from '../components/ContactView';
 import { fetchContacts, createContact } from '../services/contactService';
 
 const STATUS_OPTIONS = {
@@ -20,6 +21,7 @@ const STATUS_OPTIONS = {
 const Contacts = () => {
   const { user } = useUser();
   const [search, setSearch] = useState("");
+  const [selectedContact, setSelectedContact] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: contacts = [], isLoading } = useQuery({
@@ -75,7 +77,19 @@ const Contacts = () => {
       {isLoading ? (
         <div>Loading...</div>
       ) : (
-        <ContactsTable contacts={filteredContacts} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-2">
+            <ContactsTable 
+              contacts={filteredContacts} 
+              onSelectContact={setSelectedContact}
+            />
+          </div>
+          <div>
+            {selectedContact && (
+              <ContactView contactId={selectedContact.id} />
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

@@ -4,10 +4,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { TaskForm } from '../components/TaskForm';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchTasks, createTask, updateTask, deleteTask } from '../services/apiService';
+import { fetchTasks, createTask, updateTask, deleteTask } from '../services/taskService';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trash2 } from 'lucide-react';
+import TaskList from '../components/TaskList';
 
 const Tasks = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,6 +24,7 @@ const Tasks = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('tasks');
       toast.success('Task created successfully');
+      setIsModalOpen(false);
     },
     onError: (error) => {
       console.error('Error creating task:', error);
@@ -56,7 +58,6 @@ const Tasks = () => {
 
   const handleCreateTask = async (newTask) => {
     await createTaskMutation.mutateAsync(newTask);
-    setIsModalOpen(false);
   };
 
   const handleUpdateTaskStatus = async (taskId, newStatus) => {
@@ -87,6 +88,14 @@ const Tasks = () => {
           <TaskForm onTaskCreated={handleCreateTask} onClose={() => setIsModalOpen(false)} />
         </DialogContent>
       </Dialog>
+
+      <div className="mt-6">
+        <TaskList
+          tasks={tasks}
+          onUpdateStatus={handleUpdateTaskStatus}
+          onDeleteTask={handleDeleteTask}
+        />
+      </div>
 
       <Table>
         <TableHeader>

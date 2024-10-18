@@ -9,6 +9,8 @@ import ImageUploadComponent from '../components/ImageUploadComponent';
 import ComposeEmail from '../components/ComposeEmail';
 import DocumentViewer from '../components/DocumentViewer';
 import DocumentUploaderComponent from '../components/DocumentUploaderComponent';
+import SignatureInput from '../components/SignatureInput';
+import SignatureModal from '../components/SignatureModal';
 
 const documentTypes = {
   1: { title: 'Inspection Report', type: 'report' },
@@ -25,6 +27,8 @@ const DocumentHub = () => {
   const navigate = useNavigate();
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [documents, setDocuments] = useState([]);
+  const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+  const [signature, setSignature] = useState(null);
 
   const handleDocumentSelect = (docId) => {
     setSelectedDocument(documentTypes[docId]);
@@ -32,6 +36,11 @@ const DocumentHub = () => {
 
   const handleDocumentUpload = (newDocument) => {
     setDocuments([...documents, newDocument]);
+  };
+
+  const handleSignatureCapture = (signatureData) => {
+    setSignature(signatureData);
+    setIsSignatureModalOpen(false);
   };
 
   return (
@@ -67,6 +76,41 @@ const DocumentHub = () => {
         </CardHeader>
         <CardContent>
           <DocumentUploaderComponent onUpload={handleDocumentUpload} />
+        </CardContent>
+      </Card>
+
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>Document Editor</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <HTMLEditor initialContent="" onSave={(content) => console.log('Saved content:', content)} />
+          <VariableManager />
+          <ImageUploadComponent onUpload={(image) => console.log('Uploaded image:', image)} />
+        </CardContent>
+      </Card>
+
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>Signature Capture</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Button onClick={() => setIsSignatureModalOpen(true)}>Capture Signature</Button>
+          <SignatureModal
+            isOpen={isSignatureModalOpen}
+            onClose={() => setIsSignatureModalOpen(false)}
+            onCapture={handleSignatureCapture}
+          />
+          {signature && <SignatureInput value={signature} readOnly />}
+        </CardContent>
+      </Card>
+
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>Email Composition</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ComposeEmail onSend={(email) => console.log('Sent email:', email)} />
         </CardContent>
       </Card>
 

@@ -3,6 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUser } from '@clerk/clerk-react';
 import { DollarSign, Users, Briefcase, FileText } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import KPICard from '../components/KPICard';
+import LeadChart from '../components/LeadChart';
+import ProspectChart from '../components/ProspectChart';
+import RevenueChart from '../components/RevenueChart';
+import SalesProcessKPIs from '../components/SalesProcessKPIs';
+import SalesProcessVisualization from '../components/SalesProcessVisualization';
+import WebsiteVisitors from '../components/WebsiteVisitors';
 
 const Dashboard = () => {
   const { user } = useUser();
@@ -19,42 +26,65 @@ const Dashboard = () => {
     <div className="p-6 bg-gray-100">
       <h1 className="text-3xl font-bold mb-6">Welcome, {user?.firstName || 'User'}</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <DashboardCard title="Total Revenue" value="$50,000" icon={<DollarSign />} />
-        <DashboardCard title="New Leads" value="120" icon={<Users />} />
-        <DashboardCard title="Active Projects" value="25" icon={<Briefcase />} />
-        <DashboardCard title="Pending Quotes" value="10" icon={<FileText />} />
+        <KPICard title="Total Revenue" value="$50,000" icon={<DollarSign />} />
+        <KPICard title="New Leads" value="120" icon={<Users />} />
+        <KPICard title="Active Projects" value="25" icon={<Briefcase />} />
+        <KPICard title="Pending Quotes" value="10" icon={<FileText />} />
       </div>
-      <Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Lead Generation</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <LeadChart />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Prospect Conversion</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ProspectChart />
+          </CardContent>
+        </Card>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Revenue Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RevenueChart />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Sales Process KPIs</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SalesProcessKPIs />
+          </CardContent>
+        </Card>
+      </div>
+      <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Monthly Sales</CardTitle>
+          <CardTitle>Sales Process Visualization</CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value" fill="#8884d8" />
-            </BarChart>
-          </ResponsiveContainer>
+          <SalesProcessVisualization />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Website Visitors</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <WebsiteVisitors />
         </CardContent>
       </Card>
     </div>
   );
 };
-
-const DashboardCard = ({ title, value, icon }) => (
-  <Card>
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium">{title}</CardTitle>
-      {icon}
-    </CardHeader>
-    <CardContent>
-      <div className="text-2xl font-bold">{value}</div>
-    </CardContent>
-  </Card>
-);
 
 export default Dashboard;

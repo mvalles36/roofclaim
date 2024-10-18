@@ -9,12 +9,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from 'sonner';
 import { supabase } from '../integrations/supabase';
 import SalesCelebrationModal from '@/components/SalesCelebrationModal';
+import DamageDetectionUploader from '../components/DamageDetectionUploader';
+import ImageAnnotatorComponent from '../components/ImageAnnotatorComponent';
 
 const Jobs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [newJob, setNewJob] = useState({ title: '', client: '', status: 'Pending' });
   const [isCelebrationModalOpen, setIsCelebrationModalOpen] = useState(false);
   const [celebratingSalesperson, setCelebratingSalesperson] = useState('');
+  const [selectedImage, setSelectedImage] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: jobs, isLoading, error } = useQuery({
@@ -39,7 +42,8 @@ const Jobs = () => {
       setCelebratingSalesperson('New Salesperson'); // Replace with actual salesperson name
     },
     onError: (error) => {
-      toast.error(`Failed to create job: ${error.message}`);
+      console.error('Error creating job:', error);
+      toast.error('Failed to create job');
     },
   });
 
@@ -54,7 +58,8 @@ const Jobs = () => {
       toast.success('Job updated successfully');
     },
     onError: (error) => {
-      toast.error(`Failed to update job: ${error.message}`);
+      console.error('Error updating job:', error);
+      toast.error('Failed to update job');
     },
   });
 
@@ -66,6 +71,15 @@ const Jobs = () => {
 
   const handleUpdateJobStatus = async (jobId, newStatus) => {
     updateJobMutation.mutate({ id: jobId, updates: { status: newStatus } });
+  };
+
+  const handleImageUpload = (image) => {
+    setSelectedImage(image);
+  };
+
+  const handleAnnotationSave = (annotations) => {
+    console.log('Saved annotations:', annotations);
+    // Here you would typically save these annotations to your backend
   };
 
   const filteredJobs = jobs?.filter(job =>
@@ -182,6 +196,20 @@ const Jobs = () => {
               ))}
             </TableBody>
           </Table>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Damage Detection</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DamageDetectionUploader onUpload={handleImageUpload} />
+          {selectedImage && (
+            <ImageAnnotatorComponent
+              image={selectedImage}
+              onSave={handleAnnotationSave}
+            />
+          )}
         </CardContent>
       </Card>
       <SalesCelebrationModal
