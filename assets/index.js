@@ -9,7 +9,6 @@ function jw(e, t, n) {
 
 function D1(e, t) {
     try {
-        // Check if 't' and 't.value' are defined before accessing
         if (t && t.value !== undefined) {
             console.error(t.value);
         } else {
@@ -25,7 +24,6 @@ function D1(e, t) {
 var j9 = typeof WeakMap == "function" ? WeakMap : Map;
 
 function rD(e, t, n) {
-    // Check if 'e' is defined before accessing its properties
     if (e === undefined || e === null) {
         console.error("Error: 'e' is undefined or null in rD function");
         return;
@@ -37,7 +35,6 @@ function rD(e, t, n) {
         element: null
     };
     
-    // Only access e.name if e is defined
     if (e.name) {
         n.payload.element = e.name;
     }
@@ -131,5 +128,4 @@ function bD(e) {
     // Add the original code here
 }
 
-// Export the functions if needed
 export { jw, D1, j9, rD, KSe, dO, OD, _D, z9, ng, X1, bD };
