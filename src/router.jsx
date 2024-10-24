@@ -19,52 +19,52 @@ const router = createBrowserRouter([
     element: <LandingPage />
   },
   {
-    path: "/app",
+    path: "app",
     element: <App />,
     children: [
       {
-        path: '',
-        element: <Dashboard />,
+        path: "",
+        element: <Dashboard />
       },
       {
-        path: '/contacts',
-        element: <Contacts />,
+        path: "contacts",
+        element: <Contacts />
       },
       {
-        path: '/jobs',
-        element: <Jobs />,
+        path: "jobs",
+        element: <Jobs />
       },
       {
-        path: '/documents',
-        element: <DocumentHub />,
+        path: "documents",
+        element: <DocumentHub />
       },
       {
-        path: '/email',
-        element: <EmailInbox />,
+        path: "email",
+        element: <EmailInbox />
       },
       {
-        path: '/calendar',
-        element: <Calendar />,
+        path: "calendar",
+        element: <Calendar />
       },
       {
-        path: '/damage-detection',
-        element: <DamageDetection />,
+        path: "damage-detection",
+        element: <DamageDetection />
       },
       {
-        path: '/settings',
-        element: <Settings />,
+        path: "settings",
+        element: <Settings />
       },
       {
-        path: '/find-prospects',
-        element: <FindProspects />,
+        path: "find-prospects",
+        element: <FindProspects />
       },
       {
-        path: '/tasks',
-        element: <Tasks />,
+        path: "tasks",
+        element: <Tasks />
       },
       {
-        path: '/sales-gpt',
-        element: <SalesGPT />,
+        path: "sales-gpt",
+        element: <SalesGPT />
       }
     ],
   },

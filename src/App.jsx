@@ -12,7 +12,6 @@ const App = () => {
   const navigate = useNavigate();
 
   if (!CLERK_PUBLISHABLE_KEY) {
-    console.error("Clerk Publishable Key is missing");
     return <div>Error: Clerk Publishable Key is missing. Please check your environment variables.</div>;
   }
 
@@ -25,9 +24,9 @@ const App = () => {
         <SignedIn>
           <div className="flex h-screen">
             <Navigation />
-            <div className="flex-1 overflow-auto">
+            <main className="flex-1 overflow-auto bg-gray-50">
               <Outlet />
-            </div>
+            </main>
           </div>
         </SignedIn>
         <SignedOut>
