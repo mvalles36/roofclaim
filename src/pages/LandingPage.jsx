@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { SignInButton } from "@clerk/clerk-react";
+import { FileText, Users, Search } from 'lucide-react';
 
 const LandingPage = () => {
   const [searchParams] = useSearchParams();
@@ -62,7 +63,7 @@ const LandingPage = () => {
           >
             <Button 
               size="lg" 
-              onClick={() => navigate('/find-prospects')}
+              onClick={() => navigate('/app')}
               className="bg-primary hover:bg-primary/90"
             >
               Get Started
@@ -133,20 +134,18 @@ const features = [
   {
     title: 'Insurance Claim Processing',
     description: 'Streamline your insurance claims with our automated system',
-    icon: DocumentIcon
+    icon: FileText
   },
   {
     title: 'Lead Generation',
     description: 'Find and convert more prospects in your area',
-    icon: UserPlusIcon
+    icon: Users
   },
   {
     title: 'Damage Detection',
     description: 'AI-powered roof damage detection and assessment',
-    icon: SearchCheckIcon
+    icon: Search
   }
 ];
-
-import { DocumentIcon, UserPlusIcon, SearchCheckIcon } from 'lucide-react';
 
 export default LandingPage;
