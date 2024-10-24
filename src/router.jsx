@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import App from './App';
+import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import Contacts from './pages/Contacts';
 import Jobs from './pages/Jobs';
@@ -15,10 +16,14 @@ import SalesGPT from './pages/SalesGPT';
 const router = createBrowserRouter([
   {
     path: "/",
+    element: <LandingPage />
+  },
+  {
+    path: "/app",
     element: <App />,
     children: [
       {
-        path: '/',
+        path: '',
         element: <Dashboard />,
       },
       {
