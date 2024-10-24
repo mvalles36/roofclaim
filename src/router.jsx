@@ -1,3 +1,5 @@
+import FindProspects from './pages/FindProspects';
+
 import { createBrowserRouter } from 'react-router-dom';
 import App from './App';
 import Dashboard from './pages/Dashboard';
@@ -11,7 +13,7 @@ import Settings from './pages/Settings';
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <App />,
     children: [
       {
@@ -45,6 +47,10 @@ const router = createBrowserRouter([
       {
         path: '/settings',
         element: <Settings />,
+      },
+      {
+        path: "find-prospects",
+        element: <FindProspects />,
       },
     ],
   },

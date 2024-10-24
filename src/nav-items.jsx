@@ -1,53 +1,19 @@
-import {
-  LayoutDashboard,
-  Users,
-  FileText,
-  Mail,
-  Calendar,
-  Settings,
-  Briefcase,
-  FileSearch,
-} from 'lucide-react';
+import { Home, MapPin, Tasks } from 'lucide-react';
 
 export const navItems = [
   {
-    name: 'Dashboard',
-    href: '/',
-    icon: LayoutDashboard,
+    title: "Home",
+    href: "/",
+    icon: Home,
   },
   {
-    name: 'Contacts',
-    href: '/contacts',
-    icon: Users,
+    title: "Find Prospects",
+    href: "/find-prospects",
+    icon: MapPin,
   },
   {
-    name: 'Jobs',
-    href: '/jobs',
-    icon: Briefcase,
-  },
-  {
-    name: 'Documents',
-    href: '/documents',
-    icon: FileText,
-  },
-  {
-    name: 'Email',
-    href: '/email',
-    icon: Mail,
-  },
-  {
-    name: 'Calendar',
-    href: '/calendar',
-    icon: Calendar,
-  },
-  {
-    name: 'Damage Detection',
-    href: '/damage-detection',
-    icon: FileSearch,
-  },
-  {
-    name: 'Settings',
-    href: '/settings',
-    icon: Settings,
+    title: "Tasks",
+    href: "/tasks",
+    icon: Tasks,
   },
 ];
