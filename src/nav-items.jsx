@@ -1,19 +1,44 @@
-import { Home, MapPin, Tasks } from 'lucide-react';
+import { Home, MapPin, ClipboardList, Inbox, Briefcase, FileText, MessageSquare, Brain } from 'lucide-react';
 
 export const navItems = [
   {
-    title: "Home",
+    name: "Home",
     href: "/",
-    icon: Home,
+    icon: Home
   },
   {
-    title: "Find Prospects",
+    name: "Find Prospects",
     href: "/find-prospects",
-    icon: MapPin,
+    icon: MapPin
   },
   {
-    title: "Tasks",
+    name: "Tasks",
     href: "/tasks",
-    icon: Tasks,
+    icon: ClipboardList
   },
+  {
+    name: "Inbox",
+    href: "/email",
+    icon: Inbox
+  },
+  {
+    name: "Jobs",
+    href: "/jobs",
+    icon: Briefcase
+  },
+  {
+    name: "Documents",
+    href: "/documents",
+    icon: FileText
+  },
+  {
+    name: "Damage Detection",
+    href: "/damage-detection",
+    icon: MessageSquare
+  },
+  {
+    name: "SalesGPT",
+    href: "/sales-gpt",
+    icon: Brain
+  }
 ];

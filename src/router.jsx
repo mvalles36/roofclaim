@@ -1,5 +1,3 @@
-import FindProspects from './pages/FindProspects';
-
 import { createBrowserRouter } from 'react-router-dom';
 import App from './App';
 import Dashboard from './pages/Dashboard';
@@ -10,6 +8,9 @@ import EmailInbox from './pages/EmailInbox';
 import Calendar from './pages/Calendar';
 import DamageDetection from './pages/DamageDetection';
 import Settings from './pages/Settings';
+import FindProspects from './pages/FindProspects';
+import Tasks from './pages/Tasks';
+import SalesGPT from './pages/SalesGPT';
 
 const router = createBrowserRouter([
   {
@@ -49,9 +50,17 @@ const router = createBrowserRouter([
         element: <Settings />,
       },
       {
-        path: "find-prospects",
+        path: '/find-prospects',
         element: <FindProspects />,
       },
+      {
+        path: '/tasks',
+        element: <Tasks />,
+      },
+      {
+        path: '/sales-gpt',
+        element: <SalesGPT />,
+      }
     ],
   },
 ]);
