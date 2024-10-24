@@ -12,6 +12,8 @@ import Settings from './pages/Settings';
 import FindProspects from './pages/FindProspects';
 import Tasks from './pages/Tasks';
 import SalesGPT from './pages/SalesGPT';
+import SignIn from './pages/SignIn';
+import SignUp from './pages/SignUp';
 
 const router = createBrowserRouter([
   {
@@ -19,7 +21,15 @@ const router = createBrowserRouter([
     element: <LandingPage />
   },
   {
-    path: "app",
+    path: "/sign-in",
+    element: <SignIn />
+  },
+  {
+    path: "/sign-up",
+    element: <SignUp />
+  },
+  {
+    path: "/app",
     element: <App />,
     children: [
       {
