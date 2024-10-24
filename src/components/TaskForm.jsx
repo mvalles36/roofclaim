@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export const TaskForm = ({ onTaskCreated, onClose }) => {
+const TaskForm = ({ onTaskCreated, onClose }) => {
   const [task, setTask] = useState({
     title: '',
     description: '',
@@ -79,3 +79,5 @@ export const TaskForm = ({ onTaskCreated, onClose }) => {
     </form>
   );
 };
+
+export default TaskForm;
