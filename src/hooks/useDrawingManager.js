@@ -1,24 +1,63 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const useDrawingManager = (map) => {
+export const useDrawingManager = (map) => {
   const [drawingManager, setDrawingManager] = useState(null);
+  const [selectedArea, setSelectedArea] = useState(null);
 
   useEffect(() => {
-    if (map && !drawingManager) {
-      const drawingManagerInstance = new google.maps.drawing.DrawingManager({
-        drawingMode: google.maps.drawing.OverlayType.RECTANGLE,
+    if (map && window.google && !drawingManager) {
+      const manager = new window.google.maps.drawing.DrawingManager({
+        drawingMode: window.google.maps.drawing.OverlayType.RECTANGLE,
         drawingControl: true,
         drawingControlOptions: {
-          position: google.maps.ControlPosition.TOP_CENTER,
-          drawingModes: ['rectangle'],
+          position: window.google.maps.ControlPosition.TOP_CENTER,
+          drawingModes: [window.google.maps.drawing.OverlayType.RECTANGLE],
         },
+        rectangleOptions: {
+          fillColor: '#FF0000',
+          fillOpacity: 0.2,
+          strokeWeight: 2,
+          strokeColor: '#FF0000',
+          editable: true,
+          draggable: true,
+        }
       });
-      drawingManagerInstance.setMap(map);
-      setDrawingManager(drawingManagerInstance);
+
+      manager.setMap(map);
+      setDrawingManager(manager);
+
+      // Add listener for when a rectangle is completed
+      window.google.maps.event.addListener(manager, 'rectanglecomplete', (rectangle) => {
+        // Clear any existing selected area
+        if (selectedArea) {
+          selectedArea.setMap(null);
+        }
+        setSelectedArea(rectangle);
+        // Switch back to non-drawing mode after rectangle is drawn
+        manager.setDrawingMode(null);
+      });
     }
-  }, [map, drawingManager]);
 
-  return drawingManager;
+    return () => {
+      if (drawingManager) {
+        drawingManager.setMap(null);
+      }
+      if (selectedArea) {
+        selectedArea.setMap(null);
+      }
+    };
+  }, [map]);
+
+  const clearSelection = () => {
+    if (selectedArea) {
+      selectedArea.setMap(null);
+      setSelectedArea(null);
+    }
+  };
+
+  return {
+    drawingManager,
+    selectedArea,
+    clearSelection
+  };
 };
-
-export default useDrawingManager;

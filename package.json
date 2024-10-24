@@ -88,7 +88,7 @@
 
     "@radix-ui/react-tooltip": "^1.1.0",
 
-    "@react-google-maps/api": "^2.19.3",
+    "@react-google-maps/api": "^2.20.3",
 
     "@supabase/auth-ui-react": "^0.4.7",
 
