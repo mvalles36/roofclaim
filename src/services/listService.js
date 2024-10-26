@@ -46,8 +46,8 @@ export const saveList = async (listData) => {
       throw new Error('Failed to save properties');
     }
 
-    // Send to Suppose
-    await sendToSuppose(savedList.id, listData);
+    // Send to Supabase
+    await sendToSupabase(savedList.id, listData);
 
     return savedList;
   } catch (error) {
@@ -56,9 +56,9 @@ export const saveList = async (listData) => {
   }
 };
 
-const sendToSuppose = async (listId, listData) => {
+const sendToSupabase = async (listId, listData) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/suppose/lists`, {
+    const response = await fetch(`${API_BASE_URL}/supabase/lists`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -74,12 +74,12 @@ const sendToSuppose = async (listId, listData) => {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to send list to Suppose');
+      throw new Error('Failed to send list to Supabase');
     }
 
     return await response.json();
   } catch (error) {
-    console.error('Error sending to Suppose:', error);
+    console.error('Error sending to Supabase:', error);
     throw error;
   }
 };
