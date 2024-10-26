@@ -1,9 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from 'react-router-dom';
+import { ClerkProvider } from "@clerk/clerk-react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./index.css";
 import router from './router';
 import { CLERK_PUBLISHABLE_KEY } from "./config/env.js";
+import { Toaster } from "@/components/ui/sonner";
+
+const queryClient = new QueryClient();
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -43,7 +48,12 @@ const Root = () => {
   return (
     <React.StrictMode>
       <ErrorBoundary>
-        <RouterProvider router={router} />
+        <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+          <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+            <Toaster />
+          </QueryClientProvider>
+        </ClerkProvider>
       </ErrorBoundary>
     </React.StrictMode>
   );
