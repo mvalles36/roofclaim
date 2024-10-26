@@ -14,7 +14,7 @@ import { fetchPropertiesInBounds } from '../services/melissaDataService';
 import { saveList } from '../services/listService';
 import { useToast } from "@/components/ui/use-toast";
 
-const GOOGLE_MAPS_API_KEY = 'import.meta.env.VITE_GOOGLE_MAPS_API_KEY';
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 const FindProspects = ({ companyId, onListCreated }) => {
   const [properties, setProperties] = useState([]);
