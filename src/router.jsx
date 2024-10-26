@@ -21,14 +21,6 @@ const router = createBrowserRouter([
     element: <LandingPage />
   },
   {
-    path: "/sign-in",
-    element: <SignIn />
-  },
-  {
-    path: "/sign-up",
-    element: <SignUp />
-  },
-  {
     path: "/app",
     element: <App />,
     children: [
@@ -76,8 +68,20 @@ const router = createBrowserRouter([
         path: "sales-gpt",
         element: <SalesGPT />
       }
-    ],
+    ]
   },
+  {
+    path: "/sign-in",
+    element: <SignIn />
+  },
+  {
+    path: "/sign-up",
+    element: <SignUp />
+  },
+  {
+    path: "*",
+    element: <LandingPage />
+  }
 ]);
 
 export default router;

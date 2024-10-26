@@ -2,39 +2,17 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { SignInButton } from "@clerk/clerk-react";
-import { 
-  Phone, 
-  Calendar, 
-  Map, 
-  BarChart3, 
-  Target, 
-  Award, 
-  Bot, 
-  Mail,
-  ArrowRight
-} from 'lucide-react';
+import { Phone, Calendar, Map, BarChart3, Target, Award } from 'lucide-react';
+import Header from '../components/landing/Header';
+import Footer from '../components/landing/Footer';
+import DemoMap from '../components/landing/DemoMap';
 
 const LandingPage = () => {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50 to-indigo-50">
-      {/* Header */}
-      <header className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b">
-        <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-            Pipeline AI
-          </h1>
-          <div className="space-x-4">
-            <Button variant="ghost" onClick={() => navigate('/features')}>Features</Button>
-            <Button variant="ghost" onClick={() => navigate('/pricing')}>Pricing</Button>
-            <SignInButton mode="modal">
-              <Button variant="outline">Sign In</Button>
-            </SignInButton>
-          </div>
-        </nav>
-      </header>
+      <Header />
 
       {/* Hero Section */}
       <section className="pt-32 pb-20">
@@ -58,7 +36,6 @@ const LandingPage = () => {
                 className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
               >
                 Start Free Trial
-                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               <Button 
                 size="lg" 
@@ -72,16 +49,29 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Features Grid */}
+      {/* Interactive Map Demo */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            className="text-center mb-12"
           >
+            <h2 className="text-3xl font-bold mb-4">Smart Territory Selection</h2>
+            <p className="text-xl text-gray-600">
+              Draw on the map to select properties. Our AI analyzes roof age, type, and weather patterns to prioritize your prospects.
+            </p>
+          </motion.div>
+          <DemoMap />
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
@@ -89,7 +79,7 @@ const LandingPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: index * 0.2 }}
                 viewport={{ once: true }}
-                className="p-6 rounded-xl bg-gradient-to-b from-white to-gray-50 border shadow-sm hover:shadow-md transition-shadow"
+                className="p-6 rounded-xl bg-white border shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="w-12 h-12 rounded-lg bg-violet-100 flex items-center justify-center mb-4">
                   <feature.icon className="w-6 h-6 text-violet-600" />
@@ -98,7 +88,7 @@ const LandingPage = () => {
                 <p className="text-gray-600">{feature.description}</p>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -122,44 +112,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-white font-bold text-lg mb-4">Pipeline AI</h3>
-              <p className="text-sm">Revolutionizing roofing sales with AI-powered outreach and automation.</p>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-4">Product</h4>
-              <ul className="space-y-2">
-                <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Case Studies</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-4">Company</h4>
-              <ul className="space-y-2">
-                <li><a href="#" className="hover:text-white transition-colors">About</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-4">Connect</h4>
-              <ul className="space-y-2">
-                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Twitter</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">LinkedIn</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-sm text-center">
-            © {new Date().getFullYear()} Pipeline AI. All rights reserved.
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
