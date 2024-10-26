@@ -10,8 +10,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Search } from 'lucide-react';
-import { fetchPropertiesInBounds } from './services/melissaDataService';
-import { saveList } from './services/listService';
+import { fetchPropertiesInBounds } from '../services/melissaDataService';
+import { saveList } from '../services/listService';
 import { useToast } from "@/components/ui/use-toast";
 
 const GOOGLE_MAPS_API_KEY = 'import.meta.env.VITE_GOOGLE_MAPS_API_KEY';
