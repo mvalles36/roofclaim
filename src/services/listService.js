@@ -1,11 +1,11 @@
 // services/listService.js
 
-const API_BASE_URL = 'https://ayaazqhlvrtpsgusntts.supabase.co/'; // Adjust based on your API endpoint
+const SUPBASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
 export const saveList = async (listData) => {
   try {
     // First, save the list metadata
-    const listResponse = await fetch(`${API_BASE_URL}/lists`, {
+    const listResponse = await fetch(`${SUPBASE_URL}/lists`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -25,7 +25,7 @@ export const saveList = async (listData) => {
     const savedList = await listResponse.json();
 
     // Then, save the properties associated with this list
-    const propertiesResponse = await fetch(`${API_BASE_URL}/lists/${savedList.id}/properties`, {
+    const propertiesResponse = await fetch(`${SUPBASE_URL}/lists/${savedList.id}/properties`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ export const saveList = async (listData) => {
 
     if (!propertiesResponse.ok) {
       // If properties save fails, delete the list to maintain consistency
-      await fetch(`${API_BASE_URL}/lists/${savedList.id}`, {
+      await fetch(`${SUPBASE_URL}/lists/${savedList.id}`, {
         method: 'DELETE',
       });
       throw new Error('Failed to save properties');
@@ -58,7 +58,7 @@ export const saveList = async (listData) => {
 
 const sendToSupabase = async (listId, listData) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/supabase/lists`, {
+    const response = await fetch(`${SUPBASE_URL}/supabase/lists`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
