@@ -1,85 +1,69 @@
-import axios from 'axios';
+// services/melissaData.js
 
-const melissaClient = axios.create({
-  baseURL: 'https://reversegeo.melissadata.net/v3/web/ReverseGeoCode',
-  params: {
-    id: import.meta.env.VITE_MELISSA_DATA_API_KEY,
-    format: 'json'
-  }
-});
+const MELISSA_API_KEY = 'YOUR_MELISSA_API_KEY';
+const MELISSA_BASE_URL = 'https://property.melissadata.net/v4/WEB/LookupProperty';
 
-export const fetchProspectsFromMelissaData = async (center, radius, filters = {}) => {
+export const fetchPropertiesInBounds = async (bounds) => {
+  const { northEast, southWest } = bounds;
+  
+  // Calculate the center point of the rectangle
+  const centerLat = (northEast.lat + southWest.lat) / 2;
+  const centerLng = (northEast.lng + southWest.lng) / 2;
+  
+  // Calculate the radius in miles (approximate)
+  const latDiff = Math.abs(northEast.lat - southWest.lat);
+  const lngDiff = Math.abs(northEast.lng - southWest.lng);
+  const radiusMiles = Math.max(
+    latDiff * 69, // 1 degree lat ≈ 69 miles
+    lngDiff * 69 * Math.cos(centerLat * Math.PI / 180)
+  );
+
+  // Build the API URL with parameters
+  const params = new URLSearchParams({
+    id: MELISSA_API_KEY,
+    format: 'json',
+    lat: centerLat.toString(),
+    lng: centerLng.toString(),
+    radius: radiusMiles.toString(),
+    // Add additional Melissa Data parameters as needed
+  });
+
   try {
-    const response = await melissaClient.get('/doLookup', {
-      params: {
-        lat: center.lat,
-        lon: center.lng,
-        MaxDistance: radius,
-        recs: filters.limit || '100',
-        opt: buildOptionsString(filters)
-      }
-    });
-
-    if (!response.data?.Records) {
-      throw new Error('Invalid response from Melissa Data API');
+    const response = await fetch(`${MELISSA_BASE_URL}?${params}`);
+    
+    if (!response.ok) {
+      throw new Error(`Melissa Data API error: ${response.statusText}`);
     }
 
-    return response.data.Records.map(record => ({
-      address: {
-        line1: record.AddressLine1,
-        city: record.City,
-        state: record.State,
-        postalCode: record.PostalCode
-      },
-      coordinates: {
-        latitude: record.Latitude,
-        longitude: record.Longitude
-      },
-      propertyType: record.PropertyType,
-      buildingAge: calculateBuildingAge(record.YearBuilt),
-      estimatedValue: record.EstimatedValue,
-      lastSaleDate: record.LastSaleDate,
-      roofAge: calculateRoofAge(record.YearBuilt, record.LastRoofPermit)
-    }));
-  } catch (error) {
-    console.error('Error fetching data from Melissa Data API:', error);
-    throw error;
-  }
-};
-
-const buildOptionsString = (filters) => {
-  const options = [
-    filters.includeApartments ? 'IncludeApartments:on' : 'IncludeApartments:off',
-    filters.includeUndeliverable ? 'IncludeUndeliverable:on' : 'IncludeUndeliverable:off',
-    filters.includeEmptyLots ? 'IncludeEmptyLots:on' : 'IncludeEmptyLots:off'
-  ];
-  return options.join(';');
-};
-
-const calculateBuildingAge = (yearBuilt) => {
-  if (!yearBuilt) return null;
-  return new Date().getFullYear() - parseInt(yearBuilt);
-};
-
-const calculateRoofAge = (yearBuilt, lastRoofPermit) => {
-  const referenceYear = lastRoofPermit || yearBuilt;
-  return referenceYear ? new Date().getFullYear() - parseInt(referenceYear) : null;
-};
-
-export const enrichProspectData = async (address) => {
-  try {
-    const response = await melissaClient.get('/PropertyData', {
-      params: {
-        address: address.line1,
-        city: address.city,
-        state: address.state,
-        zip: address.postalCode
+    const data = await response.json();
+    
+    // Filter properties within the actual rectangle bounds
+    return data.Records?.filter(property => {
+      const lat = parseFloat(property.Latitude);
+      const lng = parseFloat(property.Longitude);
+      
+      return lat >= southWest.lat && 
+             lat <= northEast.lat && 
+             lng >= southWest.lng && 
+             lng <= northEast.lng;
+    }).map(property => ({
+      id: property.RecordID,
+      address: `${property.AddressLine1}, ${property.City}, ${property.State} ${property.PostalCode}`,
+      lat: property.Latitude,
+      lng: property.Longitude,
+      details: {
+        ownerName: property.OwnerName,
+        propertyType: property.PropertyType,
+        yearBuilt: property.YearBuilt,
+        lotSize: property.LotSize,
+        buildingArea: property.BuildingArea,
+        bedrooms: property.Bedrooms,
+        bathrooms: property.Bathrooms,
+        assessed: property.AssessedValue,
       }
-    });
-
-    return response.data;
+    })) || [];
   } catch (error) {
-    console.error('Error enriching prospect data:', error);
+    console.error('Error fetching properties:', error);
     throw error;
   }
 };
