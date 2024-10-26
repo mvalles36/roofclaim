@@ -13,8 +13,8 @@ const Header = () => {
           Pipeline AI
         </h1>
         <div className="space-x-4">
-          <Button variant="ghost" onClick={() => navigate('/features')}>Features</Button>
-          <Button variant="ghost" onClick={() => navigate('/pricing')}>Pricing</Button>
+          <Button variant="ghost" onClick={() => navigate('/app')}>Dashboard</Button>
+          <Button variant="ghost" onClick={() => navigate('/sign-up')}>Get Started</Button>
           <SignInButton mode="modal">
             <Button variant="outline">Sign In</Button>
           </SignInButton>

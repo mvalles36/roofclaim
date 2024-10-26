@@ -2,7 +2,7 @@ import { Home, MapPin, ClipboardList, Inbox, Briefcase, FileText, MessageSquare,
 
 export const navItems = [
   {
-    name: "Home",
+    name: "Dashboard",
     href: "/",
     icon: Home
   },
