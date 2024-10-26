@@ -10,8 +10,10 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Search } from 'lucide-react';
+import { fetchPropertiesInBounds } from './services/melissaDataService';
+import { saveList } from './services/listService';
+import { useToast } from "@/components/ui/use-toast";
 
-// NOTE: Replace this with your actual Google Maps API key
 const GOOGLE_MAPS_API_KEY = 'import.meta.env.VITE_GOOGLE_MAPS_API_KEY';
 
 const FindProspects = ({ companyId, onListCreated }) => {
@@ -55,7 +57,8 @@ const FindProspects = ({ companyId, onListCreated }) => {
 
     loadGoogleMapsScript();
   }, []);
-
+ const { toast } = useToast();
+  
   // Initialize map and autocomplete after script loads
   useEffect(() => {
     if (!scriptLoaded) return;
@@ -136,8 +139,12 @@ const FindProspects = ({ companyId, onListCreated }) => {
     );
   };
 
-  const onRectangleComplete = async (rectangle) => {
     // Remove previous rectangle if it exists
+    if (selectedRectangleRef.current) {
+      selectedRectangleRef.current.setMap(null);
+    }
+
+   const onRectangleComplete = async (rectangle) => {
     if (selectedRectangleRef.current) {
       selectedRectangleRef.current.setMap(null);
     }
@@ -154,11 +161,67 @@ const FindProspects = ({ companyId, onListCreated }) => {
 
     try {
       setLoading(true);
-      const response = await fetchPropertiesInBounds(boundaryPoints);
-      setProperties(response);
+      const fetchedProperties = await fetchPropertiesInBounds(boundaryPoints);
+      
+      if (fetchedProperties.length === 0) {
+        toast({
+          title: "No properties found",
+          description: "No properties were found in the selected area. Try selecting a different area.",
+          variant: "warning",
+        });
+        return;
+      }
+
+      setProperties(fetchedProperties);
       setShowSaveDialog(true);
     } catch (error) {
       console.error('Error fetching properties:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch properties. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveList = async () => {
+    if (!listName) return;
+
+    try {
+      setLoading(true);
+      const listData = {
+        companyId,
+        name: listName,
+        properties
+      };
+
+      await saveList(listData);
+      
+      toast({
+        title: "Success",
+        description: `List "${listName}" has been saved and sent to Suppose.`,
+      });
+      
+      setShowSaveDialog(false);
+      setListName('');
+      
+      if (onListCreated) {
+        onListCreated(listData);
+      }
+
+      if (selectedRectangleRef.current) {
+        selectedRectangleRef.current.setMap(null);
+        selectedRectangleRef.current = null;
+      }
+    } catch (error) {
+      console.error('Error saving list:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save list. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
