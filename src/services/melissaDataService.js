@@ -1,6 +1,6 @@
 // services/melissaData.js
 
-const MELISSA_API_KEY = 'YOUR_MELISSA_API_KEY';
+const MELISSA_API_KEY = 'import.meta.env.VITE_MELISSADATA_API_KEY';
 const MELISSA_BASE_URL = 'https://property.melissadata.net/v4/WEB/LookupProperty';
 
 export const fetchPropertiesInBounds = async (bounds) => {
