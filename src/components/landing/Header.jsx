@@ -1,10 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { SignInButton } from "@clerk/clerk-react";
+import { SignInButton, SignUpButton, useAuth } from "@clerk/clerk-react";
 
 const Header = () => {
   const navigate = useNavigate();
+  const { isSignedIn } = useAuth();
   
   return (
     <header className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b">
@@ -13,11 +14,24 @@ const Header = () => {
           Pipeline AI
         </h1>
         <div className="space-x-4">
-          <Button variant="ghost" onClick={() => navigate('/app')}>Dashboard</Button>
-          <Button variant="ghost" onClick={() => navigate('/sign-up')}>Get Started</Button>
-          <SignInButton mode="modal">
-            <Button variant="outline">Sign In</Button>
-          </SignInButton>
+          {isSignedIn ? (
+            <Button variant="default" onClick={() => navigate('/app')}>
+              Go to Dashboard
+            </Button>
+          ) : (
+            <>
+              <SignUpButton mode="modal">
+                <Button variant="default">
+                  Start Free Trial
+                </Button>
+              </SignUpButton>
+              <SignInButton mode="modal">
+                <Button variant="outline">
+                  Sign In
+                </Button>
+              </SignInButton>
+            </>
+          )}
         </div>
       </nav>
     </header>
